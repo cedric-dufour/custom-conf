@@ -1,0 +1,49 @@
+#!/bin/bash
+## CUSTOM-CONF: File automatically created/updated [custom-conf-utils]
+
+
+## Usage
+[ $# -lt 1 -o "${1##*-}" == 'help' ] && cat << EOF && exit 1
+USAGE: ${0##*/} <ip-address>/<cidr>
+
+SYNOPSIS:
+  Retrieve the network interface IP address that allows to reach
+  the given network segment.
+
+OPTIONS:
+  -I --ip-only
+    Strip the CIDR part from the IP addresses
+EOF
+
+# Arguments
+IPADDR_SED=
+NETADDR=
+while [ -n "${1}" ]; do
+  case "${1}" in
+    -I|--ip-only) IPADDR_SED='s|/.*$||';;
+    -*) echo "ERROR: Invalid option (${1})" >&2 && exit 1;;
+    *) [ -n "${NETADDR}" ] && echo "ERROR: Too many arguments" >&2 && exit 1; NETADDR="${1}";;
+  esac
+  shift
+done
+
+
+
+## Retrieve IP address
+IPADDR=
+if [ -n "$(echo ${NETADDR} | egrep '^[0-9]{1,3}(\.[0-9]{1,3}){3}(/[0-9]{1,2})?$')" ]; then
+  # IPv4
+  IPADDR="$(ip -4 addr show to ${NETADDR} | egrep -i '^ *inet [0-9]{1,3}(\.[0-9]{1,3}){3}/' | awk '{print $2}' | sed "${IPADDR_SED}")"
+elif [ -n "$(echo ${NETADDR} | egrep -i '^[0-9a-f]{0,4}(:[0-9a-f]{0,4}){1,7}(/[0-9]{2,3})?$')" ]; then
+  # IPv6
+  IPADDR="$(ip -6 addr show to ${NETADDR} | egrep -i '^ *inet6 [0-9a-f]{0,4}(:[0-9a-f]{0,4}){1,7}/' | awk '{print $2}' | sed "${IPADDR_SED}")"
+else
+  echo "ERROR: Invalid IP address (${NETADDR})" >&2 && exit 1
+fi
+[ -z "${IPADDR}" ] && echo "ERROR: Failed to retrieve IP address for given network segment (${NETADDR})" >&2 && exit 1
+
+
+## Done
+echo "${IPADDR}"
+exit 0
+

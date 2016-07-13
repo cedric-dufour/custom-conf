@@ -1,0 +1,18 @@
+#!/bin/bash
+
+
+## Usage
+[ $# -lt 1 -o "${1##*-}" == 'help' ] && cat << EOF && exit 1
+USAGE: ${0##*/} <file>
+EOF
+
+
+## Arguments
+MPLAYER_FILE="${1}"
+
+
+## Dump file info
+MPLAYER_INFO="$(mplayer -nojoystick -nolirc -vo null -ao null -frames 0 -really-quiet -identify "${MPLAYER_FILE}")"
+MPLAYER_LENGTH_SEC="$(echo "${MPLAYER_INFO}" | grep '^ID_LENGTH=' | sed 's/.*=//')"
+echo "${MPLAYER_INFO}" | sed "s|^\(ID_LENGTH=.*\)|\1\nID_LENGTH_MIN=$(( ${MPLAYER_LENGTH_SEC%.*} / 60 ))|"
+

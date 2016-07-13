@@ -1,0 +1,13 @@
+Source: custom-conf-django
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 3.9.7
+
+Package: custom-conf-django
+Architecture: all
+Depends: python-django
+Recommends: custom-conf-apache2, libapache2-mod-wsgi | libapache2-mod-wsgi-py3
+Description: Custom Configuration Framework - Django (skeleton)
+

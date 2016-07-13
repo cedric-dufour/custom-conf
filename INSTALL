@@ -1,0 +1,40 @@
+Custom Configuration Framework (custom-conf) - Installation
+===========================================================
+
+Being based on Debian packages, the Custom Configuration Framework (custom-conf)
+is built simply by going into each configuration package directory and run
+the 'dpkg-buildpackage' command (part of the official 'dpkg-dev' package):
+
+  # Install Debian packages utilities
+  apt-get install build-essential debhelper dpkg-dev
+
+  # Switch to the configuration package directory
+  $ cd generic/all/custom-conf
+
+  # Build the package (here unsigned)
+  $ dpkg-buildpackage -us -uc -b
+
+  # Look for the package in the parent directory
+  $ ls -l ../*.deb
+
+  # Clean-up
+  $ dh clean
+
+
+The resulting package can then be installed on the target host using the usual
+Debian commands:
+
+  # Install the package "manually"
+  $ dpkg -i <package>.deb
+
+  # Install the package via a custom APT repository
+  $ apt-get install <package>
+
+
+To install the package via a custom APT repository, have a look at the
+'custom-conf-apt' package in the 'example.org' directory, which README file
+shall give you directions on how to setup such a thing.
+
+Of course, the examples provided in the 'example.org' directory MUST be tuned
+to fit your specific setup, in particular the 'custom-defs-...' package(s).
+

@@ -1,0 +1,33 @@
+#!/bin/bash
+## CUSTOM-CONF: File automatically created/updated [custom-conf-ipv6-static]
+
+# Usage
+[ "${1##*-}" == 'help' ] && cat << EOF && exit 1
+USAGE: ${0##*/} [<interface>]
+
+SYSNOPSIS:
+  Configure the given interface (or the one passed by the networking stack
+  environment variables) for static IPv6:
+   - disable StateLess Address AutoConfiguration (SLAAC)
+   - disable Duplicate Address Detection (DAD)
+   - disable Router Advertisements (RA) and Solicitations (RS)
+   - disable temporary addresses
+EOF
+
+# Arguments
+[ -n "${1}" ] && IFACE="${1}" && ADDRFAM='inet6' && METHOD='static'
+[ -z "${IFACE}" -o "${ADDRFAM}" != 'inet6' -o "${METHOD}" != 'static' ] && exit 0
+
+# IPv6 static address specific settings
+#  - disable StateLess Address AutoConfiguration (SLAAC)
+#  - disable Duplicate Address Detection (DAD)
+#  - disable Router Advertisements (RA) and Solicitations (RS)
+#  - disable temporary addresses
+sysctl -q net.ipv6.conf.${IFACE}.autoconf=0
+sysctl -q net.ipv6.conf.${IFACE}.accept_dad=0
+sysctl -q net.ipv6.conf.${IFACE}.dad_transmits=0
+sysctl -q net.ipv6.conf.${IFACE}.accept_ra=0
+sysctl -q net.ipv6.conf.${IFACE}.accept_redirects=0
+sysctl -q net.ipv6.conf.${IFACE}.router_solicitations=0
+sysctl -q net.ipv6.conf.${IFACE}.use_tempaddr=0
+

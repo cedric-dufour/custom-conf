@@ -1,0 +1,10 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-conf-polkit-network
+
+This package provides standard configuration of the Policy Kit authorization
+framework.
+
+In particular, it addresses standard configuration of:
+ - allowing network configuration
+

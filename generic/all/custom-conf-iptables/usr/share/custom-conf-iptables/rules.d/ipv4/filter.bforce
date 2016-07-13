@@ -1,0 +1,28 @@
+## Default rules/definitions (brute force)
+#
+#  This snippet creates BFORCE chains that can be used to thwart
+#  brute force attacks detected by external means. This chain can
+#  then be used where appropriate (eg. on public interfaces).
+#
+#  source "${IPTABLES_RULESD_DFLT}/filter.bforce"
+#  "${IPTABLES}" --table filter [...] --jump BFORCE
+#
+#  in external scripts:
+#  echo +${IP} > /proc/net/xt_recent/BFORCE 
+#
+
+# Portscan chains
+[ -n "${VERBOSE}" ] && echo "INFO: Creating brute-force chains [IPv4]"
+# ... LOG and DROP
+"${IPTABLES}" --table filter --new-chain BFORCE_DROP
+"${IPTABLES}" --table filter --append BFORCE_DROP --match recent --name BFORCE_DROP --rcheck --seconds 300 --jump DROP
+"${IPTABLES}" --table filter --append BFORCE_DROP --jump LOG --log-level warning --log-prefix '[IPTABLES:BFORCE_DROP] '
+"${IPTABLES}" --table filter --append BFORCE_DROP --match recent --name BFORCE_DROP --set --jump DROP
+
+# ... DETECT and DROP
+"${IPTABLES}" --table filter --new-chain BFORCE
+# ... (trigger)
+"${IPTABLES}" --table filter --append BFORCE --match recent --name BFORCE --rcheck --seconds 86400 --hitcount 10 --jump BFORCE_DROP
+# ... (return)
+"${IPTABLES}" --table filter --append BFORCE --jump RETURN
+

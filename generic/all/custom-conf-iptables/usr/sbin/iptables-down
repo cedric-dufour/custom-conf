@@ -1,0 +1,23 @@
+#!/bin/bash
+
+
+## Usage
+function _help {
+  cat << EOF
+USAGE: ${0##*/}
+
+SYNOPSIS:
+  Clear (stop) IPv4 tables (firewall) rules gracefully.
+  This script will NOT clear existing rules as long as ANY interface
+  is still up.
+EOF
+}
+
+
+## Actions
+[ "${1##*-}" == 'help' ] && _help && exit 1
+[ -n "${ADDRFAM}" -a "${ADDRFAM}" != 'inet' ] && exit 0
+[ ! -e /var/lock/iptables.lock ] && exit 0
+[ -n "$(ifconfig | fgrep 'inet ')" ] && exit 0
+iptables-control stop
+

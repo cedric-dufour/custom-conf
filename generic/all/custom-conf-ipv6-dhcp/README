@@ -1,0 +1,13 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-conf-ipv6-dhcp
+
+This package provides standard configuration of the IPv6 stack when used along
+stateful DHCPv6 addressing.
+
+In particular, it addresses standard configuration of:
+ - disabling StateLess Address AutoConfiguration (SLAAC)
+ - disabling Duplicate Address Detection (DAD)
+ - enabling Router Advertisements (RA) and Solicitations (RS)
+ - disabling temporary addresses
+

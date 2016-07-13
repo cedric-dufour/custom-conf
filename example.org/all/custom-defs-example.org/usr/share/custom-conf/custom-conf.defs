@@ -1,0 +1,61 @@
+#!/bin/bash
+# This file defines site-wide parameters and must follow BASH syntax
+
+# Domain
+CUSTOM_CONF_DOMAIN='example.org'
+
+# Network segment settings
+CUSTOM_CONF_NETWORK_GATEWAY_IPV4='192.168.1.0/24'
+CUSTOM_CONF_NETWORK_GATEWAY_IPV6='2011:db8:a:1::/64'
+
+# Iptables settings
+CUSTOM_CONF_IPTABLES_WHITELIST_IPV4S='192.168.1.0/24'
+CUSTOM_CONF_IPTABLES_BLACKLIST_IPV4S=
+CUSTOM_CONF_IPTABLES_WHITELIST_IPV6S='2011:db8:a:1::/64'
+CUSTOM_CONF_IPTABLES_BLACKLIST_IPV6S=
+
+# DNS settings
+CUSTOM_CONF_DNS_SERVERS='2001:db8:a:1::65 192.168.1.101'
+
+# NTP settings
+CUSTOM_CONF_NTP_SERVERS='ntp.example.org'
+CUSTOM_CONF_NTP_OPTIONS='iburst minpoll 6 maxpoll 8'
+
+# LDAP settings
+CUSTOM_CONF_LDAP_SERVER_URI='ldaps://ldap.example.org:636'
+CUSTOM_CONF_LDAP_BASEDN='dc=example,dc=org'
+
+# NSS settings
+CUSTOM_CONF_NSS_SERVER_URI='ldaps://ldap.example.org:636'
+CUSTOM_CONF_NSS_BASEDN='dc=example,dc=org'
+CUSTOM_CONF_NSS_BINDDN=
+CUSTOM_CONF_NSS_BINDPW=
+CUSTOM_CONF_NSS_USERDN='ou=users,dc=example,dc=org'
+CUSTOM_CONF_NSS_GROUPDN='ou=groups,dc=example,dc=org'
+
+# Kerberos settings
+CUSTOM_CONF_KRB5_REALM='EXAMPLE.ORG'
+CUSTOM_CONF_KRB5_SERVER_ADMIN='krb5.example.org'
+CUSTOM_CONF_KRB5_SERVERS_KDC='krb5.example.org'
+
+# SSH settings
+CUSTOM_CONF_SSH_ALLOWSEGMENTS='2001:db8:a:1:* 192.168.1.*'
+
+# SMTP settings
+CUSTOM_CONF_SMTP_SERVER='smtp.example.org'
+
+# Samba settings
+CUSTOM_CONF_SAMBA_DOMAIN='EXAMPLE.ORG'
+
+# CUPS settings
+CUSTOM_CONF_CUPS_SERVER='cups.example.org'
+
+# Syslog settings
+CUSTOM_CONF_SYSLOG_SERVER='2001:db8:a:1::66 192.168.1.102'
+
+# Nagios settings
+CUSTOM_CONF_NAGIOS_SERVERS=
+
+# AppArmor settings
+CUSTOM_CONF_APPARMOR_HOMEDIRS='/remote/users/ /local/users/'
+

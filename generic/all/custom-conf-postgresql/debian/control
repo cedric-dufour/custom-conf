@@ -1,0 +1,12 @@
+Source: custom-conf-postgresql
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 3.9.7
+
+Package: custom-conf-postgresql
+Architecture: all
+Depends: custom-conf, custom-certificates (>= 2016.07.05a), custom-conf-utils (>= 2016.06.10a), postgresql
+Description: Custom Configuration Framework - PostgreSQL (server)
+

@@ -1,0 +1,7 @@
+Origin: Local
+Label: Custom APT Repository - All Distributions/Releases
+Suite: All
+Codename: all-custom
+Architectures: amd64
+Components: generic
+

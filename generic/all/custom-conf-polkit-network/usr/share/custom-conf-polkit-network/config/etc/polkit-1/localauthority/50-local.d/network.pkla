@@ -1,0 +1,9 @@
+## CUSTOM-CONF: File automatically created/updated [custom-conf-polkit-network]
+
+# Allow users to configure network
+[AllowNetworkManagerModify]
+Identity=unix-user:*
+Action=org.freedesktop.NetworkManager.settings.modify.system
+ResultActive=yes
+ResultAny=no
+

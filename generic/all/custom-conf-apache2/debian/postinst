@@ -1,0 +1,212 @@
+#!/bin/bash
+[ "${1}" != 'configure' ] && exit 0
+PKGNAME='custom-conf-apache2'
+
+# Debconf
+. /usr/share/debconf/confmodule
+# ... preseed
+for var_priority in bind-address:high bind-port-http:high bind-port-https:high; do
+  var="${var_priority%:*}"
+  priority="${var_priority#*:}"
+  db_input ${priority} ${PKGNAME}/${var}
+  db_go
+done
+# ... get
+db_get ${PKGNAME}/bind-address && BIND_ADDR="${RET}"
+db_get ${PKGNAME}/bind-port-http && BIND_PORT_HTTP="${RET}"
+db_get ${PKGNAME}/bind-port-https && BIND_PORT_HTTPS="${RET}"
+db_stop
+
+# Retrieve Apache version
+CUSTOM_CONF_APACHE2_VERSION="$(apachectl -v | fgrep 'Apache/2' | sed 's/^.*Apache\/\([0-9]*\).\([0-9]*\).*$/\1.\2/')"
+case "${CUSTOM_CONF_APACHE2_VERSION}" in
+  '2.2'|'2.4')
+    echo "INFO[${PKGNAME}]: Detected supported Apache version (${CUSTOM_CONF_APACHE2_VERSION})"
+    ;;
+  *)
+    echo "ERROR[${PKGNAME}]: Unsupported Apache version (${CUSTOM_CONF_APACHE2_VERSION})"
+    exit 1
+    ;;
+esac
+
+# Configuration upgrade
+if [ -e /usr/share/upgrade-config.apache-${PKGNAME}/${CUSTOM_CONF_APACHE2_VERSION} ]; then
+  /usr/share/${PKGNAME}/upgrade-config.apache-${CUSTOM_CONF_APACHE2_VERSION} detect && cat << EOF && exit 0
+WARNING[${PKGNAME}]: Old Apache configuration detected! Please upgrade and re-configure.
+: /usr/share/${PKGNAME}/upgrade-config.apache-${CUSTOM_CONF_APACHE2_VERSION}
+: dpkg-reconfigure ${PKGNAME}
+EOF
+fi
+
+# Install files
+custom-conf-install "${PKGNAME}" "/usr/share/${PKGNAME}/config/apache-${CUSTOM_CONF_APACHE2_VERSION}" || exit 1
+
+# Fine-tune configuration
+source /usr/share/custom-conf/custom-conf.defs
+CUSTOM_CONF_APACHE2_LISTEN_ALL='Listen %PORT'
+
+# ... bind address (IPv4)
+ipv4="$(ip -4 addr 2>/dev/null | fgrep 'scope global')"
+CUSTOM_CONF_APACHE2_LISTEN_IPV4=
+if [ -n "${ipv4}" ]; then
+  if [ "${BIND_ADDR}" == 'localhost' ]; then
+    CUSTOM_CONF_APACHE2_LISTEN_IPV4="Listen 127.0.0.1:%PORT"
+  elif [ "${BIND_ADDR}" == 'gateway' -a -n "${CUSTOM_CONF_NETWORK_GATEWAY_IPV4}" ]; then
+    LISTEN_ADDR="$(custom-conf-getifaceip -I "${CUSTOM_CONF_NETWORK_GATEWAY_IPV4}")"
+    [ -n "${LISTEN_ADDR}" ] \
+      && CUSTOM_CONF_APACHE2_LISTEN_IPV4="Listen ${LISTEN_ADDR}:%PORT" \
+      || echo "ERROR[${PKGNAME}]: Failed to retrieve IPv4 address matching configured gateway" >&2
+  elif [ -n "${BIND_ADDR}" ]; then
+    for bind_addr in ${BIND_ADDR}; do
+      [[ ${bind_addr} != *'.'* ]] && continue
+      CUSTOM_CONF_APACHE2_LISTEN_IPV4="${CUSTOM_CONF_APACHE2_LISTEN_IPV4:+${CUSTOM_CONF_APACHE2_LISTEN_IPV4}%NL;}Listen ${bind_addr}:%PORT"
+    done
+  fi
+fi
+
+# ... bind address (IPv6)
+ipv6="$(ip -6 addr 2>/dev/null | fgrep 'scope global')"
+CUSTOM_CONF_APACHE2_LISTEN_IPV6=
+if [ -n "${ipv6}" ]; then
+  if [ "${BIND_ADDR}" == 'localhost' ]; then
+    CUSTOM_CONF_APACHE2_LISTEN_IPV6="Listen [::1]:%PORT"
+  elif [ "${BIND_ADDR}" == 'gateway' -a -n "${CUSTOM_CONF_NETWORK_GATEWAY_IPV6}" ]; then
+    LISTEN_ADDR="$(custom-conf-getifaceip -I "${CUSTOM_CONF_NETWORK_GATEWAY_IPV6}")"
+    [ -n "${LISTEN_ADDR}" ] \
+      && CUSTOM_CONF_APACHE2_LISTEN_IPV6="Listen [${LISTEN_ADDR}]:%PORT" \
+      || echo "ERROR[${PKGNAME}]: Failed to retrieve IPv6 address matching configured gateway" >&2
+  elif [ -n "${BIND_ADDR}" ]; then
+    for bind_addr in ${BIND_ADDR}; do
+      [[ ${bind_addr} != *':'* ]] && continue
+      CUSTOM_CONF_APACHE2_LISTEN_IPV6="${CUSTOM_CONF_APACHE2_LISTEN_IPV6:+${CUSTOM_CONF_APACHE2_LISTEN_IPV6}%NL;}Listen [${bind_addr}]:%PORT"
+    done
+  fi
+fi
+
+# ... bind address (finalize)
+if [ -z "${CUSTOM_CONF_APACHE2_LISTEN_IPV4}" -a -z "${CUSTOM_CONF_APACHE2_LISTEN_IPV6}" -a -n "${BIND_ADDR}" ]; then
+  if [ -n "${ipv4}" ]; then
+    echo "WARNING[${PKGNAME}]: Failed to retrieve a valid IPv4 address to bind to (using 127.0.0.1)"
+    CUSTOM_CONF_APACHE2_LISTEN_IPV4='Listen 127.0.0.1:%PORT'
+  fi
+  if [ -n "${ipv6}" ]; then
+    echo "WARNING[${PKGNAME}]: Failed to retrieve a valid IPv6 address to bind to (using ::1)"
+    CUSTOM_CONF_APACHE2_LISTEN_IPV6='Listen [::1]:%PORT'
+  fi
+fi
+[ -z "${CUSTOM_CONF_APACHE2_LISTEN_IPV4}" ] \
+  && CUSTOM_CONF_APACHE2_LISTEN_IPV4='#Listen [IPv4:unspecified]' \
+  || CUSTOM_CONF_APACHE2_LISTEN_ALL='#Listen [all:disabled]'
+[ -z "${CUSTOM_CONF_APACHE2_LISTEN_IPV6}" ] \
+  && CUSTOM_CONF_APACHE2_LISTEN_IPV6='#Listen [IPv6:unspecified]' \
+  || CUSTOM_CONF_APACHE2_LISTEN_ALL='#Listen [all:disabled]'
+
+# ... bind ports (HTTPS)
+CUSTOM_CONF_APACHE2_LISTEN_ALL_SSL="${CUSTOM_CONF_APACHE2_LISTEN_ALL}"
+if [[ ${CUSTOM_CONF_APACHE2_LISTEN_ALL_SSL} == *'%PORT'* ]]; then
+  listen=
+  for bind_port in ${BIND_PORT_HTTPS}; do
+    listen="${listen:+${listen}%NL;}${CUSTOM_CONF_APACHE2_LISTEN_ALL_SSL/\%PORT/${bind_port}}"
+  done
+  CUSTOM_CONF_APACHE2_LISTEN_ALL_SSL="${listen:-#Listen [all:no-ports]}"
+fi
+CUSTOM_CONF_APACHE2_LISTEN_IPV4_SSL="${CUSTOM_CONF_APACHE2_LISTEN_IPV4}"
+if [[ ${CUSTOM_CONF_APACHE2_LISTEN_IPV4_SSL} == *'%PORT'* ]]; then
+  listen=
+  for bind_port in ${BIND_PORT_HTTPS}; do
+    listen="${listen:+${listen}%NL;}${CUSTOM_CONF_APACHE2_LISTEN_IPV4_SSL/\%PORT/${bind_port}}"
+  done
+  CUSTOM_CONF_APACHE2_LISTEN_IPV4_SSL="${listen:-#Listen [IPv4:no-ports]}"
+fi
+CUSTOM_CONF_APACHE2_LISTEN_IPV6_SSL="${CUSTOM_CONF_APACHE2_LISTEN_IPV6}"
+if [[ ${CUSTOM_CONF_APACHE2_LISTEN_IPV6_SSL} == *'%PORT'* ]]; then
+  listen=
+  for bind_port in ${BIND_PORT_HTTPS}; do
+    listen="${listen:+${listen}%NL;}${CUSTOM_CONF_APACHE2_LISTEN_IPV6_SSL/\%PORT/${bind_port}}"
+  done
+  CUSTOM_CONF_APACHE2_LISTEN_IPV6_SSL="${listen:-#Listen [IPv6:no-ports]}"
+fi
+
+# ... bind ports (HTTP)
+if [[ ${CUSTOM_CONF_APACHE2_LISTEN_ALL} == *'%PORT'* ]]; then
+  listen=
+  for bind_port in ${BIND_PORT_HTTP}; do
+    listen="${listen:+${listen}%NL;}${CUSTOM_CONF_APACHE2_LISTEN_ALL/\%PORT/${bind_port}}"
+  done
+  CUSTOM_CONF_APACHE2_LISTEN_ALL="${listen:-#Listen [all:no-ports]}"
+fi
+if [[ ${CUSTOM_CONF_APACHE2_LISTEN_IPV4} == *'%PORT'* ]]; then
+  listen=
+  for bind_port in ${BIND_PORT_HTTP}; do
+    listen="${listen:+${listen}%NL;}${CUSTOM_CONF_APACHE2_LISTEN_IPV4/\%PORT/${bind_port}}"
+  done
+  CUSTOM_CONF_APACHE2_LISTEN_IPV4="${listen:-#Listen [IPv4:no-ports]}"
+fi
+if [[ ${CUSTOM_CONF_APACHE2_LISTEN_IPV6} == *'%PORT'* ]]; then
+  listen=
+  for bind_port in ${BIND_PORT_HTTP}; do
+    listen="${listen:+${listen}%NL;}${CUSTOM_CONF_APACHE2_LISTEN_IPV6/\%PORT/${bind_port}}"
+  done
+  CUSTOM_CONF_APACHE2_LISTEN_IPV6="${listen:-#Listen [IPv6:no-ports]}"
+fi
+
+# ... apache
+CUSTOM_CONF_APACHE2_HOSTNAME="$(hostname -f)"
+[ "${CUSTOM_CONF_APACHE2_HOSTNAME}" == "${CUSTOM_CONF_APACHE2_HOSTNAME%%.*}" ] && CUSTOM_CONF_APACHE2_HOSTNAME="${CUSTOM_CONF_APACHE2_HOSTNAME}.${CUSTOM_CONF_DOMAIN}"
+CUSTOM_CONF_APACHE2_ALIAS_IPV4="$(getent ahosts ${CUSTOM_CONF_APACHE2_HOSTNAME} | grep '^[0-9.]*\s*STREAM' | awk '{print $1}')"
+[ -n "${CUSTOM_CONF_APACHE2_ALIAS_IPV4}" ] \
+  && CUSTOM_CONF_APACHE2_ALIAS_IPV4="ServerAlias ${CUSTOM_CONF_APACHE2_ALIAS_IPV4}" \
+  || CUSTOM_CONF_APACHE2_ALIAS_IPV4='#ServerAlias [IPv4:unknown]'
+CUSTOM_CONF_APACHE2_ALIAS_IPV6="$(getent ahosts ${CUSTOM_CONF_APACHE2_HOSTNAME} | grep '^[0-9a-f:]*\s*STREAM' | awk '{print $1}')"
+[ -n "${CUSTOM_CONF_APACHE2_ALIAS_IPV6}" ] \
+  && CUSTOM_CONF_APACHE2_ALIAS_IPV6="ServerAlias ${CUSTOM_CONF_APACHE2_ALIAS_IPV6}" \
+  || CUSTOM_CONF_APACHE2_ALIAS_IPV6='#ServerAlias [IPv6:unknown]'
+
+# ... do it
+case "${CUSTOM_CONF_APACHE2_VERSION}" in
+  '2.2')
+    gsed "s|%{CUSTOM_CONF_DOMAIN}|${CUSTOM_CONF_DOMAIN}|g;s|%{CUSTOM_CONF_APACHE2_LISTEN_ALL}|${CUSTOM_CONF_APACHE2_LISTEN_ALL}|g;s|%{CUSTOM_CONF_APACHE2_LISTEN_IPV4}|${CUSTOM_CONF_APACHE2_LISTEN_IPV4}|g;s|%{CUSTOM_CONF_APACHE2_LISTEN_IPV6}|${CUSTOM_CONF_APACHE2_LISTEN_IPV6}|g;s|%{CUSTOM_CONF_APACHE2_LISTEN_ALL_SSL}|${CUSTOM_CONF_APACHE2_LISTEN_ALL_SSL}|g;s|%{CUSTOM_CONF_APACHE2_LISTEN_IPV4_SSL}|${CUSTOM_CONF_APACHE2_LISTEN_IPV4_SSL}|g;s|%{CUSTOM_CONF_APACHE2_LISTEN_IPV6_SSL}|${CUSTOM_CONF_APACHE2_LISTEN_IPV6_SSL}|g;s|%{CUSTOM_CONF_APACHE2_ALIAS_IPV4}|${CUSTOM_CONF_APACHE2_ALIAS_IPV4}|g;s|%{CUSTOM_CONF_APACHE2_ALIAS_IPV6}|${CUSTOM_CONF_APACHE2_ALIAS_IPV6}|g;s|%NL;|\n|g" /etc/apache2/ports.conf /etc/apache2/sites-available/default{,-ssl}
+    ;;
+  '2.4')
+    gsed "s|%{CUSTOM_CONF_DOMAIN}|${CUSTOM_CONF_DOMAIN}|g;s|%{CUSTOM_CONF_APACHE2_LISTEN_ALL}|${CUSTOM_CONF_APACHE2_LISTEN_ALL}|g;s|%{CUSTOM_CONF_APACHE2_LISTEN_IPV4}|${CUSTOM_CONF_APACHE2_LISTEN_IPV4}|g;s|%{CUSTOM_CONF_APACHE2_LISTEN_IPV6}|${CUSTOM_CONF_APACHE2_LISTEN_IPV6}|g;s|%{CUSTOM_CONF_APACHE2_LISTEN_ALL_SSL}|${CUSTOM_CONF_APACHE2_LISTEN_ALL_SSL}|g;s|%{CUSTOM_CONF_APACHE2_LISTEN_IPV4_SSL}|${CUSTOM_CONF_APACHE2_LISTEN_IPV4_SSL}|g;s|%{CUSTOM_CONF_APACHE2_LISTEN_IPV6_SSL}|${CUSTOM_CONF_APACHE2_LISTEN_IPV6_SSL}|g;s|%{CUSTOM_CONF_APACHE2_ALIAS_IPV4}|${CUSTOM_CONF_APACHE2_ALIAS_IPV4}|g;s|%{CUSTOM_CONF_APACHE2_ALIAS_IPV6}|${CUSTOM_CONF_APACHE2_ALIAS_IPV6}|g;s|%NL;|\n|g" /etc/apache2/ports.conf /etc/apache2/sites-available/{000-default,default-ssl}.conf
+    ;;
+esac
+
+# ... logrotate
+CUSTOM_CONF_APACHE2_LOGOWNER='root'
+[ "$(lsb_release -si)" == 'Ubuntu' ] && CUSTOM_CONF_APACHE2_LOGOWNER='syslog'
+CUSTOM_CONF_APACHE2_LOGROTATE='invoke-rc.d rsyslog rotate >/dev/null'
+[ "$(lsb_release -si)" == 'Debian' -a $(lsb_release -sr | cut -d. -f1) -lt 7 ] && CUSTOM_CONF_APACHE2_LOGROTATE='invoke-rc.d rsyslog reload >/dev/null'
+[ "$(lsb_release -si)" == 'Ubuntu' -a $(lsb_release -sr | cut -d. -f1) -lt 14 ] && CUSTOM_CONF_APACHE2_LOGROTATE='reload rsyslog >/dev/null 2>\&1 \|\| true'
+gsed "s|%{CUSTOM_CONF_APACHE2_LOGOWNER}|${CUSTOM_CONF_APACHE2_LOGOWNER}|g;s|%{CUSTOM_CONF_APACHE2_LOGROTATE}|${CUSTOM_CONF_APACHE2_LOGROTATE}|g" /etc/logrotate.d/apache2-rsyslog
+# ... SSL
+[ ! -e /etc/apache2/ssl/cachain.pem ] && ln -sf /etc/ssl/local/localhost-cachain.pem /etc/apache2/ssl/cachain.pem
+[ ! -e /etc/apache2/ssl/key.pem ] && ln -sf /etc/ssl/local/localhost-key.pem /etc/apache2/ssl/key.pem
+[ ! -e /etc/apache2/ssl/cert.pem ] && ln -sf /etc/ssl/local/localhost-cert.pem /etc/apache2/ssl/cert.pem
+
+# Fix permissions
+chown root:root /etc/apache2/ssl
+chmod 710 /etc/apache2/ssl
+case "${CUSTOM_CONF_APACHE2_VERSION}" in
+  '2.2')
+    chown root:root /etc/apache2/sites-available/default{,-ssl}
+    chmod 640 /etc/apache2/sites-available/default{,-ssl}
+    ;;
+  '2.4')
+    chown root:root /etc/apache2/sites-available/{000-default,default-ssl}.conf
+    chmod 640 /etc/apache2/sites-available/{000-default,default-ssl}.conf
+    ;;
+esac
+
+# Additional actions
+case "${CUSTOM_CONF_APACHE2_VERSION}" in
+  '2.4')
+    a2disconf other-vhosts-access-log  # we use syslog
+    ;;
+esac
+invoke-rc.d apache2 restart
+invoke-rc.d rsyslog restart
+
+# Exit
+exit 0
+

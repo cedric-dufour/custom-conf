@@ -1,0 +1,7 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-conf-xorg-generic
+
+This package provides standard configuration of the X.org X11 display server
+along generic graphic cards (GPU).
+

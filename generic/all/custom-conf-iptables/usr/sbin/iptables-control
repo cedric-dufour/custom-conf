@@ -1,0 +1,138 @@
+#!/bin/bash
+
+
+## Usage
+function _help {
+  cat << EOF
+USAGE: ${0##*/} [start|stop|restart|status|save]
+
+SYNOPSIS:
+  Set (start) or clear (stop) IPv4 tables (firewall) rules.
+EOF
+}
+
+
+## Arguments
+declare __action="${1}"
+
+
+## Settings and checks
+
+# Executable and path
+export IPTABLES=/sbin/iptables
+[ ! -x "${IPTABLES}" ] && echo "ERROR: Missing/non-executable IPv4 tables binary (${IPTABLES})" >&2 && exit 1
+export IPTABLES_SAVE=/sbin/iptables-save
+[ ! -x "${IPTABLES_SAVE}" ] && echo "ERROR: Missing/non-executable IPv4 tables binary (${IPTABLES_SAVE})" >&2 && exit 1
+export IPTABLES_RULESD_DFLT=/usr/share/custom-conf-iptables/rules.d/ipv4
+[ ! -d "${IPTABLES_RULESD_DFLT}" ] && echo "ERROR: Missing IPv4 tables default rules directory (${IPTABLES_RULESD_DFLT})" >&2 && exit 1
+[ ! -r "${IPTABLES_RULESD_DFLT}" ] && echo "ERROR: Unreadable IPv4 tables default rules directory (${IPTABLES_RULESD_DFLT})" >&2 && exit 1
+export IPTABLES_RULESD_USER=/etc/iptables/rules.d/ipv4
+[ ! -d "${IPTABLES_RULESD_USER}" ] && echo "ERROR: Missing IPv4 tables user rules directory (${IPTABLES_RULESD_USER})" >&2 && exit 1
+[ ! -r "${IPTABLES_RULESD_USER}" ] && echo "ERROR: Unreadable IPv4 tables user rules directory (${IPTABLES_RULESD_USER})" >&2 && exit 1
+
+
+## Functions
+EXIT=0
+function _exit {
+  [ ${1} -gt ${EXIT} ] && EXIT=${1}
+}
+
+## Actions
+declare __table
+case "${__action}" in
+
+  'start')
+    if [ ! -e /var/lock/iptables.lock ]; then # Check lock (do not apply iptables rules more than once)
+      touch /var/lock/iptables.lock
+
+      # Hooks (pre)
+      run-parts ${VERBOSE:+--verbose} /etc/iptables/hooks.d/ipv4/pre-start.d
+
+      # Loop through tables (filter nat mangle)
+      for __table in filter nat mangle; do
+        modprobe -nq iptable_${__table} || continue
+        [ "${__table}" == 'filter' ] && source "${IPTABLES_RULESD_DFLT}/filter.header"
+        if [ -e "${IPTABLES_RULESD_USER}/${__table}" ]; then
+          source "${IPTABLES_RULESD_USER}/${__table}"
+        fi
+        [ "${__table}" == 'filter' ] && source "${IPTABLES_RULESD_DFLT}/filter.footer"
+      done
+
+      # Hooks (post)
+      run-parts ${VERBOSE:+--verbose} /etc/iptables/hooks.d/ipv4/post-start.d
+    else
+      echo "ERROR: IPv4 tables rules are already set" >&2 && exit 1
+    fi
+    ;;
+
+  'stop')
+    # Hooks (pre)
+    [ -e /var/lock/iptables.lock ] && run-parts ${VERBOSE:+--verbose} /etc/iptables/hooks.d/ipv4/pre-stop.d
+
+    # 'filter' table
+    if modprobe -nq iptable_filter; then
+      "${IPTABLES}" --table filter --flush; _exit $?
+      "${IPTABLES}" --table filter --delete-chain; _exit $?
+      "${IPTABLES}" --table filter --policy INPUT ACCEPT; _exit $?
+      "${IPTABLES}" --table filter --policy OUTPUT ACCEPT; _exit $?
+      "${IPTABLES}" --table filter --policy FORWARD ACCEPT; _exit $?
+    fi
+
+    # 'nat' table
+    if modprobe -nq iptable_nat; then
+      "${IPTABLES}" --table nat --flush; _exit $?
+      "${IPTABLES}" --table nat --delete-chain; _exit $?
+      "${IPTABLES}" --table nat --policy OUTPUT ACCEPT; _exit $?
+      "${IPTABLES}" --table nat --policy PREROUTING ACCEPT; _exit $?
+      "${IPTABLES}" --table nat --policy POSTROUTING ACCEPT; _exit $?
+    fi
+
+    # 'mangle' table
+    if modprobe -nq iptable_nat; then
+      "${IPTABLES}" --table mangle --flush; _exit $?
+      "${IPTABLES}" --table mangle --delete-chain; _exit $?
+      "${IPTABLES}" --table mangle --policy INPUT ACCEPT; _exit $?
+      "${IPTABLES}" --table mangle --policy OUTPUT ACCEPT; _exit $?
+      "${IPTABLES}" --table mangle --policy FORWARD ACCEPT; _exit $?
+      "${IPTABLES}" --table mangle --policy PREROUTING ACCEPT; _exit $?
+      "${IPTABLES}" --table mangle --policy POSTROUTING ACCEPT; _exit $?
+    fi
+
+    # Hooks (post)
+    [ -e /var/lock/iptables.lock ] && run-parts ${VERBOSE:+--verbose} /etc/iptables/hooks.d/ipv4/post-stop.d
+
+    # Remove lock
+    rm -f /var/lock/iptables.lock; _exit $?
+    [ -n "${VERBOSE}" ] && echo "INFO: IPv4 tables rules cleared"
+    ;;
+
+  'restart')
+    ${0} stop
+    ${0} start
+    ;;
+
+  'status')
+    for __table in filter nat mangle; do
+      modprobe -nq iptable_${__table} || continue
+      echo '******************************************************************************'
+      echo "* IPv4 TABLE: ${__table}"
+      echo '******************************************************************************'
+      "${IPTABLES}" --table ${__table} --list --numeric --verbose; _exit $?
+      echo
+    done
+    ;;
+
+  'save')
+    "${IPTABLES_SAVE}"; _exit $?
+    ;;
+
+  *)
+    _help; exit 1
+    ;;
+
+esac
+
+# Done
+[ ${EXIT} -ne 0 ] && echo "WARNING: Non-zero exit code (${EXIT})" >&2
+exit ${EXIT}
+

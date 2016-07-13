@@ -1,0 +1,33 @@
+#!/bin/bash
+## CUSTOM-CONF: File automatically created/updated [custom-conf-utils]
+
+
+## Usage
+[ $# -lt 2 -o "${1##*-}" == 'help' ] && cat << EOF && exit 1
+USAGE: ${0##*/} <package-name> <config-root>
+EOF
+
+
+## Arguments
+PKGNAME="${1}"
+CONFDIR="${2}"
+
+
+## Uninstall files
+pushd "${CONFDIR}" >/dev/null
+[ $? -ne 0 ] && echo "ERROR[${PKGNAME}]: Failed to switch to configuration repository" && exit 1
+find . -type f | while read file; do
+  file="${file##.}"
+  if [ -e "${file}" ]; then
+    gcfg remove --silent --batch "${file}" \
+    || gcfg unflag --silent "${file}" "${PKGNAME}"
+  else
+    gcfg remove --silent --force "${file}"
+  fi
+done
+popd >/dev/null
+
+
+## Done
+exit 0
+

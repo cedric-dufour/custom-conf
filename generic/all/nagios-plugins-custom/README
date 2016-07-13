@@ -1,0 +1,6 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: nagios-plugins-custom
+
+This package contains various custom Nagios plugins.
+

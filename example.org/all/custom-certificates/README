@@ -1,0 +1,14 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-certificates
+
+This package contains tenant-specific SSL/TLS resources (root and intermediate
+authorities, chains, etc.).
+
+
+!!! SAMPLE PACKAGE !!! SAMPLE PACKAGE !!! SAMPLE PACKAGE !!! SAMPLE PACKAGE !!!
+
+  This package ought to be further customized to match the tenant environment
+
+!!! SAMPLE PACKAGE !!! SAMPLE PACKAGE !!! SAMPLE PACKAGE !!! SAMPLE PACKAGE !!!
+

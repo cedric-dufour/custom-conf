@@ -1,0 +1,15 @@
+Source: custom-conf-symfony-2.7
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 3.9.7
+
+Package: custom-conf-symfony-2.7
+Architecture: all
+Depends: custom-conf, custom-conf-php5-apache2 | custom-conf-php5-fpm, php5-json
+Suggests: php5-apcu, php5-mysql, php5-pgsql
+Breaks: custom-conf-symfony-lts (<< 2016.06.20a)
+Replaces: custom-conf-symfony-lts (<< 2016.06.20a)
+Description: Custom Configuration Framework - PHP/Symfony (version 2.7)
+

@@ -1,0 +1,12 @@
+Source: custom-conf-udev
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 3.9.7
+
+Package: custom-conf-udev
+Architecture: all
+Depends: custom-conf, udev
+Description: Custom Configuration Framework - UDev (rules)
+

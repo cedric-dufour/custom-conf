@@ -1,0 +1,10 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-conf-polkit-nopower
+
+This package provides standard configuration of the Policy Kit authorization
+framework.
+
+In particular, it addresses standard configuration of:
+ - denying power management suspend, hibernation and shut down
+

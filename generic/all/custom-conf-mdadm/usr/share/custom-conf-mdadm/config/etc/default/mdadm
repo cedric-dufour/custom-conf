@@ -1,0 +1,18 @@
+## CUSTOM-CONF: File automatically created/updated [custom-conf-mdadm]
+
+# Boot settings
+INITRDSTART='all'
+AUTOSTART=true
+VERBOSE=false
+
+# Monitoring
+START_DAEMON=true
+DAEMON_OPTIONS="--syslog"
+
+# Redundancy check
+# WARNING: this is useless on RAID-1 arrays (and consumes a lot of resources when happening)
+AUTOCHECK=%{CUSTOM_CONF_MDADM_AUTOCHECK}
+
+# Miscellaneous
+USE_DEPRECATED_MDRUN=false
+

@@ -1,0 +1,34 @@
+#!/bin/sh
+## CUSTOM-CONF: File automatically created/updated [custom-conf-docker]
+
+# (Please use 'dpkg-reconfigure custom-conf-docker' to change this setting)
+%{CUSTOM_CONF_DOCKER_IPTABLES_AUTO_EXIT}
+
+
+## Docker-specific rules
+
+# Syslog traffic (to host syslog daemon)
+"${IPTABLES}" --table filter --append FORWARD --in-interface docker1 --out-interface docker0 --destination 192.168.213.1 --protocol udp --dport 514 --jump
+
+# Inbound traffic (to containers published ports)
+"${IPTABLES}" --table filter --new-chain DOCKER_INBOUND
+"${IPTABLES}" --table filter --append FORWARD --out-interface docker1 --jump DOCKER_INBOUND
+# (Please use a separate file to add containers-specific rules)
+# "${IPTABLES}" --table filter --append DOCKER_INBOUND \
+#   ! --in-interface docker1 \
+#     --out-interface docker1 \
+#     --destination <ip> \
+#     --protocol <proto> \
+#     --dport <port> \
+#     --jump ACCEPT
+
+# Outbound traffic (from containers to the wide wild world)
+"${IPTABLES}" --table filter --new-chain DOCKER_OUTBOUND
+"${IPTABLES}" --table filter --append FORWARD --in-interface docker1 ! --out-interface docker1 --jump DOCKER_OUTBOUND
+"${IPTABLES}" --table filter --append DOCKER_OUTBOUND --jump ACCEPT
+
+# Internal traffic (between containers)
+"${IPTABLES}" --table filter --new-chain DOCKER_INTERNAL
+"${IPTABLES}" --table filter --append FORWARD --in-interface docker1 --out-interface docker1 --jump DOCKER_INTERNAL
+"${IPTABLES}" --table filter --append DOCKER_INTERNAL --jump ACCEPT
+

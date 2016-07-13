@@ -1,0 +1,46 @@
+Custom Configuration Framework (custom-conf)
+============================================
+
+The Custom Configuration Framework (custom-conf) is a mean of applying
+configuration customizations by the way of Debian packaging.
+
+Rather than using complex deployment frameworks that may be overkill for small
+setups, the Custom Configuration Framework uses the features provided by
+Debian packages to achieve its purpose, namely:
+ - packages dependencies
+ - automated files installation
+ - post-installation scripts
+along the GIT-based Configuration Tracking Utility (GCFG) for the purpose of
+tracking configuration changes made to the "vanilla" setup.
+
+In order to provide a consistent base accross all configuration packages, the
+Custom Configuration Framework also relies on a user-specific definitions
+package ('custom-defs-...'), which provides, in a single place, the various
+parameters specific to a user (or network segment):
+ - default network range and gateway (IPv4/IPv6)
+ - DNS IP addresses
+ - NTP server names
+ - LDAP server URLs
+ - etc.
+
+The Custom Configuration Framework is thus split in two parts:
+ - a 'generic' part, which contains configuration packages that have no
+   specific parameters (except those polled from the 'custom-defs-...'
+   package)
+ - a user-specific part, named 'example.org' for the sake of examples,
+   which contains configuration packages that are specific to a user,
+   including the 'custom-defs-...' package
+
+Each part is then subdivided in a set of directories that allow to target
+a specific distributor/distribution:
+ - the 'all' directory is the most generic (and where one should strive to
+   have most packages)
+ - the 'debian' directory, targeted towards Debian distributions
+ - the 'jessie' (or 'wheezy' or ...) directory, targeted towards a
+   specific Debian distribution version
+
+Please bear with me that the 'generic' part is actually pretty specific to my
+personal requirements and preferences in regards with the various configuration
+customizations.
+But feel free to fork and customize that 'generic' part to match your agenda!
+

@@ -1,0 +1,500 @@
+#!/bin/bash
+#
+# License: GNU General Public License (GPL)
+#
+#   Resource Agent for domains managed by the libvirt API.
+#   Requires a running libvirt daemon (libvirtd).
+#
+#   (c) 2008-2010 Florian Haas, Dejan Muhamedagic,
+#                 and Linux-HA contributors
+#
+# 2014.08.11: Cédric Dufour <cedric.dufour@ced-network.net>
+#   Simplified version of 'VirtualDomain' OCF script.
+#   (Partially) integrated 'MailTo' OCF script
+#
+# Usage: ${0} {start|stop|status|monitor|migrate_to|migrate_from|meta-data|validate-all}
+#
+#######################################################################
+# Initialization:
+: ${OCF_FUNCTIONS_DIR=${OCF_ROOT}/lib/heartbeat}
+. ${OCF_FUNCTIONS_DIR}/ocf-shellfuncs
+
+# Defaults
+OCF_RESKEY_force_stop_default=0
+OCF_RESKEY_email_subject='[SYSTEM:HA][VM:%domain_name%]'
+
+: ${OCF_RESKEY_force_stop=${OCF_RESKEY_force_stop_default}}
+: ${OCF_RESKEY_email_subject=${OCF_RESKEY_email_subject_default}}
+#######################################################################
+
+usage() {
+  echo "USAGE: ${0##*/} {start|stop|status|monitor|migrate_to|migrate_from|meta-data|validate-all}"
+}
+
+meta_data() {
+    cat <<EOF
+<?xml version="1.0"?>
+<!DOCTYPE resource-agent SYSTEM "ra-api-1.dtd">
+<resource-agent name="LibvirtQemu">
+<version>1.1</version>
+
+<longdesc lang="en">
+Resource agent for a libvirt (qemu) virtual domain.
+</longdesc>
+<shortdesc lang="en">Manages qemu virtual domains through the libvirt virtualization framework</shortdesc>
+
+<parameters>
+
+<parameter name="config" unique="1" required="1">
+<longdesc lang="en">
+Absolute path to the libvirt (qemu) configuration file (corresponding to the desired virtual domain).
+</longdesc>
+<shortdesc lang="en">Libvirt (qemu) configuration file</shortdesc>
+<content type="string" default="" />
+</parameter>
+
+<parameter name="force_stop" unique="0" required="0">
+<longdesc lang="en">
+Always forcefully shut down ("destroy") the domain on stop. The default
+behavior is to resort to a forceful shutdown only after a graceful
+shutdown attempt has failed. You should only set this to true if
+your virtual domain (or your virtualization backend) does not support
+graceful shutdown.
+</longdesc>
+<shortdesc lang="en">Always force shutdown on stop</shortdesc>
+<content type="boolean" default="${OCF_RESKEY_force_stop_default}" />
+</parameter>
+
+<parameter name="migration_transport" unique="0" required="0">
+<longdesc lang="en">
+Transport used to connect to the remote hypervisor while
+migrating. Please refer to the libvirt documentation for details on
+transports available. If this parameter is omitted, the resource will
+use libvirt's default transport to connect to the remote hypervisor.
+</longdesc>
+<shortdesc lang="en">Remote hypervisor transport</shortdesc>
+<content type="string" default="" />
+</parameter>
+
+<parameter name="migration_network_suffix" unique="0" required="0">
+<longdesc lang="en">
+Use a dedicated migration network. The migration URI is composed by
+adding this parameters value to the end of the node name. If the node
+name happens to be an FQDN (as opposed to an unqualified host name),
+insert the suffix immediately prior to the first period (.) in the FQDN.
+
+Note: Be sure this composed host name is locally resolveable and the
+associated IP is reachable through the favored network.
+</longdesc>
+<shortdesc lang="en">Migration network host name suffix</shortdesc>
+<content type="string" default="" />
+</parameter>
+
+<parameter name="monitor_scripts" unique="0" required="0">
+<longdesc lang="en">
+To additionally monitor services within the virtual domain, add this
+parameter with a list of scripts to monitor.
+
+Note: when monitor scripts are used, the start and migrate_from operations
+will complete only when all monitor scripts have completed successfully.
+Be sure to set the timeout of these operations to accommodate this delay.
+</longdesc>
+<shortdesc lang="en">Space-separated list of monitor scripts</shortdesc>
+<content type="string" default="" />
+</parameter>
+
+<parameter name="email" unique="0" required="0">
+<longdesc lang="en">
+Space-separated list of operators E-mail addresses (to send status notifications to).
+</longdesc>
+<shortdesc lang="en">Space-separated E-mail addresses</shortdesc>
+<content type="string" default="" />
+</parameter>
+
+<parameter name="email_subject" unique="0" required="0">
+<longdesc lang="en">
+The subject of the status notification E-mails.
+
+The '%domain_name%' macro shall be replaced with the actual virtual domain name.
+</longdesc>
+<shortdesc lang="en">E-mail subject</shortdesc>
+<content type="string" default="[SYSTEM:HA][VM:%domain_name%]" />
+</parameter>
+
+</parameters>
+
+<actions>
+<action name="start" timeout="30" />
+<action name="stop" timeout="60" />
+<action name="status" depth="0" timeout="30" interval="60" />
+<action name="monitor" depth="0" timeout="30" interval="60" />
+<action name="migrate_from" timeout="60" />
+<action name="migrate_to" timeout="60" />
+<action name="meta-data" timeout="5" />
+<action name="validate-all" timeout="5" />
+</actions>
+</resource-agent>
+EOF
+}
+
+# Options to be passed to virsh
+VIRSH_OPTIONS="--quiet"
+
+LibvirtQemu_EmailSend() {
+  ${MAILCMD} -s "${1}" "${OCF_RESKEY_email}" << EOF
+  ${1}
+EOF
+  return $?
+}
+
+LibvirtQemu_Status() {
+  local try=0
+  local status
+
+  rc=${OCF_ERR_GENERIC}
+  status='no state'
+  while [ "${status}" == 'no state' ]; do
+    try=$(( ${try} + 1 ))
+    status="$(virsh ${VIRSH_OPTIONS} domstate ${DOMAIN_NAME} 2>&1)"
+    case "${status,,}" in
+      *'domain not found'*|'shut off')
+        # shut off: persistent domain is defined, but not started
+        # domain not found: domain is not defined and thus not started
+        ocf_log debug "Domain '${DOMAIN_NAME}' is currently in state '${status}'."
+        rc=${OCF_NOT_RUNNING}
+        ;;
+      'running'|'paused'|'idle'|'in shutdown'|'blocked'|'pmsuspended')
+        # running: domain is currently actively consuming cycles
+        # paused: domain is paused (suspended)
+        # idle: domain is running but idle
+        # in shutdown: domain is being (gracefully) shut down
+        # blocked: synonym for idle used by legacy Xen versions
+        # pmsuspended: domain is ACPI-suspended
+        ocf_log debug "Domain '${DOMAIN_NAME}' is currently in state '${status}'."
+        rc=${OCF_SUCCESS}
+        ;;
+      ''|*'failed to '*'connect to the hypervisor'*|'no state')
+        # Empty string may be returned when virsh does not
+        # receive a reply from libvirtd.
+        # "no state" may occur when the domain is currently
+        # being migrated (on the migration target only), or
+        # whenever virsh can't reliably obtain the domain
+        # state.
+        status='no state'
+        if [ "${__OCF_ACTION}" == 'stop' ] && [ ${try} -ge 3 ]; then
+          # During the stop operation, we want to bail out
+          # quickly, so as to be able to force-stop (destroy)
+          # the domain if necessary.
+          ocfg_log err "Domain '${DOMAIN_NAME}' has no state during stop operation; bailing out."
+          return ${OCF_ERR_GENERIC};
+        else
+          # During all other actions, we just wait and try
+          # again, relying on the CRM/LRM to time us out if
+          # this takes too long.
+          ocf_log info "Domain '${DOMAIN_NAME}' currently has no state; retrying."
+          sleep 1
+        fi
+        ;;
+      *)
+        # any other output is unexpected.
+        ocfg_log err "Domain '${DOMAIN_NAME}' has unknown state ('${status}')!"
+        ;;
+    esac
+  done
+  return ${rc}
+}
+
+LibvirtQemu_Undefine() {
+  for domain_name in $(virsh ${VIRSH_OPTIONS} list --all --name); do
+    if [ "${domain_name}" == "${DOMAIN_NAME}" ]; then
+      ocf_log warn "Domain '${DOMAIN_NAME}' is defined as persistent; undefining it (making it transient)"
+      virsh ${VIRSH_OPTIONS} undefine ${DOMAIN_NAME} >/dev/null 2>&1
+      break
+    fi
+  done
+}
+
+LibvirtQemu_Start() {
+  if LibvirtQemu_Status; then
+    ocf_log info "Domain '${DOMAIN_NAME}' is already running."
+    return ${OCF_SUCCESS}
+  fi
+
+  # NOTE: We cannot 'virsh create' a domain that has been previously 'virsh defined'
+  LibvirtQemu_Undefine
+  virsh ${VIRSH_OPTIONS} create "${OCF_RESKEY_config}"
+  rc=$?
+  if [ ${rc} -ne 0 ]; then
+    ocfg_log err "Failed to start domain '${DOMAIN_NAME}'."
+    return ${OCF_ERR_GENERIC}
+  fi
+
+  while ! LibvirtQemu_Monitor; do
+    sleep 1
+  done
+
+  if [ -n "${OCF_RESKEY_email}" ]; then
+    LibvirtQemu_EmailSend "${OCF_RESKEY_email_subject//%domain_name%/${DOMAIN_NAME}} $(date +'%Y-%m-%d %H:%M:%S') START on $(uname -n)"
+  fi 
+
+  return ${OCF_SUCCESS}
+}
+
+LibvirtQemu_Stop() {
+  local status
+  local shutdown_timeout
+  local out ex
+
+  LibvirtQemu_Status
+  status=$?
+
+  case ${status} in
+    ${OCF_SUCCESS})
+      if ! ocf_is_true ${OCF_RESKEY_force_stop}; then
+        # Issue a graceful shutdown request
+        ocf_log info "Issuing graceful shutdown request for domain '${DOMAIN_NAME}'."
+        virsh ${VIRSH_OPTIONS} qemu-monitor-command ${DOMAIN_NAME} --hmp sendkey esc  # For F*%&*% M$ Windaube!...
+        virsh ${VIRSH_OPTIONS} shutdown ${DOMAIN_NAME}
+        # The "shutdown_timeout" we use here is the operation
+        # timeout specified in the CIB, minus 5 seconds
+        shutdown_timeout=$(( ${SECONDS} + (${OCF_RESKEY_CRM_meta_timeout}/1000)-5 ))
+        # Loop on status until we reach ${shutdown_timeout}
+        while [ ${SECONDS} -lt ${shutdown_timeout} ]; do
+          LibvirtQemu_Status
+          status=$?
+          case ${status} in
+            ${OCF_NOT_RUNNING})
+              # This was a graceful shutdown.
+              if [ -n "${OCF_RESKEY_email}" ]; then
+                LibvirtQemu_EmailSend "${OCF_RESKEY_email_subject//%domain_name%/${DOMAIN_NAME}} $(date +'%Y-%m-%d %H:%M:%S') STOP (graceful) on $(uname -n)"
+              fi 
+              return ${OCF_SUCCESS}
+              ;;
+            ${OCF_SUCCESS})
+              # Domain is still running, keep
+              # waiting (until shutdown_timeout
+              # expires)
+              sleep 1
+              ;;
+            *)
+              # Something went wrong. Bail out and
+              # resort to forced stop (destroy).
+              break;
+              ;;
+          esac
+        done
+      fi
+      ;;
+    ${OCF_NOT_RUNNING})
+      ocf_log info "Domain '${DOMAIN_NAME}' already stopped."
+      return ${OCF_SUCCESS}
+      ;;
+  esac
+  # OK. Now if the above graceful shutdown hasn't worked, kill
+  # off the domain with destroy. If that too does not work,
+  # have the LRM time us out.
+  ocf_log info "Issuing forced shutdown (destroy) request for domain '${DOMAIN_NAME}'."
+  out="$(virsh ${VIRSH_OPTIONS} destroy ${DOMAIN_NAME} 2>&1)"
+  ex=$?
+  echo "${out}" >&2
+  case ${ex}${out,,} in
+    *'domain is not running'*|*'domain not found'*)
+      : # unexpected path to the intended outcome, all is well
+      ;;
+    [!0]*)
+      return ${OCF_ERR_GENERIC}
+      ;;
+    0*)
+      while [ ${status} != ${OCF_NOT_RUNNING} ]; do
+        LibvirtQemu_Status
+        status=$?
+      done
+      ;;
+  esac
+  if [ -n "${OCF_RESKEY_email}" ]; then
+    LibvirtQemu_EmailSend "${OCF_RESKEY_email_subject//%domain_name%/${DOMAIN_NAME}} $(date +'%Y-%m-%d %H:%M:%S') STOP (forced) on $(uname -n)"
+  fi 
+  return ${OCF_SUCCESS}
+}
+
+LibvirtQemu_Migrate_To() {
+  local target_node
+  local remoteuri
+  local transport_suffix
+  local migrateuri
+  local migrateport
+  local migrate_target
+
+  target_node="${OCF_RESKEY_CRM_meta_migrate_target}"
+  if LibvirtQemu_Status; then
+    # Find out the remote hypervisor to connect to. That is, turn
+    # something like "qemu://foo:9999/system" into
+    # "qemu+tcp://bar:9999/system"
+    if [ -n "${OCF_RESKEY_migration_transport}" ]; then
+      transport_suffix="+${OCF_RESKEY_migration_transport}"
+    fi
+    # A typical migration URI via a special migration network looks
+    # like "tcp://bar-mig:49152". The port would be randomly chosen
+    # by libvirt from the range 49152-49215 if omitted, at least since
+    # version 0.7.4 ...
+    if [ -n "${OCF_RESKEY_migration_network_suffix}" ]; then
+      # Hostname might be a FQDN
+      migrate_target=$(echo ${target_node} | sed -e "s,^\([^.]\+\),\1${OCF_RESKEY_migration_network_suffix},")
+      # For quiet ancient libvirt versions a migration port is needed
+      # and the URI must not contain the "//". Newer versions can handle
+      # the "bad" URI.
+      migrateport=$(( 49152 + $(ocf_maybe_random) % 64 ))
+      migrateuri="tcp:${migrate_target}:${migrateport}"
+    fi
+    remoteuri="qemu${transport_suffix}://${target_node}/system"
+
+    # OK, we know where to connect to. Now do the actual migration.
+    ocf_log info "Migrating domain '${DOMAIN_NAME}' to node '${target_node}' ('${remoteuri}' via '${migrateuri}')."
+    virsh ${VIRSH_OPTIONS} migrate --live ${DOMAIN_NAME} ${remoteuri} ${migrateuri}
+    rc=$?
+    if [ ${rc} -ne 0 ]; then
+      ocfg_log err "Migration of domain '${DOMAIN_NAME} to node '${target_node}' ('${remoteuri}' via '${migrateuri}') failed: ${rc}"
+      return ${OCF_ERR_GENERIC}
+    else
+      ocf_log info "Migration of domain '${DOMAIN_NAME}' to node '${target_node}' succeeded."
+      if [ -n "${OCF_RESKEY_email}" ]; then
+        LibvirtQemu_EmailSend "${OCF_RESKEY_email_subject//%domain_name%/${DOMAIN_NAME}} $(date +'%Y-%m-%d %H:%M:%S') MIGRATE on $(uname -n) (to ${target_node})"
+      fi 
+      return ${OCF_SUCCESS}
+    fi
+  else
+    ocfg_log err "${DOMAIN_NAME}: migrate_to: Not active locally!"
+    return ${OCF_ERR_GENERIC}
+  fi
+}
+
+LibvirtQemu_Migrate_From() {
+  while ! LibvirtQemu_Monitor; do
+    sleep 1
+  done
+  ocf_log info "Migration of domain '${DOMAIN_NAME}' from '${OCF_RESKEY_CRM_meta_migrate_source}' succeeded."
+  if [ -n "${OCF_RESKEY_email}" ]; then
+    LibvirtQemu_EmailSend "${OCF_RESKEY_email_subject//%domain_name%/${DOMAIN_NAME}} $(date +'%Y-%m-%d %H:%M:%S') MIGRATE on $(uname -n) (from ${OCF_RESKEY_CRM_meta_migrate_source})"
+  fi 
+  return ${OCF_SUCCESS}
+}
+
+LibvirtQemu_Monitor() {
+  # First, check the domain status. If that returns anything other
+  # than ${OCF_SUCCESS}, something is definitely wrong.
+  LibvirtQemu_Status
+  rc=$?
+  if [ ${rc} -eq ${OCF_SUCCESS} ]; then
+    # OK, the generic status check turned out fine. Now, if we
+    # have monitor scripts defined, run them one after another.
+    for script in ${OCF_RESKEY_monitor_scripts}; do
+      script_output="$( ${script} 2>&1)"
+      script_rc=$?
+      if [ ${script_rc} -ne ${OCF_SUCCESS} ]; then
+        # A monitor script returned a non-success exit
+        # code. Stop iterating over the list of scripts, log a
+        # warning message, and propagate ${OCF_ERR_GENERIC}.
+        ocf_log warn "Monitor script '${script}' for domain '${DOMAIN_NAME}' failed; '${script_output}' [rc=${script_rc}]"
+        rc=${OCF_ERR_GENERIC}
+        break
+      else
+        ocf_log debug "Monitor script '${script}' for domain '${DOMAIN_NAME}' succeeded; '${script_output}' [rc=0]"
+      fi
+    done
+  fi
+  return ${rc}
+}
+
+LibvirtQemu_Validate_All() {
+  # Required binaries:
+  for binary in virsh grep sed; do
+    check_binary ${binary}
+  done
+  if [ -z "${MAILCMD}" ]; then
+    ocfg_log err "MAILCMD variable not set"
+    exit ${OCF_ERR_INSTALLED}
+  fi
+  check_binary "${MAILCMD}"
+
+  if [ -z "${OCF_RESKEY_config}" ]; then
+    ocfg_log err "Missing configuration parameter 'config'."
+    return ${OCF_ERR_CONFIGURED}
+  fi
+
+  # check if we can read the config file (otherwise we're unable to
+  # deduce ${DOMAIN_NAME} from it, see below)
+  if [ ! -r "${OCF_RESKEY_config}" ]; then
+    if ocf_is_probe; then
+      ocf_log info "Configuration file '${OCF_RESKEY_config}' not readable during probe."
+    else
+      ocfg_log err "Configuration file '${OCF_RESKEY_config}' does not exist or is not readable."
+      return ${OCF_ERR_INSTALLED}
+    fi
+  fi
+}
+
+if [ $# -ne 1 ]; then
+  usage
+  exit ${OCF_ERR_ARGS}
+fi
+
+case ${1} in
+  meta-data)
+    meta_data
+    exit ${OCF_SUCCESS}
+    ;;
+  usage)
+    usage
+    exit ${OCF_SUCCESS}
+    ;;
+esac
+
+# Everything except usage and meta-data must pass the validate test
+LibvirtQemu_Validate_All || exit $?
+
+# During a probe, it is permissible for the config file to not be
+# readable (it might be on shared storage not available during the
+# probe). In that case, we're
+# unable to get the domain name. Thus, we also can't check whether the
+# domain is running. The only thing we can do here is to assume that
+# it is not running.
+if [ ! -r "${OCF_RESKEY_config}" ]; then
+  ocf_is_probe && exit ${OCF_NOT_RUNNING}
+  [ "${__OCF_ACTION}" == 'stop' ] && exit ${OCF_SUCCESS}
+fi
+
+# Retrieve the domain name from the config file.
+DOMAIN_NAME="$(grep '<name>.*</name>' "${OCF_RESKEY_config}" | sed 's/^.*<name>\(.*\)<\/name>.*$/\1/' 2>/dev/null)"
+if [ -z "${DOMAIN_NAME}" ]; then
+  ocfg_log err "Failed to parse domain name from configuration file ('${OCF_RESKEY_config}')."
+  exit ${OCF_ERR_GENERIC}
+fi
+
+case ${1} in
+  start)
+    LibvirtQemu_Start
+    ;;
+  stop)
+    LibvirtQemu_Stop
+    ;;
+  migrate_to)
+    LibvirtQemu_Migrate_To
+    ;;
+  migrate_from)
+    LibvirtQemu_Migrate_From
+    ;;
+  status)
+    LibvirtQemu_Status
+    ;;
+  monitor)
+    LibvirtQemu_Monitor
+      ;;
+  validate-all)
+    ;;
+  *)
+    usage
+    exit ${OCF_ERR_UNIMPLEMENTED}
+    ;;
+esac
+exit $?
+

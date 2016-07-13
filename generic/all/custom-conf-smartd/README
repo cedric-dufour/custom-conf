@@ -1,0 +1,10 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-conf-smartd
+
+This package provides standard configuration of the Self-Monitoring, Analysis,
+and Reporting Technology (SMART) daemon.
+
+In particular, it addresses standard configuration of:
+ - installed disks, whichever their type (PATA, SATA, SCSI)
+

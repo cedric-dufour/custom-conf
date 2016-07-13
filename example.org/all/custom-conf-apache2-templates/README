@@ -1,0 +1,14 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-conf-apache2-templates
+
+This package contains tenant-specific Apache2 resources (images, error
+templates, authentication/authorization macros, etc.).
+
+
+!!! SAMPLE PACKAGE !!! SAMPLE PACKAGE !!! SAMPLE PACKAGE !!! SAMPLE PACKAGE !!!
+
+  This package ought to be further customized to match the tenant environment
+
+!!! SAMPLE PACKAGE !!! SAMPLE PACKAGE !!! SAMPLE PACKAGE !!! SAMPLE PACKAGE !!!
+

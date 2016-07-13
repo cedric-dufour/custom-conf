@@ -1,0 +1,22 @@
+#!/bin/bash
+## CUSTOM-UTIL: File automatically created/updated [custom-util-blockdev]
+
+# Usage
+[ $# -lt 2 -o "${1##*-}" == 'help' ] && cat << EOF >&2 && exit 1
+USAGE: ${0##*/} <proc-mounts-egrep> <timeout-seconds>
+
+SYSNOPSIS:
+  Freeze the matching filesystems and unfreeze them after the given timeout.
+
+HINT: fsfreeze --freeze/--unfreeze <mountpoint>
+EOF
+
+# Command
+egrep ${1} /proc/mounts | awk '{print $2}' | while read fs; do
+  fsfreeze --freeze "${fs}"
+done
+sleep ${2}
+egrep ${1} /proc/mounts | awk '{print $2}' | while read fs; do
+  fsfreeze --unfreeze "${fs}"
+done
+

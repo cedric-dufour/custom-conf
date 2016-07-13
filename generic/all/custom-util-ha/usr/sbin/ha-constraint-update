@@ -1,0 +1,15 @@
+#!/bin/bash
+## CUSTOM-UTIL: File automatically created/updated [custom-util-ha]
+
+# Usage
+[ $# -lt 1 -o "${1##*-}" == 'help' ] && cat << EOF >&2 && exit 1
+USAGE: ${0##*/} <constraint-xml-file>
+
+HINT: cibadmin -o constraints -M -c -x <constraint-xml-file>
+EOF
+
+# Command
+HA_XML="$1"
+[ ! -r "${HA_XML}" ] && echo "ERROR: Unreadable/missing XML file (${HA_XML})" >&2 && exit 1
+cibadmin -o constraints -M -c -x "${HA_XML}"
+

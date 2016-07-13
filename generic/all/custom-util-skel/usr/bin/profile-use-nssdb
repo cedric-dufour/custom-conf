@@ -1,0 +1,71 @@
+#!/bin/bash
+## CUSTOM-UTIL: File automatically created/updated [custom-util-skel]
+
+
+## Usage
+[ $# -lt 1 -o "${1##*-}" == 'help' ] && cat << EOF && exit 1
+USAGE: ${0##*/} <certificate> [<certificate> ...]
+
+SYNOPSIS:
+  Create/update the calling user's shared NSS database, checks/adds the given
+  certificate(s) and point relevant applications to it.
+  <certificate> must be specified as:
+    <name>:<path>:<trust> (as used by 'certutil' -n ... -i ... -t ...)
+EOF
+
+
+## Create/update the shared NSS database
+echo "DEBUG: ${0##*/} BEGIN"
+NSSDBDIR="${HOME}/.pki/nssdb"
+CERTUTIL="certutil -d sql:${NSSDBDIR}"
+
+# Check the NSS database directory
+if [ ! -d "${NSSDBDIR}" -o ! -e "${NSSDBDIR}/cert9.db" -o ! -e "${NSSDBDIR}/key4.db" -o ! -e "${NSSDBDIR}/pkcs11.txt" ]; then
+  echo "ERROR: Missing/invalid NSS database directory (${NSSDBDIR})" >&2
+  echo "       Please create with:" >&2
+  echo "       > mkdir -p ${NSSDBDIR}" >&2
+  echo "       > ${CERTUTIL} -N" >&2
+  exit 1
+fi
+
+# Update/check the NSS database
+while [ -n "${1}" ]; do
+  cert="${1}"; shift
+  cert_name="${cert%%:*}"; cert="${cert#*:}"
+  cert_file="${cert%%:*}"; cert="${cert#*:}"
+  cert_trust="${cert%%:*}"
+  ${CERTUTIL} -L -n ${cert_name} >/dev/null 2>&1 || ${CERTUTIL} -A -n "${cert_name}" -i "${cert_file}" -t "${cert_trust}"
+  [ $? -ne 0 ] && echo "WARNING: Failed to add certificate (${cert})" >&2
+done
+
+# Update/check application profiles
+for profile in \
+  $(find '.thunderbird/' -maxdepth 2 -type f -name 'prefs.js') \
+  $(find '.mozilla/firefox/' -maxdepth 3 -type f -name 'prefs.js')
+do
+  profile="$(dirname "${profile}")"
+  if [ -e "${profile}/cert8.db" -o -e "${profile}/key3.db" ]; then
+    echo "INFO: Cleaning deprecated NSS database from profile (${profile})"
+    rm -f "${profile}/cert8.db" "${profile}/key3.db"
+  fi
+  if [ ! -h "${profile}/cert9.db" -o ! -h "${profile}/key4.db" ]; then
+    echo "INFO: Symlinking NSS database (${profile})"
+    [ -e "${profile}/cert9.db" -a "${profile}/key4.db" ] && ${CERTUTIL} --merge --source-dir "${profile}"
+    rm -f "${profile}/cert9.db" "${profile}/key4.db"
+    ln -s "${NSSDBDIR}/cert9.db" "${profile}/cert9.db"
+    ln -s "${NSSDBDIR}/key4.db" "${profile}/key4.db"
+  fi
+  if [ ! -h "${profile}/pkcs11.txt" ]; then
+    rm -f "${profile}/pkcs11.txt"
+    ln -s "${NSSDBDIR}/pkcs11.txt" "${profile}/pkcs11.txt"
+  fi
+done
+
+# Export environment variables
+export NSS_DEFAULT_DB_TYPE='sql'
+
+
+## Done
+echo "DEBUG: ${0##*/} END"
+exit 0
+

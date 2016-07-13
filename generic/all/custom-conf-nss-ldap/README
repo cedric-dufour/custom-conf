@@ -1,0 +1,11 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-conf-nss-ldap
+
+This package provides standard configuration of Name Services (NSS) along the
+Lightweight Directory Access Protocol (LDAP).
+
+In particular, it addresses standard configuration of:
+ - LDAP integration (<-> 'custom-conf-ldap' package)
+ - SSL/TLS (<-> 'custom-certificates' package)
+

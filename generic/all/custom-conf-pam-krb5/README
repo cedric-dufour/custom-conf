@@ -1,0 +1,12 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-conf-pam-krb5
+
+This package provides standard configuration of the Pluggable Authentication
+Modules (PAM) stack along MIT Kerberos V authentication.
+
+In particular, it addresses standard configuration of:
+ - LDAP integration (<-> 'custom-conf-nss' package)
+ - Kerberos integration (<-> 'custom-conf-krb5' package)
+ - Kerberos authentication quirks
+

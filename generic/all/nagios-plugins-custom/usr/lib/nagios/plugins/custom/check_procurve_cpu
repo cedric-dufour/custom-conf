@@ -1,0 +1,33 @@
+#!/bin/bash
+## File automatically created/updated [nagios-plugins-custom]
+# EXIT: 0 = OK; 1 = WARNING; 2 = CRITITCAL; 3 = UNKNOWN (ERROR)
+# ECHO: <human-friendly status message> |<performance_data>
+
+# Usage
+[ $# -lt 4  -o "${1##*-}" == 'help' ] && cat << EOF && exit 3
+USAGE: ${0##*/} <snmp_host> <snmp_conf_path> <value:warning> <value:critical>
+SYNOPSIS: Nagios-compliant command to check HP Procurve switches CPU load (0-100 percentage)
+EOF
+
+# Arguments
+SNMP_HOST=${1}
+export SNMPCONFPATH="${2}"
+VALUE_WARNING=${3%\%}
+VALUE_CRITICAL=${4%\%}
+# ... checks
+[ $(( ${VALUE_WARNING} <= 0 )) -ne 0 ] && echo 'ERROR: Warning threshold must be bigger than 0' && exit 3
+[ $(( ${VALUE_CRITICAL} <= 0 )) -ne 0 ] && echo 'ERROR: Critical threshold must be bigger than 0' && exit 3
+[ $(( ${VALUE_WARNING} > ${VALUE_CRITICAL} )) -ne 0 ] && echo 'ERROR: Warning threshold must be lower than critical threshold' && exit 3
+
+# SNMP query
+SNMP_OUTPUT=$(snmpget -m '' -Ov -Oq ${SNMP_HOST} 1.3.6.1.4.1.11.2.14.11.5.1.9.6.1.0 2>/dev/null)
+[ $? -ne 0 ] && echo 'ERROR: Failed to query SNMP host' && exit 3
+[ -z "${SNMP_OUTPUT}" ] && echo 'ERROR: No SNMP data' && exit 3
+[ -n "${SNMP_OUTPUT//[0-9]/}" ] && echo "ERROR: Invalid SNMP data (${SNMP_OUTPUT})" && exit 3
+CHECK_VALUE=${SNMP_OUTPUT}
+
+# Check
+[ $(( ${CHECK_VALUE} / ${VALUE_CRITICAL} >= 1 )) -ne 0 ] && echo "CRITICAL: CPU load (${CHECK_VALUE}%) is bigger than ${VALUE_CRITICAL}% |${CHECK_VALUE},${VALUE_WARNING},${VALUE_CRITICAL},2" && exit 2
+[ $(( ${CHECK_VALUE} / ${VALUE_WARNING} >= 1 )) -ne 0 ] && echo "WARNING: CPU load (${CHECK_VALUE}%) is bigger than ${VALUE_WARNING}% |${CHECK_VALUE},${VALUE_WARNING},${VALUE_CRITICAL},1" && exit 1
+echo "OK: CPU load (${CHECK_VALUE}%) is within tolerance |${CHECK_VALUE},${VALUE_WARNING},${VALUE_CRITICAL},0"
+

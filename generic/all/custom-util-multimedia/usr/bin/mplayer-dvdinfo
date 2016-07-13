@@ -1,0 +1,73 @@
+#!/bin/bash
+
+
+## Usage
+[ "${1##*-}" == 'help' ] && cat << EOF && exit 1
+USAGE: ${0##*/} [<options>] [<title>[:<chapter-start>[-<chapter-end>]]=1]
+
+SYNOPSIS:
+  Dump (or preview) audio/video/subtitle information for given DVD title.
+
+OPTIONS:
+  -D, --device <path> [default:/dev/dvd]
+      DVD device path (actual device, ISO file or VOBs directory)
+
+  -P, --preview
+      Preview given title and chapters
+
+  -v, --verbose
+      Show all error messages
+
+AUTHOR:
+  Cédric Dufour - http://cedric.dufour.name
+EOF
+
+
+## Arguments
+DVD_TITLE=
+DVD_DEVICE='/dev/dvd'
+DVD_PREVIEW=
+DVD_STDERR='2>/dev/null'
+ARGS_SEP=
+MPLAYER_OPTS=
+while [ -n "${1}" ]; do
+  case "${1}" in
+    --) ARGS_SEP='yes';;
+    -D|--device) shift; [ -z "${1}" ] && echo 'ERROR: Missing option value (--device)' >&2 && exit 1; DVD_DEVICE="${1}";;
+    -P|--preview) DVD_PREVIEW='yes';;
+    -v|--verbose) DVD_STDERR='';;
+    -*)
+      if [ -n "${ARGS_SEP}" ]; then MPLAYER_OPTS="${MPLAYER_OPTS} ${1}"
+      else echo "ERROR: Invalid option (${1})" >&2 && exit 1
+      fi
+      ;;
+    *)
+      if [ -n "${ARGS_SEP}" ]; then MPLAYER_OPTS="${MPLAYER_OPTS} ${1}"
+      elif [ -z "${DVD_TITLE}" ]; then DVD_TITLE="${1}"
+      else echo "ERROR: Too many arguments (${1})" >&2 && exit 1
+      fi
+      ;;
+  esac
+  shift
+done
+[ -z "${DVD_TITLE}" ] && DVD_TITLE='1'
+DVD_CHAPTER="${DVD_TITLE#*:}"
+DVD_TITLE="${DVD_TITLE%:*}"
+[ -z "${DVD_CHAPTER}" ] && DVD_CHAPTER='1'
+
+
+## Check dependencies
+[ ! "$(which mplayer)" ] && echo "ERROR: Missing 'mplayer' binary" >&2 && exit 1
+
+
+## Check arguments
+[ ! -r "${DVD_DEVICE}" ] && echo "ERROR: Invalid/unreadable DVD device ('${DVD_DEVICE}')" >&2 && exit 1
+
+
+## Dump DVD title information
+if [ -z "${DVD_PREVIEW}" ]; then
+  eval "mplayer -nojoystick -nolirc -dvd-device '${DVD_DEVICE}' dvd://${DVD_TITLE} -vo null -ao null -frames 0 -v -msglevel identify=6 ${MPLAYER_OPTS}" 2>&1 | grep '\(There are\|fps:\|[as]id:\|^CHAPTERS:\|^VIDEO:\|^AUDIO:\)' | sed 's/^/ /'
+else
+  eval "mplayer -nojoystick -nolirc -dvd-device '${DVD_DEVICE}' dvd://${DVD_TITLE} -chapter ${DVD_CHAPTER} -nosub ${MPLAYER_OPTS} ${DVD_STDERR}"
+fi
+

@@ -1,0 +1,9 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-conf-dns
+
+This package provides standard STATIC configuration of DNS servers.
+
+In particular, it addresses standard configuration of:
+ - DNS domain and nameservers (<-> 'custom-defs-...' package)
+

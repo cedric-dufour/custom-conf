@@ -1,0 +1,114 @@
+## Default rules/definitions (non-routable)
+#  REF: https://en.wikipedia.org/wiki/IPv6_address#Special_addresses
+#
+#  This snippet creates NOROUTE_[IN,OUT] chains for standard/well-known
+#  non-routable IP segments. Those chains can then be used where
+#  appropriate (eg. on public interfaces).
+#
+#  source "${IPTABLES_RULESD_DFLT}/filter.non-routable"
+#  "${IPTABLES}" --table filter [...] --jump NOROUTE_[IN,OUT]
+#
+
+# Non-routable chains
+[ -n "${VERBOSE}" ] && echo "INFO: Creating non-routable chains [IPv6]"
+# ... LOG and DROP
+"${IPTABLES}" --table filter --new-chain NOROUTE_DROP
+"${IPTABLES}" --table filter --append NOROUTE_DROP --match recent --name NOROUTE_DROP --rcheck --seconds 300 --jump DROP
+"${IPTABLES}" --table filter --append NOROUTE_DROP --jump LOG --log-level warning --log-prefix '[IPTABLES:NOROUTE_DROP] '
+"${IPTABLES}" --table filter --append NOROUTE_DROP --match recent --name NOROUTE_DROP --set --jump DROP
+
+# ... IN(coming)
+"${IPTABLES}" --table filter --new-chain NOROUTE_IN
+# ... MLD (RFC 2710)
+"${IPTABLES}" --table filter --append NOROUTE_IN --source fe80::/10 --protocol icmpv6 --icmpv6-type 130 --jump RETURN
+"${IPTABLES}" --table filter --append NOROUTE_IN --source fe80::/10 --protocol icmpv6 --icmpv6-type 131 --jump RETURN
+"${IPTABLES}" --table filter --append NOROUTE_IN --source fe80::/10 --protocol icmpv6 --icmpv6-type 132 --jump RETURN
+# ... NDP (RFC 4861)
+"${IPTABLES}" --table filter --append NOROUTE_IN --source fe80::/10 --protocol icmpv6 --icmpv6-type 134 --jump RETURN
+"${IPTABLES}" --table filter --append NOROUTE_IN --source fe80::/10 --protocol icmpv6 --icmpv6-type 135 --jump RETURN
+"${IPTABLES}" --table filter --append NOROUTE_IN --source fe80::/10 --protocol icmpv6 --icmpv6-type 136 --jump RETURN
+"${IPTABLES}" --table filter --append NOROUTE_IN --source fe80::/10 --protocol icmpv6 --icmpv6-type 137 --jump RETURN
+# ... link-local (RFC 4291)
+"${IPTABLES}" --table filter --append NOROUTE_IN --source fe80::/10 --jump NOROUTE_DROP
+# ... multicast (RFC 4291)
+"${IPTABLES}" --table filter --append NOROUTE_IN --source ff00::/8 --jump NOROUTE_DROP
+# ... private (Unique Local Address/ULA, RFC 4193)
+"${IPTABLES}" --table filter --append NOROUTE_IN --source fc00::/7 --jump NOROUTE_DROP
+# ... discard (RFC 6666)
+"${IPTABLES}" --table filter --append NOROUTE_IN --source 0100::/64 --jump NOROUTE_DROP
+# ... reserved (Benchmarking Methodology Working Group/BMWG, RFC 2544)
+"${IPTABLES}" --table filter --append NOROUTE_IN --source 2001:2::/48 --jump NOROUTE_DROP
+# ... reserved (Overlay Routable Cryptographic Hash Identifiers/ORCHID, RFC 7343)
+"${IPTABLES}" --table filter --append NOROUTE_IN --source 2001:10::/28 --jump NOROUTE_DROP
+"${IPTABLES}" --table filter --append NOROUTE_IN --source 2001:20::/28 --jump NOROUTE_DROP
+# ... reserved (documentation, RFC 3849)
+"${IPTABLES}" --table filter --append NOROUTE_IN --source 2001:db8::/32 --jump NOROUTE_DROP
+# ... IPv4 (Teredo tunneling, RFC 4380)
+"${IPTABLES}" --table filter --append NOROUTE_IN --source 2001::/32 --jump NOROUTE_DROP
+# ... IPv4 (6to4 tunneling, RFC 3056)
+"${IPTABLES}" --table filter --append NOROUTE_IN --source 2002::/16 --jump NOROUTE_DROP
+# ... IPv4 (6to4 Stateless IP/ICMP Translation/SIIT, RFC 6145)
+"${IPTABLES}" --table filter --append NOROUTE_IN --source ::ffff:0:0:0/96 --jump NOROUTE_DROP
+# ... IPv4 (mapped IPv4)
+"${IPTABLES}" --table filter --append NOROUTE_IN --source ::ffff:0:0/96 --jump NOROUTE_DROP
+# ... IPv4 (NAT64, RFC 6052)
+"${IPTABLES}" --table filter --append NOROUTE_IN --source 64:ff9b::/96 --jump NOROUTE_DROP
+# ... deprecated (Site Unicast Local, RFC 1884)
+"${IPTABLES}" --table filter --append NOROUTE_IN --source fec0::/10 --jump NOROUTE_DROP
+# ... deprecated (IPv4 compatible, RFC 2471)
+"${IPTABLES}" --table filter --append NOROUTE_IN --source ::/96 --jump NOROUTE_DROP
+# ... deprecated (NSAP, RFC 1888)
+"${IPTABLES}" --table filter --append NOROUTE_IN --source 200::/7 --jump NOROUTE_DROP
+# ... deprecated (6bone, RFC 2471)
+"${IPTABLES}" --table filter --append NOROUTE_IN --source 3ffe::/16 --jump NOROUTE_DROP
+# ... (return)
+"${IPTABLES}" --table filter --append NOROUTE_IN --jump RETURN
+
+# ... OUT(going)
+"${IPTABLES}" --table filter --new-chain NOROUTE_OUT
+# ... MLD (RFC 2710)
+"${IPTABLES}" --table filter --append NOROUTE_OUT --destination ff02::/123 --protocol icmpv6 --icmpv6-type 130 --jump RETURN
+"${IPTABLES}" --table filter --append NOROUTE_OUT --destination ff02::/123 --protocol icmpv6 --icmpv6-type 131 --jump RETURN
+"${IPTABLES}" --table filter --append NOROUTE_OUT --destination ff02::/123 --protocol icmpv6 --icmpv6-type 132 --jump RETURN
+# ... NDP (RFC 4861)
+"${IPTABLES}" --table filter --append NOROUTE_OUT --destination ff02::2 --protocol icmpv6 --icmpv6-type 133 --jump RETURN
+"${IPTABLES}" --table filter --append NOROUTE_OUT --destination fe80::/10 --protocol icmpv6 --icmpv6-type 135 --jump RETURN
+"${IPTABLES}" --table filter --append NOROUTE_OUT --destination ff02::1:ff00:0/104 --protocol icmpv6 --icmpv6-type 135 --jump RETURN
+"${IPTABLES}" --table filter --append NOROUTE_OUT --destination fe80::/10 --protocol icmpv6 --icmpv6-type 136 --jump RETURN
+"${IPTABLES}" --table filter --append NOROUTE_OUT --destination ff02::1 --protocol icmpv6 --icmpv6-type 136 --jump RETURN
+# ... link-local (RFC 4291)
+"${IPTABLES}" --table filter --append NOROUTE_OUT --destination fe80::/10 --jump NOROUTE_DROP
+# ... multicast (RFC 4291)
+"${IPTABLES}" --table filter --append NOROUTE_OUT --destination ff00::/8 --jump NOROUTE_DROP
+# ... private (Unique Local Address/ULA, RFC 4193)
+"${IPTABLES}" --table filter --append NOROUTE_OUT --destination fc00::/7 --jump NOROUTE_DROP
+# ... discard (RFC 6666)
+"${IPTABLES}" --table filter --append NOROUTE_OUT --destination 0100::/64 --jump NOROUTE_DROP
+# ... reserved (Benchmarking Methodology Working Group/BMWG, RFC 2544)
+"${IPTABLES}" --table filter --append NOROUTE_OUT --destination 2001:2::/48 --jump NOROUTE_DROP
+# ... reserved (Overlay Routable Cryptographic Hash Identifiers/ORCHID, RFC 7343)
+"${IPTABLES}" --table filter --append NOROUTE_OUT --destination 2001:10::/28 --jump NOROUTE_DROP
+"${IPTABLES}" --table filter --append NOROUTE_OUT --destination 2001:20::/28 --jump NOROUTE_DROP
+# ... reserved (documentation, RFC 3849)
+"${IPTABLES}" --table filter --append NOROUTE_OUT --destination 2001:db8::/32 --jump NOROUTE_DROP
+# ... IPv4 (Teredo tunneling, RFC 4380)
+"${IPTABLES}" --table filter --append NOROUTE_OUT --destination 2001::/32 --jump NOROUTE_DROP
+# ... IPv4 (6to4 tunneling, RFC 3056)
+"${IPTABLES}" --table filter --append NOROUTE_OUT --destination 2002::/16 --jump NOROUTE_DROP
+# ... IPv4 (6to4 Stateless IP/ICMP Translation/SIIT, RFC 6145)
+"${IPTABLES}" --table filter --append NOROUTE_OUT --destination ::ffff:0:0:0/96 --jump NOROUTE_DROP
+# ... IPv4 (mapped IPv4)
+"${IPTABLES}" --table filter --append NOROUTE_OUT --destination ::ffff:0:0/96 --jump NOROUTE_DROP
+# ... IPv4 (NAT64, RFC 6052)
+"${IPTABLES}" --table filter --append NOROUTE_OUT --destination 64:ff9b::/96 --jump NOROUTE_DROP
+# ... deprecated (Site Unicast Local, RFC 1884)
+"${IPTABLES}" --table filter --append NOROUTE_OUT --destination fec0::/10 --jump NOROUTE_DROP
+# ... deprecated (IPv4 compatible, RFC 2471)
+"${IPTABLES}" --table filter --append NOROUTE_OUT --destination ::/96 --jump NOROUTE_DROP
+# ... deprecated (NSAP, RFC 1888)
+"${IPTABLES}" --table filter --append NOROUTE_OUT --destination 200::/7 --jump NOROUTE_DROP
+# ... deprecated (6bone, RFC 2471)
+"${IPTABLES}" --table filter --append NOROUTE_OUT --destination 3ffe::/16 --jump NOROUTE_DROP
+# ... (return)
+"${IPTABLES}" --table filter --append NOROUTE_OUT --jump RETURN
+

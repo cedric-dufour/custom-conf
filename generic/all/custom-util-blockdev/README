@@ -1,0 +1,6 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-util-blockdev
+
+This package contains various utilities to manage block devices.
+

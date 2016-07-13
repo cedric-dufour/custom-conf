@@ -1,0 +1,9 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-conf-TEMPLATE
+
+This package provides standard configuration of Foo.
+
+In particular, it addresses standard configuration of:
+ - Bar (<-> 'custom-conf-bar' package)
+

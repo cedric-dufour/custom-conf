@@ -1,0 +1,12 @@
+#!/bin/bash
+[ "${1}" != 'configure' ] && exit 0
+PKGNAME='custom-conf-php5'
+
+# Transition files
+gcfg list ${PKGNAME} | while read file; do
+  gcfg unflag "${file}" ${PKGNAME}
+done
+
+# Exit
+exit 0
+

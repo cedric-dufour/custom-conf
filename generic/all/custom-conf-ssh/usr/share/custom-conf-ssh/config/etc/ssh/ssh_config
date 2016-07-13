@@ -1,0 +1,24 @@
+## CUSTOM-CONF: File automatically created/updated [custom-conf-ssh]
+
+# Environment
+SendEnv LANG LC_*
+
+# Hosts
+Host *
+%{CUSTOM_CONF_SSH_HASHKNOWNHOSTS}
+
+# Connections
+%{CUSTOM_CONF_SSH_TCPKEEPALIVE}
+ServerAliveInterval 285
+
+# X11
+%{CUSTOM_CONF_SSH_FORWARDX11}
+ForwardX11Trusted yes
+
+# Authentication
+GSSAPIAuthentication yes
+GSSAPIDelegateCredentials no
+
+# Encryption
+Cipher aes256-cbc
+

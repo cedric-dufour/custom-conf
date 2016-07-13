@@ -1,0 +1,19 @@
+#!/bin/bash
+[ "${1}" != 'remove' ] && exit 0
+PKGNAME='custom-conf-docker'
+
+# Uninstall files
+custom-conf-uninstall "${PKGNAME}" "/usr/share/${PKGNAME}/config" || exit 1
+
+# Warning
+cat << EOF
+!!! WARNING !!! WARNING !!! WARNING !!! WARNING !!! WARNING !!! WARNING !!!
+
+   You MUST *REBOOT* now in order to clear Docker network configuration!
+
+!!! WARNING !!! WARNING !!! WARNING !!! WARNING !!! WARNING !!! WARNING !!!
+EOF
+
+# Exit
+exit 0
+

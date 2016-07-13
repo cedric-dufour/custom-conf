@@ -1,0 +1,13 @@
+Source: custom-conf-ssmtp
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 3.9.7
+
+Package: custom-conf-ssmtp
+Architecture: all
+Depends: custom-conf, ssmtp
+Conflicts: custom-conf-postfix
+Description: Custom Configuration Framework - sSMTP
+

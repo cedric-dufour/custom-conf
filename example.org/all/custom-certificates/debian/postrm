@@ -1,0 +1,12 @@
+#!/bin/bash
+[ "${1}" != 'remove' ] && exit 0
+
+# Remove local site/host resources
+rm -f /etc/ssl/local/local{site,host}-*.pem
+
+# Update (clean-up) CA certificates
+update-ca-certificates --fresh
+
+# Exit
+exit 0
+

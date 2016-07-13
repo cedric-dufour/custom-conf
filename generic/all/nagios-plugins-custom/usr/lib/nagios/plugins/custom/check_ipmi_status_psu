@@ -1,0 +1,29 @@
+#!/bin/bash
+## File automatically created/updated [nagios-plugins-custom]
+# EXIT: 0 = OK; 1 = WARNING; 2 = CRITITCAL; 3 = UNKNOWN (ERROR)
+# ECHO: <human-friendly status message> |<performance_data>
+
+# Usage
+[ $# -lt 2  -o "${1##*-}" == 'help' ] && cat << EOF && exit 3
+USAGE: ${0##*/} <ipmi_host> <ipmi_config>
+SYNOPSIS: Nagios-compliant command to check power supply status via IPMI
+REQUIRED: freeipmi-tools (check: ipmi-sensors)
+EOF
+
+# Arguments
+IPMI_HOST=$1
+IPMI_CONFIG="$2"
+# ... checks
+which ipmi-sensors >/dev/null
+[ $? -ne 0 ] && echo 'ERROR: Missing IPMI monitoring utility (ipmi-sensors)' && exit 3
+[ ! -r "${IPMI_CONFIG}" ] && echo 'ERROR: Missing/unreadable IPMI configuration' && exit 3
+
+# Sensor reading
+SENSOR_OUTPUT="$(ipmi-sensors --config-file="${IPMI_CONFIG}" -h ${IPMI_HOST} | fgrep -i status | fgrep -i power)"
+[ -z "${SENSOR_OUTPUT}" ] && echo 'ERROR: Missing power status' && exit 3
+SENSOR_STATUS=$(echo "${SENSOR_OUTPUT}" | head -n 1 | cut -d'|' -f6 | sed 's/^[^a-zA-Z0-9]*\([a-zA-Z0-9]*\).*/\1/')
+
+# Check
+[ -z "$(echo "${SENSOR_STATUS}" | fgrep -i ok)" ] && echo "CRITICAL: Power status (${SENSOR_STATUS}) is critical|${SENSOR_STATUS},2" && exit 2
+echo "OK: Power status (${SENSOR_STATUS}) is OK |${SENSOR_STATUS},0"
+

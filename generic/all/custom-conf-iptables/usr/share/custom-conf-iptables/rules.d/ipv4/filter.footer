@@ -1,0 +1,21 @@
+## Footer rules/definitions (footer)
+
+# Connection-throttling (to prevent Brute-Force/DoS)
+[ -n "${VERBOSE}" ] && echo "INFO: Throttling connections [IPv4]"
+# ... TCP (high-sensibility) -> SSH
+for __port in 22; do
+  "${IPTABLES}" --table filter --append INPUT --protocol tcp --dport ${__port} --jump THROTTLING_THI; _exit $?
+done
+# ... TCP (low-sensibility) -> DNS, HTTP(S)
+for __port in 53 80 443 8080 8443; do
+  "${IPTABLES}" --table filter --append INPUT --protocol tcp --dport ${__port} --jump THROTTLING_TLO; _exit $?
+done
+# ... TCP (generic)
+"${IPTABLES}" --table filter --append INPUT --protocol tcp --jump THROTTLING_TCP; _exit $?
+# ... UDP (low-sensibility) -> DNS
+for __port in 53; do
+  "${IPTABLES}" --table filter --append INPUT --protocol udp --dport ${__port} --jump THROTTLING_ULO; _exit $?
+done
+# ... UDP (generic)
+"${IPTABLES}" --table filter --append INPUT --protocol udp --jump THROTTLING_UDP; _exit $?
+

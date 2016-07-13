@@ -1,0 +1,66 @@
+#!/bin/bash
+[ "${1}" != 'configure' ] && exit 0
+
+# Migrate to /etc/ssl/local
+# BUG: contain this in a subshell in order not to screw debconf up
+(
+  for file in \
+    /etc/ssl/private/localhost-key.pem \
+    /etc/ssl/certs/localhost-cert.pem \
+    /etc/ssl/certs/localhost-cachain.pem \
+    /etc/ssl/certs/localsite-ca.pem \
+  ; do
+    if [ -h "${file}" ]; then
+      symlink="$(readlink "${file}")"
+      if [ "${symlink##*/}" == "${symlink}" -a -e "${file%/*}/${symlink}" ]; then
+        rm "${file}"
+        file="../${file#/etc/ssl/}"
+        ln -sf "${file%/*}/${symlink}" "/etc/ssl/local/${file##*/}"
+      else
+        mv "${file}" "/etc/ssl/local/${file##*/}"
+      fi
+    elif [ -e "${file}" ]; then
+      mv "${file}" "/etc/ssl/local/${file##*/}"
+    fi
+  done
+)
+
+# Check existing certificate
+if [ -e /etc/ssl/local/localhost-cert.pem ]; then
+  PKI_ID="$(openssl x509 -noout -text -in /etc/ssl/local/localhost-cert.pem | egrep 'example\.org .* (2016)' | head -n 1 | sed 's/^.*example\.org .* \(2016\).*$/\1/')"
+fi
+
+# Debconf
+. /usr/share/debconf/confmodule
+# ... preseed
+if [ -z "${PKI_ID}" ]; then
+  db_input high custom-certificates/pki-id
+  db_go
+else
+  db_set custom-certificates/pki-id ${PKI_ID}
+  db_go
+fi
+# ... get
+if [ -z "${PKI_ID}" ]; then
+  db_get custom-certificates/pki-id && PKI_ID="${RET}"
+fi
+db_stop
+
+# Update CA certificates
+update-ca-certificates --fresh
+
+# Enable the site PKI
+# ... server (which can have only one active PKI/CA chain)
+if [ ! -e /etc/ssl/local/localhost-cachain.pem ]; then
+  ln -sf /usr/local/share/ca-local/localsite-cachain-${PKI_ID}.pem /etc/ssl/local/localhost-cachain.pem
+fi
+echo 'WARNING: Please make sure installed keys/certificates (localhost-*.pem) match the installed PKI (CA chain)'
+ls -l --color=auto /etc/ssl/local/localhost-cachain.pem
+# ... client (which can have multiple valid PKIs)
+if [ ! -e /etc/ssl/local/localsite-ca.pem ]; then
+  ln -sf /usr/local/share/ca-local/localsite-ca.pem /etc/ssl/local/localsite-ca.pem
+fi
+
+# Exit
+exit 0
+

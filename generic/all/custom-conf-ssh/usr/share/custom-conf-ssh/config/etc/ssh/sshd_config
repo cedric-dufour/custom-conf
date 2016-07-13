@@ -1,0 +1,48 @@
+## CUSTOM-CONF: File automatically created/updated [custom-conf-ssh]
+
+# Network settings
+AddressFamily any
+Port 22
+# ... listening address(es)
+# (Please use 'dpkg-reconfigure custom-conf-ssh' to change this setting)
+%{CUSTOM_CONF_SSH_LISTEN_IPV4}
+%{CUSTOM_CONF_SSH_LISTEN_IPV6}
+
+# Protocol settings
+Protocol 2
+HostKey /etc/ssh/ssh_host_rsa_key
+HostKey /etc/ssh/ssh_host_dsa_key
+UsePrivilegeSeparation yes
+KeyRegenerationInterval 3600
+ServerKeyBits 1024
+
+# Logging
+SyslogFacility AUTH
+LogLevel INFO
+
+# Authentication
+LoginGraceTime 30
+PermitRootLogin yes
+StrictModes yes
+RSAAuthentication yes
+PubkeyAuthentication yes
+%{CUSTOM_CONF_SSH_PASSWORDAUTHENTICATION}
+IgnoreRhosts yes
+RhostsRSAAuthentication no
+HostbasedAuthentication no
+PermitEmptyPasswords no
+ChallengeResponseAuthentication no
+UsePAM yes
+
+# Features
+%{CUSTOM_CONF_SSH_FORWARDX11}
+PrintMotd no
+PrintLastLog yes
+%{CUSTOM_CONF_SSH_TCPKEEPALIVE}
+AcceptEnv LANG LC_*
+Subsystem sftp /usr/lib/openssh/sftp-server
+
+# ACL
+# (Please use 'dpkg-reconfigure custom-conf-ssh' to change this setting)
+%{CUSTOM_CONF_SSH_ALLOWUSERS}
+

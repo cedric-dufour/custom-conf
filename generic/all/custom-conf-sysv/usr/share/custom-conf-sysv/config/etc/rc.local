@@ -1,0 +1,9 @@
+#!/bin/sh -e
+## CUSTOM-CONF: File automatically created/updated [custom-conf-sysv]
+
+# Run parts
+run-parts --exit-on-error --verbose /etc/rc.local.d
+
+# Done
+exit 0
+

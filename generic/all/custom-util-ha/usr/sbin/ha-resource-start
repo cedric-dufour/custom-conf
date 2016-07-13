@@ -1,0 +1,14 @@
+#!/bin/bash
+## CUSTOM-UTIL: File automatically created/updated [custom-util-ha]
+
+# Usage
+[ $# -lt 1 -o "${1##*-}" == 'help' ] && cat << EOF >&2 && exit 1
+USAGE: ${0##*/} <resource-id>
+
+HINT: crm_resource -r <resource-id> -m -p target-role -v Started
+EOF
+
+# Command
+HA_RID="$1"
+crm_resource -r ${HA_RID} -m -p target-role -v Started
+

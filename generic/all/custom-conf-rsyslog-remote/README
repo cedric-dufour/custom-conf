@@ -1,0 +1,10 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-conf-rsyslog-remote
+
+This package provides standard configuration of RSyslog logging to a remote
+syslog server.
+
+In particular, it addresses standard configuration of:
+ - remote server IP address (<-> 'custom-defs-...' package)
+

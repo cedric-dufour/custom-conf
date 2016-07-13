@@ -1,0 +1,307 @@
+#!/bin/bash
+## CUSTOM-UTIL: File automatically created/updated [custom-util-ha]
+
+###############################################################################
+# External STONITH module for Intel Modular Server System MFSYS25/35 (SNMPv3)
+# 2011.11.15 <http://cedric.dufour.name>
+###############################################################################
+
+# Command-line arguments
+[ $# -lt 1 -o "${1##*-}" == 'help' ] && cat << EOF && exit 1
+USAGE: ${0##*/} <action> <hostname>
+
+WHERE:
+  Actions MUST be one of the following:
+    query            - Query the power state for the given host.
+    on               - Switch the given host on.
+    off              - Switch the given host off.
+    reset            - Reset the given host.
+    gethosts         - Return the list of hosts configured.
+    status           - Exit with return code zero if this device can be reached,
+                       non-zero if this device cannot be reached.
+    getconfignames   - Return the list of mandatory environment variables that
+                       needs to be configured.
+    getinfo-devid    - Return the device class.
+    getinfo-devname  - Return the device name.
+    getinfo-devdescr - Return the description of this device.
+    getinfo-devurl   - Return a URL pointing to more information on this device.
+    getinfo-xml      - Return an XML fragment defining all of the parameters
+                       and their descriptions.
+
+REFERENCE:
+  See http://www.linux-ha.org/ExternalStonithPlugins
+EOF
+
+# Arguments
+ARG_ACTION="$1"
+ARG_HOSTNAME="$2"
+
+# OIDs
+OID_MFSYS_SIG='.1.3.6.1.2.1.1.1.0'
+OID_MFSYS_SIG_CHECK='Intel'
+OID_MFSYS_STATE_PREFIX='.1.3.6.1.4.1.343.2.19.1.2.10.202.1.1.6'
+
+# Values
+VAL_MFSYS_OFF=0
+VAL_MFSYS_FORCEDOFF=3
+VAL_MFSYS_ON=2
+
+# Set the SNMP configuration directory path
+export SNMPCONFPATH="${snmp_conf_path}"
+
+# Useful function
+function _devchk() {
+  [ -z "${mgmt_address}" ] && echo "ERROR: Missing the device management IP address or hostname (mgmt_address)" >&2 && return 1
+  [ -z "${snmp_conf_path}" ] && echo "ERROR: Missing the SNMP configuration directory path (snmp_conf_path)" >&2 && return 1
+  [ ! -d "${snmp_conf_path}" ] && echo "ERROR: Invalid SNMP configuration directory path (${snmp_conf_path})" >&2 && return 1
+  [ ! -r "${snmp_conf_path}/snmp.conf" ] && echo "ERROR: Missing the SNMP configuration file (${snmp_conf_path}/snmp.conf)" >&2 && return 1
+  [ -z "${server1_hostname}" -a -z "${server2_hostname}" -a -z "${server3_hostname}" -a -z "${server4_hostname}" -a -z "${server5_hostname}" -a -z "${server6_hostname}" ] && echo "ERROR: No hostname(s) defined" >&2 && return 1
+  [ -z "$(which snmpget)" ] && echo "ERROR: Missing SNMP binary (snmpget)" >&2 && return 1
+  [ -z "$(which snmpset)" ] && echo "ERROR: Missing SNMP binary (snmpset)" >&2 && return 1
+  sig="$(snmpget -m '' -t 1 -r 15 -Ov -Oq ${mgmt_address} ${OID_MFSYS_SIG})"
+  [ $? -ne 0 ] && echo "ERROR: Failed to retrieve SNMP device signature" >&2 && return 1
+  sig="${sig//\"/}"; sig="${sig,,}"
+  [ "${sig%% *}" != "${OID_MFSYS_SIG_CHECK,,}" ] && echo "ERROR: Invalid device signature (${sig})" >&2 && return 1
+  return 0
+}
+
+function _getoid() {
+  [ "${ARG_HOSTNAME}" == "${server1_hostname}" ] && echo 1 && return 0
+  [ "${ARG_HOSTNAME}" == "${server2_hostname}" ] && echo 2 && return 0
+  [ "${ARG_HOSTNAME}" == "${server3_hostname}" ] && echo 3 && return 0
+  [ "${ARG_HOSTNAME}" == "${server4_hostname}" ] && echo 4 && return 0
+  [ "${ARG_HOSTNAME}" == "${server5_hostname}" ] && echo 5 && return 0
+  [ "${ARG_HOSTNAME}" == "${server6_hostname}" ] && echo 6 && return 0
+  echo "ERROR: Failed to find server matching hostname (${ARG_HOSTNAME})" >&2 && return 1
+}
+
+function _query() {
+  oid=$(_getoid ${ARG_HOSTNAME}); [ -z "${oid}" ] && return 1
+  state=$(snmpget -m '' -t 1 -Ov -Oq ${mgmt_address} ${OID_MFSYS_STATE_PREFIX}.${oid})
+  [ $? -ne 0 ] && echo "ERROR: Failed to retrieve SNMP value" >&2 && return 1
+  case ${state} in
+    ${VAL_MFSYS_OFF}) echo "OFF";;
+    ${VAL_MFSYS_ON}) echo "ON";;
+    *) echo "Unknown power state (${state})";;
+  esac
+  return 0
+}
+
+function _on() {
+  oid=$(_getoid ${ARG_HOSTNAME}); [ -z "${oid}" ] && return 1
+  state=$(snmpget -m '' -t 1 -Ov -Oq ${mgmt_address} ${OID_MFSYS_STATE_PREFIX}.${oid})
+  [ $? -ne 0 ] && echo "ERROR: Failed to retrieve SNMP value" >&2 && return 1
+  [ "${state}" == "${VAL_MFSYS_ON}" ] && return 0
+  snmpset -m '' -t 1 ${mgmt_address} ${OID_MFSYS_STATE_PREFIX}.${oid} i ${VAL_MFSYS_ON}
+  [ $? -ne 0 ] && echo "ERROR: Failed to send SNMP command (ON)" >&2 && return 1
+  for t in {1..60}; do
+    state=$(snmpget -m '' -t 1 -r 1 -Ov -Oq ${mgmt_address} ${OID_MFSYS_STATE_PREFIX}.${oid})
+    [ $? -ne 0 ] && echo "WARNING: Failed to retrieve SNMP value" >&2 && continue
+    [ "${state}" == "${VAL_MFSYS_ON}" ] && break
+    sleep 1
+  done
+  [ "${state}" != "${VAL_MFSYS_ON}" ] && echo "ERROR: Failed to switch the server off (${ARG_HOSTNAME})" >&2 && return 1
+  return 0
+}
+
+function _off() {
+  oid=$(_getoid ${ARG_HOSTNAME}); [ -z "${oid}" ] && return 1
+  state=$(snmpget -m '' -t 1 -Ov -Oq ${mgmt_address} ${OID_MFSYS_STATE_PREFIX}.${oid})
+  [ $? -ne 0 ] && echo "ERROR: Failed to retrieve SNMP value" >&2 && return 1
+  [ "${state}" == "${VAL_MFSYS_OFF}" ] && return 0
+  snmpset -m '' -t 1 ${mgmt_address} ${OID_MFSYS_STATE_PREFIX}.${oid} i ${VAL_MFSYS_OFF}
+  [ $? -ne 0 ] && echo "ERROR: Failed to send SNMP command (Graceful OFF)" >&2 && return 1
+  for t in {1..30}; do
+    state=$(snmpget -m '' -t 1 -r 1 -Ov -Oq ${mgmt_address} ${OID_MFSYS_STATE_PREFIX}.${oid})
+    [ $? -ne 0 ] && echo "WARNING: Failed to retrieve SNMP value" >&2 && continue
+    [ "${state}" == "${VAL_MFSYS_OFF}" ] && break
+    sleep 1
+  done
+  [ "${state}" == "${VAL_MFSYS_OFF}" ] && return 0
+  snmpset -m '' -t 1 ${mgmt_address} ${OID_MFSYS_STATE_PREFIX}.${oid} i ${VAL_MFSYS_FORCEDOFF}
+  [ $? -ne 0 ] && echo "ERROR: Failed to send SNMP command (Forced OFF)" >&2 && return 1
+  for t in {1..60}; do
+    state=$(snmpget -m '' -t 1 -r 1 -Ov -Oq ${mgmt_address} ${OID_MFSYS_STATE_PREFIX}.${oid})
+    [ $? -ne 0 ] && echo "WARNING: Failed to retrieve SNMP value" >&2 && continue
+    [ "${state}" == "${VAL_MFSYS_OFF}" ] && break
+    sleep 1
+  done
+  [ "${state}" != "${VAL_MFSYS_OFF}" ] && echo "ERROR: Failed to switch the server off (${ARG_HOSTNAME})" >&2 && return 1
+  return 0
+}
+
+# Execute action
+case ${ARG_ACTION} in
+query)
+  _query || exit 1
+  exit 0
+  ;;
+
+on)
+  _on || exit 1
+  exit 0
+  ;;
+
+off)
+  _off || exit 1
+  exit 0
+  ;;
+
+reset)
+  _off || exit 1
+  sleep 1
+  _on || exit 1
+  exit 0
+  ;;
+
+gethosts)
+  [ -n "${server1_hostname}" ] && echo "${server1_hostname}"
+  [ -n "${server2_hostname}" ] && echo "${server2_hostname}"
+  [ -n "${server3_hostname}" ] && echo "${server3_hostname}"
+  [ -n "${server4_hostname}" ] && echo "${server4_hostname}"
+  [ -n "${server5_hostname}" ] && echo "${server5_hostname}"
+  [ -n "${server6_hostname}" ] && echo "${server6_hostname}"
+  exit 0
+  ;;
+
+status)
+  _devchk || exit 1
+  exit 0
+  ;;
+
+getconfignames)
+  echo "mgmt_address"
+  echo "snmp_conf_path"
+  echo "server1_hostname"
+  echo "server2_hostname"
+  echo "server3_hostname"
+  echo "server4_hostname"
+  echo "server5_hostname"
+  echo "server6_hostname"
+  exit 0
+  ;;
+
+getinfo-devid)
+  echo "mfsys STONITH device"
+  exit 0
+  ;;
+
+getinfo-devname)
+  echo "mfsys STONITH device (${snmp_conf_path})"
+  exit 0
+  ;;
+
+getinfo-devdescr)
+  echo "Intel Modular Server System STONITH device via SNMPv3"
+  exit 0
+  ;;
+
+getinfo-devurl)
+  echo 'http://www.intel.com/support/motherboards/server/mfsys25/'
+  exit 0
+  ;;
+
+getinfo-xml)
+  cat << EOF
+<parameters>
+
+<parameter name="mgmt_address" unique="1" required="1">
+<content type="string" />
+<shortdesc lang="en">
+Management Address (or Hostname)
+</shortdesc>
+<longdesc lang="en">
+The IP address or hostname for the management module of the MFSYS25/35 system.
+</longdesc>
+</parameter>
+
+<parameter name="snmp_conf_path" unique="1" required="1">
+<content type="string" />
+<shortdesc lang="en">
+SNMP Configuration Directory Path
+</shortdesc>
+<longdesc lang="en">
+The path to the directory containing the 'snmp.conf' configuration file to
+access the management module of the MFSYS25/35 system via SNMPv3.
+See 'man snmp_config' and 'man snmp.conf' for details.
+</longdesc>
+</parameter>
+
+<parameter name="server1_hostname" unique="1" required="1">
+<content type="string" />
+<shortdesc lang="en">
+Server 1 Hostname
+</shortdesc>
+<longdesc lang="en">
+The hostname (as in 'uname -n') corresponding to the modular server 1.
+Set to 'null' if the modular server is not installed.
+</longdesc>
+</parameter>
+
+<parameter name="server2_hostname" unique="1" required="1">
+<content type="string" />
+<shortdesc lang="en">
+Server 2 Hostname
+</shortdesc>
+<longdesc lang="en">
+The hostname (as in 'uname -n') corresponding to the modular server 2.
+Set to 'null' if the modular server is not installed.
+</longdesc>
+</parameter>
+
+<parameter name="server3_hostname" unique="1" required="1">
+<content type="string" />
+<shortdesc lang="en">
+Server 3 Hostname
+</shortdesc>
+<longdesc lang="en">
+The hostname (as in 'uname -n') corresponding to the modular server 3.
+Set to 'null' if the modular server is not installed.
+</longdesc>
+</parameter>
+
+<parameter name="server4_hostname" unique="1" required="1">
+<content type="string" />
+<shortdesc lang="en">
+Server 4 Hostname
+</shortdesc>
+<longdesc lang="en">
+The hostname (as in 'uname -n') corresponding to the modular server 4.
+Set to 'null' if the modular server is not installed.
+</longdesc>
+</parameter>
+
+<parameter name="server5_hostname" unique="1" required="1">
+<content type="string" />
+<shortdesc lang="en">
+Server 5 Hostname
+</shortdesc>
+<longdesc lang="en">
+The hostname (as in 'uname -n') corresponding to the modular server 5.
+Set to 'null' if the modular server is not installed.
+</longdesc>
+</parameter>
+
+<parameter name="server6_hostname" unique="1" required="1">
+<content type="string" />
+<shortdesc lang="en">
+Server 6 Hostname
+</shortdesc>
+<longdesc lang="en">
+The hostname (as in 'uname -n') corresponding to the modular server 6.
+Set to 'null' if the modular server is not installed.
+</longdesc>
+</parameter>
+
+</parameters>
+EOF
+  exit 0
+  ;;
+
+*)
+  echo "ERROR: Invalid action (${ARG_ACTION})" >&2 && exit 1
+  exit 1
+  ;;
+
+esac
+

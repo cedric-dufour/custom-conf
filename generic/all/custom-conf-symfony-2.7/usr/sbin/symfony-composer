@@ -1,0 +1,7 @@
+#!/bin/bash
+set -e
+pushd /opt/symfony
+trap 'popd' EXIT
+ARGS="$@"
+su -l symfony -s /bin/sh -c "/usr/bin/php /usr/share/custom-conf-symfony/composer.phar ${ARGS}"
+

@@ -1,0 +1,40 @@
+#!/bin/bash
+
+# Usage
+[ "${1##*-}" == 'help' ] && cat << EOF && exit 1
+USAGE: ${0##*/} [<codename>]
+EOF
+
+# Arguments
+MY_CODENAME="${1}"; shift
+# ... validate
+[ -z "${MY_CODENAME}" ] && MY_CODENAME='all debian jessie wheezy'
+
+# Parameters
+MY_COMPONENT='generic'
+
+# Loop through repositories
+cd "$(dirname $0)"
+base="$(pwd)"
+for codename in ${MY_CODENAME}; do
+  cd "${base}/${MY_COMPONENT}.${codename}" || continue
+  root="$(pwd)"
+  dist="dists/${codename}-custom/${MY_COMPONENT}"
+  [ ! -d "${dist}" ] && continue
+  echo "[${root}/${dist}]"
+  if [ -d "${dist}/source" ]; then
+    dpkg-scansources "${dist}/source" > "${dist}/source/Sources"
+    cat "${dist}/source/Sources" | gzip -9 -c > "${dist}/source/Sources.gz"
+    cat "${dist}/source/Sources" | bzip2 -9 -c > "${dist}/source/Sources.bz2"
+    cat "${dist}/source/Sources" | xz -c > "${dist}/source/Sources.xz"
+  fi
+  for arch in amd64; do
+    if [ -d "${dist}/binary" -a -d "${dist}/binary-${arch}" ]; then
+      dpkg-scanpackages --arch ${arch} "${dist}/binary" > "${dist}/binary-${arch}/Packages"
+      cat "${dist}/binary-${arch}/Packages" | gzip -9 -c > "${dist}/binary-${arch}/Packages.gz"
+      cat "${dist}/binary-${arch}/Packages" | bzip2 -9 -c > "${dist}/binary-${arch}/Packages.bz2"
+      cat "${dist}/binary-${arch}/Packages" | xz -c > "${dist}/binary-${arch}/Packages.xz"
+    fi
+  done
+done
+

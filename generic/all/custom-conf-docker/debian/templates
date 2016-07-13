@@ -1,0 +1,45 @@
+Template: custom-conf-docker/iptables-auto
+Type: boolean
+Default: true
+Description: Let Docker manages iptables automatically ?
+ * <Yes>
+ .
+   The Docker Daemon will automatically manages iptables. You ought to use the
+   'docker0' (IPv4-only) bridge as usual. Be aware security may be sub-optimal.
+ .
+ * <No>
+ .
+   You ought to use the 'docker1' (IPv4 and IPv6) bridge and manage containers-
+   specific iptables (NAT and filtering) manually.
+ .
+ ? If unsure, say <Yes>.
+
+Template: custom-conf-docker/userns-shift
+Type: string
+Default: 0
+Description: UID/GID shift value for kernel user namespace ?
+ * 0
+ .
+   Kernel user namespace is NOT enabled.
+ .
+ * 1-4096
+ .
+   Kernel user namespace is enabled. UIDs/GIDs are shifted according to
+   1'000'000x the specified value. You MUST pull all Docker images anew
+   for the given UID/GID shift. Also, UIDs/GIDs of mounted volumes MUST
+   be corrected accordingly.
+ .
+ ? If unsure, say 0.
+
+Template: custom-conf-docker/syslog-listen
+Type: boolean
+Default: false
+Description: Have local syslog daemon listen to containers syslog traffic ?
+ * <Yes>
+ .
+   The host rsyslog daemon will be configured to listen to UDP/514 traffic
+   on the Docker bridge; be aware security may be sub-optimal as this may lead
+   to Denial-of-Service on the host (log files filling up the disk).
+ .
+ ? If unsure, say <No>.
+

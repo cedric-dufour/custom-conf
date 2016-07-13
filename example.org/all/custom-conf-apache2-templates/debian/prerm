@@ -1,0 +1,21 @@
+#!/bin/bash
+[ "${1}" != 'remove' ] && exit 0
+PKGNAME='custom-conf-apache2-templates'
+
+# Retrieve Apache version
+CUSTOM_CONF_APACHE2_VERSION="$(apachectl -v | fgrep 'Apache/2' | sed 's/^.*Apache\/\([0-9]*\).\([0-9]*\).*$/\1.\2/')"
+case "${CUSTOM_CONF_APACHE2_VERSION}" in
+  '2.2'|'2.4')
+    ;;
+  *)
+    echo "ERROR[${PKGNAME}]: Unsupported Apache version (${CUSTOM_CONF_APACHE2_VERSION})"
+    exit 1
+    ;;
+esac
+
+# Uninstall files
+custom-conf-uninstall "${PKGNAME}" "/usr/share/${PKGNAME}/config/apache-${CUSTOM_CONF_APACHE2_VERSION}" || exit 1
+
+# Exit
+exit 0
+

@@ -1,0 +1,15 @@
+Source: custom-conf-xorg-generic
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 3.9.7
+
+Package: custom-conf-xorg-generic
+Architecture: all
+Depends: custom-conf
+Conflicts: custom-conf-xorg-nvidia
+Breaks: custom-conf-xorg (<< 2016.07.05a)
+Replaces: custom-conf-xorg (<< 2016.07.05a)
+Description: Custom Configuration Framework - X.org <-> generic GPU
+

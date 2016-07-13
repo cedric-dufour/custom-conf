@@ -1,0 +1,13 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-conf-logwatcherd
+
+This package provides standard configuration for the Log Watcher Daemon
+(logwatcherd):
+
+  https://github.com/cedric-dufour/logwatcherd
+
+In particular, it addresses standard configuration of:
+ - helper firewall rules (<-> 'custom-conf-iptables' package)
+ - sample log watching rules
+

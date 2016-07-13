@@ -1,0 +1,14 @@
+# Jessie
+#gpg --no-default-keyring --keyring trustedkeys.gpg --keyserver keys.gnupg.net --recv-keys 473041FA
+/usr/bin/debmirror $@ \
+"$(dirname $0)/debian-backports.jessie" \
+--method=http \
+--host=ftp.debian.org \
+--root=debian \
+--dist=jessie-backports \
+--arch=amd64 \
+--section=main,contrib,non-free \
+--diff=none \
+--rsync-extra=none \
+--nosource | /usr/bin/tee "$(dirname $0)/debian-backports.jessie.debmirror.log"
+

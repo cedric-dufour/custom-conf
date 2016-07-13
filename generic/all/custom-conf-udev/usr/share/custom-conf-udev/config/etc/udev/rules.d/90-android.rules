@@ -1,0 +1,80 @@
+## CUSTOM-CONF: File automatically created/updated [custom-conf-udev]
+
+
+## UDev rules
+
+# Allow 'plugdev' group to access Android devices' USB port (e.g. for 'adb')
+# (see http://developer.android.com/tools/device.html for list of vendor IDs)
+# ... Acer devices
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="0502", GROUP="plugdev", MODE="0660"
+# ... ASUS devices
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="0b05", GROUP="plugdev", MODE="0660"
+# ... Dell devices
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="413c", GROUP="plugdev", MODE="0660"
+# ... Foxconn devices
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="0489", GROUP="plugdev", MODE="0660"
+# ... Fujitsu devices
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="04c5", GROUP="plugdev", MODE="0660"
+# ... Fujitsu Toshiba devices
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="04c5", GROUP="plugdev", MODE="0660"
+# ... Garmin-Asus devices
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="091e", GROUP="plugdev", MODE="0660"
+# ... Google devices
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="18d1", GROUP="plugdev", MODE="0660"
+# ... Haier devices
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="201E", GROUP="plugdev", MODE="0660"
+# ... Hisense devices
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="109b", GROUP="plugdev", MODE="0660"
+# ... HTC devices
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="0bb4", GROUP="plugdev", MODE="0660"
+# ... Huawei devices
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="12d1", GROUP="plugdev", MODE="0660"
+# ... K-Touch devices
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="24e3", GROUP="plugdev", MODE="0660"
+# ... KT Tech devices
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="2116", GROUP="plugdev", MODE="0660"
+# ... Kyocera devices
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="0482", GROUP="plugdev", MODE="0660"
+# ... Lenovo devices
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="17ef", GROUP="plugdev", MODE="0660"
+# ... LG devices
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="1004", GROUP="plugdev", MODE="0660"
+# ... Motorola devices
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="22b8", GROUP="plugdev", MODE="0660"
+# ... MTK devices
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="0e8d", GROUP="plugdev", MODE="0660"
+# ... NEC devices
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="0409", GROUP="plugdev", MODE="0660"
+# ... Nook devices
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="2080", GROUP="plugdev", MODE="0660"
+# ... Nvidia devices
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="0955", GROUP="plugdev", MODE="0660"
+# ... OTGV devices
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="2257", GROUP="plugdev", MODE="0660"
+# ... Pantech devices
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="10a9", GROUP="plugdev", MODE="0660"
+# ... Pegatron devices
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="1d4d", GROUP="plugdev", MODE="0660"
+# ... Philips devices
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="0471", GROUP="plugdev", MODE="0660"
+# ... PMC-Sierra devices
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="04da", GROUP="plugdev", MODE="0660"
+# ... Qualcomm devices
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="05c6", GROUP="plugdev", MODE="0660"
+# ... SK Telesys devices
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="1f53", GROUP="plugdev", MODE="0660"
+# ... Samsung devices
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="04e8", GROUP="plugdev", MODE="0660"
+# ... Sharp devices
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="04dd", GROUP="plugdev", MODE="0660"
+# ... Sony devices
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="054c", GROUP="plugdev", MODE="0660"
+# ... Sony Ericsson devices
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="0fce", GROUP="plugdev", MODE="0660"
+# ... Teleepoch devices
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="2340", GROUP="plugdev", MODE="0660"
+# ... Toshiba devices
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="0930", GROUP="plugdev", MODE="0660"
+# ... ZTE devices
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="19d2", GROUP="plugdev", MODE="0660"
+

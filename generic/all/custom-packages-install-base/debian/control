@@ -1,0 +1,13 @@
+Source: custom-packages-install-base
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 3.9.7
+
+Package: custom-packages-install-base
+Architecture: all
+Depends: bzip2, gustat, openssh-client, rsync, screen, unzip, vim, xz-utils
+Recommends: atop, bsd-mailx
+Description: Custom Configuration Framework - Base packages
+

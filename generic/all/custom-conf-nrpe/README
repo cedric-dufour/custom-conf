@@ -1,0 +1,10 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-conf-nrpe
+
+This package provides standard configuration of the Nagios Remote Plugin
+Executor (NRPE).
+
+In particular, it addresses standard configuration of:
+ - custom plugins (<-> 'nagios-plugins-custom' package)
+

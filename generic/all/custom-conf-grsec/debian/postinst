@@ -1,0 +1,39 @@
+#!/bin/bash
+[ "${1}" != 'configure' ] && exit 0
+PKGNAME='custom-conf-grsec'
+
+# Install files
+custom-conf-install "${PKGNAME}" "/usr/share/${PKGNAME}/config" || exit 1
+
+# Add grsecurity specific groups
+# trusted users allowed to bypass /proc restrictions
+addgroup --system --quiet --gid 65001 grsec-proc
+# untrusted users who shall be denied server sockets access
+addgroup --system --quiet --gid 65002 grsec-sock-srv
+# untrusted users who shall be denied client sockets access
+addgroup --system --quiet --gid 65003 grsec-sock-clt
+# untrusted users who shall be denied all (client/server) sockets access
+addgroup --system --quiet --gid 65004 grsec-sock-all
+# untrusted users whose binaries must satisfy the Trusted Path Execution mechanism
+addgroup --system --quiet --gid 65005 grsec-tpe
+# untrusted users who shall use the hardened version of SymlinksIfOwnerMatch
+addgroup --system --quiet --gid 65006 grsec-siom \
+&& adduser www-data grsec-siom
+# untrusted users whose actitivity must be monitored/logged
+addgroup --system --quiet --gid 65007 grsec-audit
+
+# Additional actions
+sysctl --system
+
+# Check grsecurity installation
+[ ! -e /proc/sys/kernel/grsecurity ] && cat << EOF
+!!! WARNING !!! WARNING !!! WARNING !!! WARNING !!! WARNING !!! WARNING !!!
+
+       !!! THE RUNNING KERNEL DOES NOT HAVE GRSECURITY ENABLED !!!
+
+!!! WARNING !!! WARNING !!! WARNING !!! WARNING !!! WARNING !!! WARNING !!!
+EOF
+
+# Exit
+exit 0
+

@@ -1,0 +1,9 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-conf-udev
+
+This package provides standard configuration of user devices (UDev).
+
+In particular, it addresses standard configuration of:
+ - rules/quirks for specific devices
+

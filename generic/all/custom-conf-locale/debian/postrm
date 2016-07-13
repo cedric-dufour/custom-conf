@@ -1,0 +1,13 @@
+#!/bin/bash
+# NOTE: see http://www.fifi.org/doc/debconf-doc/tutorial.html for how-to
+[ "${1}" != 'purge' ] && exit 0
+
+# Purge all parameters
+if [ -e /usr/share/debconf/confmodule ]; then
+  . /usr/share/debconf/confmodule
+  db_purge
+fi
+
+# Exit
+exit 0
+

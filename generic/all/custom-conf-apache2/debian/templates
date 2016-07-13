@@ -1,0 +1,23 @@
+Template: custom-conf-apache2/bind-address
+Type: string
+Default:
+Description: Bind to a specific address(es) ?
+ Please specify which address(es) to bind the service to:
+ .
+  - {empty}:   do not bind to any specific address (security risk)
+  - localhost: bind to localhost addresses (private service)
+  - gateway:   bind to addresses matching configured gateway/network
+  - <addr>:    space-separated actual IP address(es)
+
+Template: custom-conf-apache2/bind-port-http
+Type: string
+Default: 80
+Description: Bind to a specific port(s) ?
+ Space-separated list of HTTP port(s) to bind the service to
+
+Template: custom-conf-apache2/bind-port-https
+Type: string
+Default: 443
+Description: Bind to a specific port(s) ?
+ Space-separated list of HTTPS port(s) to bind the service to
+

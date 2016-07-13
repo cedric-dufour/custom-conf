@@ -1,0 +1,8 @@
+## CUSTOM-CONF: File automatically created/updated [custom-conf-xplane]
+
+# Allow plugdev users to access/use the joystick
+KERNEL=="js*", GROUP="plugdev", MODE="0660"
+
+# Allow direct USB access for X52 Saitek
+SUBSYSTEM=="usb", ATTR{idVendor}=="06a3", ATTR{idProduct}=="075c", GROUP="plugdev", MODE="0666"
+

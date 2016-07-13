@@ -1,0 +1,15 @@
+#!/bin/bash
+[ "${1}" != 'configure' ] && exit 0
+PKGNAME='custom-conf-iceweasel'
+
+# Transition files
+gcfg list ${PKGNAME} | while read file; do
+  gcfg unflag "${file}" ${PKGNAME}
+done
+
+# Purge the configuration directory
+rm -rf /etc/iceweasel
+
+# Exit
+exit 0
+

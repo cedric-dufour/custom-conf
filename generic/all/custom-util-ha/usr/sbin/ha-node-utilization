@@ -1,0 +1,24 @@
+#!/bin/bash
+## CUSTOM-UTIL: File automatically created/updated [custom-util-ha]
+
+# Usage
+[ $# -lt 3 -o "${1##*-}" == 'help' ] && cat << EOF >&2 && exit 1
+USAGE: ${0##*/} <node> <RAM-megabytes> <CPU-cores>
+
+SYNOPSIS:
+  Define the node hardware utilization capabilities.
+EOF
+
+# Command
+HA_NODE="$1"
+HA_NODE_RAM="${2}"
+HA_NODE_CPU="${3}"
+cat << EOF | cibadmin -o nodes -M -c -p
+<node id="${HA_NODE}" type="normal" uname="${HA_NODE}">
+  <utilization id="${HA_NODE}-utilization">
+    <nvpair id="${HA_NODE}-utilization-cpu" name="cpu" value="${HA_NODE_CPU}"/>
+    <nvpair id="${HA_NODE}-utilization-memory" name="memory" value="${HA_NODE_RAM}"/>
+  </utilization>
+</node>
+EOF
+

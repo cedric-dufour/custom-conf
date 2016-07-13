@@ -1,0 +1,6 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-util-adaptec
+
+This package contains various utilities to manage Adaptec RAID adapters.
+

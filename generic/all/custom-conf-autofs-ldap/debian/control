@@ -1,0 +1,12 @@
+Source: custom-conf-autofs-ldap
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 3.9.7
+
+Package: custom-conf-autofs-ldap
+Architecture: all
+Depends: custom-conf, custom-conf-autofs, custom-conf-nss-ldap, autofs-ldap
+Description: Custom Configuration Framework - AutoFS <-> LDAP
+

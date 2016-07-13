@@ -1,0 +1,10 @@
+Template: custom-conf-locale/keyboard-type
+Type: select
+Choices: us, ch_fr
+Default: us
+Description: Keyboard type ?
+ Please select the keyboard type among the following choices:
+ .
+  - us:     United States (standard)
+  - fr_ch:  Switzerland - French variant
+

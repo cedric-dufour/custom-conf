@@ -1,0 +1,12 @@
+Source: custom-defs-example.org
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 3.9.7
+
+Package: custom-defs-example.org
+Architecture: all
+Depends: custom-conf
+Description: Custom Configuration Framework - Definitions <-> example.org
+

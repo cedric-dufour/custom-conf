@@ -1,0 +1,13 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-conf-docker
+
+This package provides standard configuration of the Docker Engine (daemon).
+
+In particular, it addresses standard configuration of:
+ - non-conflicting default network segment (<-> 'docker0' bridge)
+ - consistent user namespaces
+ - firewall rules (<-> 'custom-conf-iptables' package)
+ - IPv6 (NAT) support (<-> 'docker1' bridge)
+ - syslog integration (<-> 'custom-conf-rsyslog' package)
+

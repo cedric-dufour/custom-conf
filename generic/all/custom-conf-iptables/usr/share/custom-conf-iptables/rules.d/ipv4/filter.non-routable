@@ -1,0 +1,77 @@
+## Default rules/definitions (non-routable)
+#  REF: https://en.wikipedia.org/wiki/Reserved_IP_addresses
+#
+#  This snippet creates NOROUTE_[IN,OUT] chains for standard/well-known
+#  non-routable IP segments. Those chains can then be used where
+#  appropriate (eg. on public interfaces).
+#
+#  source "${IPTABLES_RULESD_DFLT}/filter.non-routable"
+#  "${IPTABLES}" --table filter [...] --jump NOROUTE_[IN,OUT]
+#
+
+# Non-routable chains
+[ -n "${VERBOSE}" ] && echo "INFO: Creating non-routable chains [IPv4]"
+# ... LOG and DROP
+"${IPTABLES}" --table filter --new-chain NOROUTE_DROP
+"${IPTABLES}" --table filter --append NOROUTE_DROP --match recent --name NOROUTE_DROP --rcheck --seconds 300 --jump DROP
+"${IPTABLES}" --table filter --append NOROUTE_DROP --jump LOG --log-level warning --log-prefix '[IPTABLES:NOROUTE_DROP] '
+"${IPTABLES}" --table filter --append NOROUTE_DROP --match recent --name NOROUTE_DROP --set --jump DROP
+
+# ... IN(coming)
+"${IPTABLES}" --table filter --new-chain NOROUTE_IN
+# ... link-local (RFC 3927)
+"${IPTABLES}" --table filter --append NOROUTE_IN --source 169.254.0.0/16 --jump NOROUTE_DROP
+# ... multicast (RFC 5771)
+"${IPTABLES}" --table filter --append NOROUTE_IN --source 224.0.0.0/4 --jump NOROUTE_DROP
+# ... private (Class A, RFC 1918)
+"${IPTABLES}" --table filter --append NOROUTE_IN --source 10.0.0.0/8 --jump NOROUTE_DROP
+# ... private (Class B, RFC 1918)
+"${IPTABLES}" --table filter --append NOROUTE_IN --source 172.16.0.0/12 --jump NOROUTE_DROP
+# ... private (Class C, RFC 1918)
+"${IPTABLES}" --table filter --append NOROUTE_IN --source 192.168.0.0/16 --jump NOROUTE_DROP
+# ... private (Carrier-grade NAT, RFC 6598)
+"${IPTABLES}" --table filter --append NOROUTE_IN --source 100.64.0.0/10 --jump NOROUTE_DROP
+# ... reserved (RFC 6890)
+"${IPTABLES}" --table filter --append NOROUTE_IN --source 240.0.0.0/4 --jump NOROUTE_DROP
+# ... reserved (Special Purpose Address Registry/SPAR, RFC 5736)
+"${IPTABLES}" --table filter --append NOROUTE_IN --source 192.0.0.0/24 --jump NOROUTE_DROP
+# ... reserved (Benchmarking Methodology Working Group/BMWG, RFC 2544)
+"${IPTABLES}" --table filter --append NOROUTE_IN --source 198.18.0.0/15 --jump NOROUTE_DROP
+# ... reserved (documentation, RFC 5737)
+"${IPTABLES}" --table filter --append NOROUTE_IN --source 192.0.2.0/24 --jump NOROUTE_DROP
+"${IPTABLES}" --table filter --append NOROUTE_IN --source 198.51.100.0/24 --jump NOROUTE_DROP
+"${IPTABLES}" --table filter --append NOROUTE_IN --source 203.0.113.0/24 --jump NOROUTE_DROP
+# ... IPv6 (6to4 anycast, RFC 3068)
+"${IPTABLES}" --table filter --append NOROUTE_IN --source 192.88.99.0/24 --jump NOROUTE_DROP
+# ... (return)
+"${IPTABLES}" --table filter --append NOROUTE_IN --jump RETURN
+
+# ... OUT(coming)
+"${IPTABLES}" --table filter --new-chain NOROUTE_OUT
+# ... link-local (RFC 3927)
+"${IPTABLES}" --table filter --append NOROUTE_OUT --destination 169.254.0.0/16 --jump NOROUTE_DROP
+# ... multicast (RFC 5771)
+"${IPTABLES}" --table filter --append NOROUTE_OUT --destination 224.0.0.0/4 --jump NOROUTE_DROP
+# ... private (Class A, RFC 1918)
+"${IPTABLES}" --table filter --append NOROUTE_OUT --destination 10.0.0.0/8 --jump NOROUTE_DROP
+# ... private (Class B, RFC 1918)
+"${IPTABLES}" --table filter --append NOROUTE_OUT --destination 172.16.0.0/12 --jump NOROUTE_DROP
+# ... private (Class C, RFC 1918)
+"${IPTABLES}" --table filter --append NOROUTE_OUT --destination 192.168.0.0/16 --jump NOROUTE_DROP
+# ... private (Carrier-grade NAT, RFC 6598)
+"${IPTABLES}" --table filter --append NOROUTE_OUT --destination 100.64.0.0/10 --jump NOROUTE_DROP
+# ... reserved (RFC 6890)
+"${IPTABLES}" --table filter --append NOROUTE_OUT --destination 240.0.0.0/4 --jump NOROUTE_DROP
+# ... reserved (Special Purpose Address Registry/SPAR, RFC 5736)
+"${IPTABLES}" --table filter --append NOROUTE_OUT --destination 192.0.0.0/24 --jump NOROUTE_DROP
+# ... reserved (Benchmarking Methodology Working Group/BMWG, RFC 2544)
+"${IPTABLES}" --table filter --append NOROUTE_OUT --destination 198.18.0.0/15 --jump NOROUTE_DROP
+# ... reserved (documentation, RFC 5737)
+"${IPTABLES}" --table filter --append NOROUTE_OUT --destination 192.0.2.0/24 --jump NOROUTE_DROP
+"${IPTABLES}" --table filter --append NOROUTE_OUT --destination 198.51.100.0/24 --jump NOROUTE_DROP
+"${IPTABLES}" --table filter --append NOROUTE_OUT --destination 203.0.113.0/24 --jump NOROUTE_DROP
+# ... IPv6 (6to4 anycast, RFC 3068)
+"${IPTABLES}" --table filter --append NOROUTE_OUT --destination 192.88.99.0/24 --jump NOROUTE_DROP
+# ... (return)
+"${IPTABLES}" --table filter --append NOROUTE_OUT --jump RETURN
+

@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# Usage
+[ $# -lt 1 -o "${1##*-}" == 'help' ] && cat << EOF && exit 1
+USAGE: ${0##*/} <interface> [<options>]
+
+SYNOPSIS:
+  Ping the (lowest metric) routing gateway matching the given interface (using
+  'egrep' stanza).
+  See 'man ping' for possible options.
+EOF
+
+# Arguments
+IF="${1}"; shift
+
+# Retrieve gateway IP
+GW=$(ip -6 route | grep '^default' | awk '{ if($7!~/^[0-9]{1,}$/) $7=0; print $3,$5,$7}' | egrep "^[0-9a-f]{1,4}(:[0-9a-z]{0,4}){1,7} ${IF} [0-9]{1,}\$" | sort -n -k3,3 | head -n 1 | cut -d' ' -f1)
+[ -z "${GW}" ] && echo "ERROR[${0##*/}]: No matching gateway" >&2 && exit 1
+
+# Ping
+ping6 $* ${GW}
+

@@ -1,0 +1,26 @@
+#!/bin/bash
+
+
+## Usage
+[ $# -lt 1 -o "${1##*-}" == 'help' ] && cat << EOF && exit 1
+USAGE: ${0##*/} get
+       ${0##*/} set <theme>
+EOF
+
+
+## Action
+case "${1}" in
+
+  'get')
+    gsettings get org.gnome.desktop.wm.preferences theme
+    ;;
+
+  'set')
+    gsettings set org.gnome.desktop.wm.preferences theme "${2}"
+    ;;
+
+  *)
+    echo "ERROR: Invalid action (${1})" && exit 1 
+    ;;
+
+esac

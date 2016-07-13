@@ -1,0 +1,77 @@
+#!/bin/bash
+[ "${1}" != 'configure' ] && exit 0
+PKGNAME='custom-conf-docker'
+
+# Debconf
+. /usr/share/debconf/confmodule
+# ... preseed
+for var_priority in iptables-auto:high userns-shift:high syslog-listen:high; do
+  var="${var_priority%:*}"
+  priority="${var_priority#*:}"
+  db_input ${priority} ${PKGNAME}/${var}
+  db_go
+done
+# ... get
+db_get ${PKGNAME}/iptables-auto && IPTABLES_AUTO="${RET}"
+db_get ${PKGNAME}/userns-shift && USERNS_SHIFT="${RET}"
+db_get ${PKGNAME}/syslog-listen && SYSLOG_LISTEN="${RET}"
+db_stop
+
+# Install files
+custom-conf-install "${PKGNAME}" "/usr/share/${PKGNAME}/config" || exit 1
+
+# Fine-tune files
+ipv6="$(ip -6 addr 2>/dev/null | fgrep 'scope global')"
+
+# ... iptables
+CUSTOM_CONF_DOCKER_OPTS='--bip 192.168.213.1/24 --userland-proxy=false'
+CUSTOM_CONF_DOCKER_IPTABLES_AUTO_EXIT='exit 0  # iptables are managed automatically by Docker'
+CUSTOM_CONF_DOCKER_IPTABLES_MANULA_EXIT='#no#exit 0  # iptables are managed automatically by Docker'
+if [ "${IPTABLES_AUTO}" != 'true' ]; then
+  CUSTOM_CONF_DOCKER_OPTS="${CUSTOM_CONF_DOCKER_OPTS} --iptables=false"
+  CUSTOM_CONF_DOCKER_IPTABLES_AUTO_EXIT='#no#exit 0  # Docker iptables are managed manually'
+  CUSTOM_CONF_DOCKER_IPTABLES_MANUAL_EXIT='exit 0  # Docker iptables are managed manually'
+fi
+gsed "s|%{CUSTOM_CONF_DOCKER_IPTABLES_AUTO_EXIT}|${CUSTOM_CONF_DOCKER_IPTABLES_AUTO_EXIT}|g;s|%{CUSTOM_CONF_DOCKER_IPTABLES_MANUAL_EXIT}|${CUSTOM_CONF_DOCKER_IPTABLES_MANUAL_EXIT}|g" /etc/iptables/hooks.d/ipv{4,6}/{pre-stop,post-start}.d/50_custom-conf-docker /etc/iptables/rules.d/ipv{4,6}/{filter,nat}.d/50_custom-conf-docker
+
+# ... userns
+[ -n "${USERNS_SHIFT}" ] && USERNS_SHIFT=$(( 1 * ${USERNS_SHIFT} )) || USERNS_SHIFT=0
+if [ ${USERNS_SHIFT} -lt 0 -o ${USERNS_SHIFT} -gt 4096 ]; then
+  echo "WARNING[${PKGNAME}]: Invalid UID/GID shift value for kernel user namespace"
+  CUSTOM_CONF_USERNS_SHIFT=0
+else
+  CUSTOM_CONF_USERNS_SHIFT=$(( 1000000 * ${USERNS_SHIFT} ))
+fi
+if [ ${CUSTOM_CONF_USERNS_SHIFT} -ne 0 ]; then
+  CUSTOM_CONF_DOCKER_OPTS="${CUSTOM_CONF_DOCKER_OPTS} --userns-remap=userns-docker:userns-docker"
+  adduser --system --home /nonexistent --no-create-home --shell /bin/false --group --disabled-login --gecos 'Docker UserNS' userns-docker >/dev/null
+  gsed '/^userns-docker:/d' /etc/subuid /etc/subgid
+  echo "userns-docker:${CUSTOM_CONF_USERNS_SHIFT}:65536" >> /etc/subuid
+  echo "userns-docker:${CUSTOM_CONF_USERNS_SHIFT}:65536" >> /etc/subgid
+fi
+gsed "s|%{CUSTOM_CONF_DOCKER_OPTS}|${CUSTOM_CONF_DOCKER_OPTS}|g" /etc/default/docker /etc/systemd/system/docker.service
+
+# ... rsyslog
+[ "${SYSLOG_LISTEN}" == 'true' ] && gsed 's|^#\$|$|' /etc/rsyslog.d/05_custom-conf-docker.conf
+
+# Additional actions
+invoke-rc.d docker restart
+# ... custom network (docker1)
+docker network ls | fgrep -q docker1 && docker network rm docker1 >/dev/null
+if [ "${IPTABLES_AUTO}" != 'true' ]; then
+  echo "INFO[${PKGNAME}]: Creating custom 'docker1' network bridge"
+  docker network create --driver bridge --subnet 192.168.214.0/24 --gateway 192.168.214.1 ${ipv6:+--ipv6 --subnet fec0:c0a8:d600::/120 --gateway fec0:c0a8:d600::1} --opt com.docker.network.bridge.name=docker1 docker1
+fi
+
+# Warning
+cat << EOF
+!!! WARNING !!! WARNING !!! WARNING !!! WARNING !!! WARNING !!! WARNING !!!
+
+  You MUST *REBOOT* now in order to enforce Docker network configuration!
+
+!!! WARNING !!! WARNING !!! WARNING !!! WARNING !!! WARNING !!! WARNING !!!
+EOF
+
+# Exit
+exit 0
+

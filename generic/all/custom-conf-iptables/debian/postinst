@@ -1,0 +1,52 @@
+#!/bin/bash
+[ "${1}" != 'configure' ] && exit 0
+PKGNAME='custom-conf-iptables'
+
+# Upgrade ?
+/usr/share/${PKGNAME}/config-upgrade detect && cat << EOF && exit 0
+WARNING[${PKGNAME}]: Old configuration detected! Please upgrade and re-configure.
+: /usr/share/${PKGNAME}/config-upgrade
+: dpkg-reconfigure ${PKGNAME}
+EOF
+
+# Install files
+custom-conf-install "${PKGNAME}" "/usr/share/${PKGNAME}/config" || exit 1
+
+# Fine-tune configuration
+source /usr/share/custom-conf/custom-conf.defs
+segments=
+for segment in ${CUSTOM_CONF_IPTABLES_WHITELIST_IPV4S}; do
+  segments="${segments}${segments:+%NL;}${segment}"
+done
+gsed "s|%{CUSTOM_CONF_IPTABLES_WHITELIST_IPV4S}|${segments}|g;s|%NL;|\n|g" /etc/iptables/rules.d/ipv4/filter.whitelist
+segments=
+for segment in ${CUSTOM_CONF_IPTABLES_BLACKLIST_IPV4S}; do
+  segments="${segments}${segments:+%NL;}${segment}"
+done
+gsed "s|%{CUSTOM_CONF_IPTABLES_BLACKLIST_IPV4S}|${segments}|g;s|%NL;|\n|g" /etc/iptables/rules.d/ipv4/filter.blacklist
+segments=
+for segment in ${CUSTOM_CONF_IPTABLES_WHITELIST_IPV6S}; do
+  segment="$(echo "${segment}" | sed 's|:|.|g;s|\.\([^/]*/[a-z][a-z0-9]*\)$|:\1|')"
+  segments="${segments}${segments:+%NL;}${segment}"
+done
+gsed "s|%{CUSTOM_CONF_IPTABLES_WHITELIST_IPV6S}|${segments}|g;s|%NL;|\n|g" /etc/iptables/rules.d/ipv6/filter.whitelist
+segments=
+for segment in ${CUSTOM_CONF_IPTABLES_BLACKLIST_IPV6S}; do
+  segment="$(echo "${segment}" | sed 's|:|.|g;s|\.\([^/]*/[a-z][a-z0-9]*\)$|:\1|')"
+  segments="${segments}${segments:+%NL;}${segment}"
+done
+gsed "s|%{CUSTOM_CONF_IPTABLES_BLACKLIST_IPV6S}|${segments}|g;s|%NL;|\n|g" /etc/iptables/rules.d/ipv6/filter.blacklist
+
+# Enable IP tables
+if [ -n "$(ifconfig | fgrep 'inet ')" ]; then
+  iptables-control stop
+  iptables-control start
+fi
+if [ -n "$(ifconfig | fgrep 'inet6 ')" ]; then
+  ip6tables-control stop
+  ip6tables-control start
+fi
+
+# Exit
+exit 0
+

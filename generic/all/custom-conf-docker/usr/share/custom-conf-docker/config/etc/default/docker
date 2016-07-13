@@ -1,0 +1,9 @@
+## CUSTOM-CONF: File automatically created/updated [custom-conf-docker]
+
+# Docker daemon startup options
+# 1. Make sure the default (docker0) network bridge is configured with an
+#    appropriate (non-conflicting) IP range
+# 2. Disable the userland proxy for port mapping (requires kernel > 2.6)
+#    REF: https://github.com/docker/docker/issues/8356
+DOCKER_OPTS='%{CUSTOM_CONF_DOCKER_OPTS}'
+

@@ -1,0 +1,217 @@
+#!/bin/bash
+
+
+## Usage
+[ "${1##*-}" == 'help' ] && cat << EOF && exit 1
+USAGE: ${0##*/} [<options>] [<title>[:<chapter-start>[-<chapter-end>]]=1:1-end]
+
+SYNOPSIS:
+  Transcode the given DVD video stream to H.264.
+  If audio bitrate is specified, audio stream is also transcoded to
+  48kHZ stereo AAC (otherwise, it is copied withtou transcoding).
+
+OPTIONS:
+  -D, --device <path> [default:/dev/dvd]
+      DVD device path (actual device, ISO file or VOBs directory)
+
+  -O, --output <path> [default:./dvd.mkv]
+      Transcoded content output path (Matroska container)
+
+  -Rv, --video-kbitrate <integer> [default:2200]
+      Video - H.264-encoded - (kilo)bitrate; recommended values are:
+       NTCS:  1600
+       PAL:   2200
+       720p:  3200
+       1080p: 5000
+
+  -Ra, --audio-kbitrate <integer> [default:copy]
+      Audio - 48kHz stereo AAC - (kilo)bitrate; recommended value is 128.
+
+  -Ia, --audio-id <integer> [default:none]
+      Audio track(s) ID(s)
+
+  -Is, --subtitle-id <integer> [default:none]
+      Subtitle(s) ID(s)
+
+  -i, --deinterlace
+      Deinterlace video (using '-vf yadif=0')
+
+  -k, --keep-aux-files
+      Do not remove auxiliary transconding files
+
+  -v, --verbose
+      Show all error messages
+
+AUTHOR:
+  Cédric Dufour - http://cedric.dufour.name
+EOF
+
+
+## Arguments
+DVD_TITLE=
+DVD_DEVICE='/dev/dvd'
+DVD_OUTPUT='./dvd.mkv'
+DVD_VKBR='2200'
+DVD_AKBR='copy'
+DVD_AIDS=
+DVD_SIDS=
+DVD_DEINTERLACE=
+DVD_KEEPAUXFILES=
+DVD_STDERR='2>/dev/null'
+ARGS_SEP=
+MENCODER_OPTS=
+while [ -n "${1}" ]; do
+  case "${1}" in
+    --) ARGS_SEP='yes';;
+    -D|--device) shift; [ -z "${1}" ] && echo 'ERROR: Missing option value (--device)' >&2 && exit 1; DVD_DEVICE="${1}";;
+    -O|--output) shift; [ -z "${1}" ] && echo 'ERROR: Missing option value (--output)' >&2 && exit 1; DVD_OUTPUT="${1}";;
+    -Rv|--video-kbitrate) shift; [ -z "${1}" ] && echo 'ERROR: Missing option value (--video-kbitrate)' >&2 && exit 1; DVD_VKBR="${1}";;
+    -Ra|--audio-kbitrate) shift; [ -z "${1}" ] && echo 'ERROR: Missing option value (--audio-kbitrate)' >&2 && exit 1; DVD_AKBR="${1}";;
+    -Ia|--audio-id) shift; [ -z "${1}" ] && echo 'ERROR: Missing option value (--audio-id)' >&2 && exit 1; DVD_AIDS="${DVD_AIDS:+ }${DVD_AIDS}${1}";;
+    -Is|--subtitle-id) shift; [ -z "${1}" ] && echo 'ERROR: Missing option value (--subtitle-id)' >&2 && exit 1; DVD_SIDS="${DVD_SIDS:+ }${DVD_SIDS}${1}";;
+    -i|--deinterlace) DVD_DEINTERLACE='-vf yadif=0';;
+    -k|--keep-aux-files) DVD_KEEPAUXFILES='yes';;
+    -v|--verbose) DVD_STDERR='';;
+    -*)
+      if [ -n "${ARGS_SEP}" ]; then
+        MENCODER_OPTS="${MENCODER_OPTS}${MENCODER_OPTS:+ }${1}"
+      else
+        echo "ERROR: Invalid option (${1})" >&2 && exit 1
+      fi
+      ;;
+    *)
+      if [ -n "${ARGS_SEP}" ]; then
+        MENCODER_OPTS="${MENCODER_OPTS}${MENCODER_OPTS:+ }${1}"
+      elif [ -z "${DVD_TITLE}" ]; then
+        DVD_TITLE="${1}"
+      else
+        echo "ERROR: Too many arguments (${1})" >&2 && exit 1
+      fi
+      ;;
+  esac
+  shift
+done
+[ -z "${DVD_TITLE}" ] && DVD_TITLE='1:'
+DVD_CHAPTER="${DVD_TITLE#*:}"
+DVD_TITLE="${DVD_TITLE%:*}"
+[ -z "${DVD_CHAPTER}" ] && DVD_CHAPTER='1'
+DVD_OUTDIR="$(dirname "${DVD_OUTPUT}")"
+DVD_OUTFILE="${DVD_OUTDIR}/$(basename "${DVD_OUTPUT}")"
+
+
+## Check dependencies
+[ ! "$(which mplayer)" ] && echo "ERROR: Missing 'mplayer' binary" >&2 && exit 1
+[ ! "$(which mencoder)" ] && echo "ERROR: Missing 'mencoder' binary" >&2 && exit 1
+[ ! "$(which mkvmerge)" ] && echo "ERROR: Missing 'mkvmerge' binary" >&2 && exit 1
+
+
+## Check arguments
+[ ! -r "${DVD_DEVICE}" ] && echo "ERROR: Invalid/unreadable DVD device ('${DVD_DEVICE}')" >&2 && exit 1
+[ -e "${MKV_OUTFILE}" ] && echo "ERROR: Output file already exists ('${MKV_OUTFILE}')" >&2 && exit 1
+[ ! -w "${DVD_OUTDIR}" ] && echo "ERROR: Invalid/unwritable output directory ('${DVD_OUTDIR}')" >&2 && exit 1
+[ "${DVD_OUTFILE##*.}" != 'mkv' ] && echo "ERROR: Output must be a Matroska container ('${DVD_OUTFILE}')" >&2 && exit 1
+
+
+## Transcode DVD
+DVD_OUTFILE_CURRENT=
+trap '[ -n "${DVD_OUTFILE_CURRENT}" ] && rm -v "${DVD_OUTFILE_CURRENT}"' EXIT
+
+# Configure environment
+export MPLAYER_VERSOSE=2
+
+# Retrieve DVD info
+DVD_INFO="$(mplayer-dvdinfo -D "${DVD_DEVICE}" ${DVD_TITLE}:${DVD_CHAPTER} 2>/dev/null)"
+
+# Rip subtitles
+DVD_OUTFILE_CURRENT="${DVD_OUTFILE%.*}.S.idx"
+if [ -n "${DVD_SIDS}" ]; then
+  echo '********************************************************************************'
+  echo "Ripping subtitles ('${DVD_OUTFILE_CURRENT}')"
+  if [ -e "${DVD_OUTFILE_CURRENT}" ]; then
+    echo "File already exists ('${DVD_OUTFILE_CURRENT}'); Skipping!"
+  else
+    rm -f "${DVD_OUTFILE%.*}.S.sub"
+    index=0
+    for sid in ${DVD_SIDS}; do
+      echo '................................................................................'
+      echo "Ripping subtitles (sid=${sid})"
+      lang=$(echo "${DVD_INFO}" | fgrep "( sid ): ${sid} " | sed 's|^.*language: \([^ ]*\).*$|\1|')
+      [ -z "${lang}" -o "${lang}" == 'unknown' ] && echo "ERROR: Can't retrieve language for subtitle (sid=${sid})" >&2 && continue
+      eval "mencoder -dvd-device '${DVD_DEVICE}' dvd://${DVD_TITLE} -chapter ${DVD_CHAPTER} -nosound -ovc frameno -o /dev/null -sid ${sid} -vobsuboutindex ${index} -vobsuboutid ${lang} -vobsubout '${DVD_OUTFILE%.*}.S' ${MENCODER_OPTS} ${DVD_STDERR}" || exit 1 && let index=index+1
+    done
+  fi
+fi
+DVD_OUTFILE_CURRENT=
+
+# Rip audio tracks
+if [ -n "${DVD_AIDS}" ]; then
+  echo '********************************************************************************'
+  echo 'Ripping audio tracks'
+  [ "${DVD_AKBR}" == 'copy' ] && DVD_OAC='-oac copy' || DVD_OAC="-oac faac -faacopts br=${DVD_AKBR}:mpeg=4:object=2 -channels 2 -srate 48000"
+  for aid in ${DVD_AIDS}; do
+    echo '................................................................................'
+    lang=$(echo "${DVD_INFO}" | fgrep " aid: ${aid}." | sed 's|^.*language: \([^ ]*\).*$|\1|')
+    [ -z "${lang}" -o "${lang}" == 'unknown' ] && echo "WARNING: Language for audio track is undetermined (aid=${aid})" >&2 && lang='und'
+    DVD_OUTFILE_CURRENT="${DVD_OUTFILE%.*}.A-${aid}-${lang}.avi"
+    echo "Ripping audio track ('${DVD_OUTFILE_CURRENT}')"
+    if [ -e "${DVD_OUTFILE%.*}.A-${aid}-${lang}.avi" ]; then
+      echo "File already exists ('${DVD_OUTFILE_CURRENT}'); Skipping!"
+    else
+      eval "mencoder -dvd-device '${DVD_DEVICE}' dvd://${DVD_TITLE} -chapter ${DVD_CHAPTER} -aid ${aid} ${DVD_OAC} -ovc frameno -o '${DVD_OUTFILE_CURRENT}' ${MENCODER_OPTS} ${DVD_STDERR}" || exit 1
+    fi
+  done
+fi
+DVD_OUTFILE_CURRENT=
+
+# Rip movie (1st pass)
+DVD_OUTFILE_CURRENT="${DVD_OUTFILE%.*}.V.p1"
+echo '********************************************************************************'
+echo "Ripping video track; 1st pass ('${DVD_OUTFILE_CURRENT}')"
+if [ -e "${DVD_OUTFILE_CURRENT}" ]; then
+  echo "File already exists ('${DVD_OUTFILE_CURRENT}'); Skipping!"
+else
+  rm -f divx2pass*
+  eval "mencoder -dvd-device '${DVD_DEVICE}' dvd://${DVD_TITLE} -chapter ${DVD_CHAPTER} -nosound -nosub ${DVD_DEINTERLACE} -ovc x264 -x264encopts pass=1:turbo=2:bitrate=${DVD_VKBR}:threads=auto -o /dev/null ${MENCODER_OPTS} ${DVD_STDERR}" || exit 1
+  touch "${DVD_OUTFILE_CURRENT}"
+fi
+DVD_OUTFILE_CURRENT=
+
+# Rip movie (2nd pass)
+DVD_OUTFILE_CURRENT="${DVD_OUTFILE%.*}.V.avi"
+echo '********************************************************************************'
+echo "Ripping video track; 2nd pass ('${DVD_OUTFILE_CURRENT}')"
+if [ -e "${DVD_OUTFILE_CURRENT}" ]; then
+  echo "File already exists ('${DVD_OUTFILE_CURRENT}'); Skipping!"
+else
+  eval "mencoder -dvd-device '${DVD_DEVICE}' dvd://${DVD_TITLE} -chapter ${DVD_CHAPTER} -nosound -nosub ${DVD_DEINTERLACE} -ovc x264 -x264encopts pass=2:bitrate=${DVD_VKBR}:threads=auto -o '${DVD_OUTFILE_CURRENT}' ${MENCODER_OPTS} ${DVD_STDERR}" || exit 1
+fi
+DVD_OUTFILE_CURRENT=
+
+# Assemble
+DVD_OUTFILE_CURRENT="${DVD_OUTFILE}"
+echo '********************************************************************************'
+echo "Assembling Matroska container ('${DVD_OUTFILE_CURRENT}')"
+if [ -e "${DVD_OUTFILE_CURRENT}" ]; then
+  echo "File already exists ('${DVD_OUTFILE_CURRENT}'); Skipping!"
+else
+  DVD_MKVADD="-A '${DVD_OUTFILE%.*}.V.avi'"
+  index=1
+  for audio in "${DVD_OUTFILE%.*}".A-*-*.avi; do
+    lang="$(echo "${audio}" | sed 's|^.*.A-[^-]*-\([^.]*\).avi$|\1|')"
+    DVD_MKVADD="${DVD_MKVADD} --language ${index}:${lang} -D '${audio}'"
+    let index=index+1
+  done
+  if [ -e "${DVD_OUTFILE%.*}.S.idx" ]; then
+    DVD_MKVADD="${DVD_MKVADD} '${DVD_OUTFILE%.*}.S.idx'"
+  fi
+  eval "mkvmerge -q -o '${DVD_OUTFILE_CURRENT}' ${DVD_MKVADD} ${DVD_STDERR}"
+fi
+DVD_OUTFILE_CURRENT=
+
+# Finish
+[ -z "${DVD_KEEPAUXFILES}" ] && rm -f divx2pass* "${DVD_OUTFILE%.*}"*.{idx,sub,p1,avi}
+
+
+## Done
+exit 0
+

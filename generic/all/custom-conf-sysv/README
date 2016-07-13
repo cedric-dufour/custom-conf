@@ -1,0 +1,9 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-conf-sysv
+
+This package provides standard configuration of System V startup script(s).
+
+In particular, it addresses standard configuration of:
+ - additional user scripts (in '/etc/rc.local.d')
+

@@ -1,0 +1,7 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-util-pinggw
+
+This package contains a utility that automatically detects and pings a host
+default gateway (such as to effectively advertise its presence to the network).
+

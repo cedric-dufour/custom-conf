@@ -1,0 +1,16 @@
+Template: custom-conf-postgresql/bind-address
+Type: string
+Default: localhost
+Description: Bind to a specific address(es) ?
+ Please specify which address(es) to bind the service to:
+ .
+  - {empty}:   do not bind to any specific address (security risk)
+  - localhost: bind to localhost addresses (private service)
+  - gateway:   bind to addresses matching configured gateway/network
+  - <addr>:    space-separated actual IP address(es)
+
+Template: custom-conf-postgresql/ssl-enable
+Type: boolean
+Default: false
+Description: Enable SSL/TLS (requires valid certificate) ?
+

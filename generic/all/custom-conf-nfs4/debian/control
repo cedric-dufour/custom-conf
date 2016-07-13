@@ -1,0 +1,13 @@
+Source: custom-conf-nfs4
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 3.9.7
+
+Package: custom-conf-nfs4
+Architecture: all
+Depends: custom-conf, nfs-common
+Recommends: custom-conf-krb5
+Description: Custom Configuration Framework - NFSv4
+

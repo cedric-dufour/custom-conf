@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# Usage
+[ "${1##*-}" == 'help' ] && cat << EOF && exit 1
+USAGE: ${0##*/} <file> ...
+
+SYNOPSIS:
+  Dump xz-/bzip2-/gzip-ped and standard files' content to stdout
+EOF
+
+# Dump file content
+while [ -n "${1}" ]; do
+  case "${1##*.}" in
+    'xz') xzcat "${1}";;
+    'bz2') bzcat "${1}";;
+    'gz') zcat "${1}";;
+    *) cat "${1}";;
+  esac
+  shift
+done
+

@@ -1,0 +1,6 @@
+## CUSTOM-CONF: File automatically created/updated [custom-conf-apt]
+
+# Backports
+#deb http://apt.example.org/debian-backports.jessie/ jessie-backports main contrib non-free
+#deb-src http://apt.example.org/debian-backports.jessie/ jessie-backports main contrib non-free
+

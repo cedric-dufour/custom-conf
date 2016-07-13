@@ -1,0 +1,31 @@
+#!/bin/bash
+## CUSTOM-UTIL: File automatically created/updated [custom-util-apt]
+
+# Usage
+[ $# -lt 1 -o "${1##*-}" == 'help' ] && cat << EOF && exit 1
+USAGE: ${0##*/} <package-name>
+
+SYNOPSIS:
+  Find and list all package dependencies for the given package.
+EOF
+
+# Arguments
+PKG_NAME="${1}"
+
+# Find dependencies
+PKG_DEPS_ALL=""
+PKG_DEPS_HEAP="${PKG_NAME}"
+i=100; while [ -n "${PKG_DEPS_HEAP}" ]; do
+  i=$((${i}-1))
+  [ ${i} -lt 0 ] && echo 'ERROR: Recursion limit reached' >&2 && exit 1
+  pkgs="${PKG_DEPS_HEAP}"
+  PKG_DEPS_HEAP=""
+  for pkg in ${pkgs}; do
+    PKG_DEPS_ALL="${PKG_DEPS_ALL}${PKG_DEPS_ALL:+ }${pkg}"
+    PKG_DEPS_HEAP="${PKG_DEPS_HEAP}${PKG_DEPS_HEAP:+ }$(apt-cache show ${pkg} | grep '^Depends:' | sed 's|^[^:]*: ||;s|([^)]*)||g;s|\|[^,]*||g;s|,||g;s|   *| |g')"
+  done
+  PKG_DEPS_HEAP="$(join -v 1 <(echo "${PKG_DEPS_HEAP}" | tr ' ' '\n' | sort -u) <(echo "${PKG_DEPS_ALL}" | tr ' ' '\n' | sort -u))"
+done
+PKG_DEPS_ALL="$(echo "${PKG_DEPS_ALL}" | tr ' ' '\n' | sort -u)"
+echo "${PKG_DEPS_ALL}"
+

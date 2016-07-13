@@ -1,0 +1,10 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-conf-mdadm
+
+This package provides standard configuration of Linux RAID devices bootstrap and
+monitoring daemon (mdadm).
+
+In particular, it addresses standard configuration of:
+ - disabling redundancy check of RAID-1 devices
+

@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# Usage
+[ "${1##*-}" == 'help' ] && cat << EOF && exit 1
+USAGE: ${0##*/} [-H|--header] <file> ...
+
+SYNOPSIS:
+  Parse FreeRadius server logs and output access summary to stdout
+EOF
+
+# Options
+while [ "${1:0:1}" == '-' ]; do
+  case "${1}" in
+    '-H'|'--header') echo 'STATUS|USERNAME|CLIENT|COUNT';;
+    *) echo "ERROR: Unsupported option (${1})" >&2;;
+  esac
+  shift
+done
+
+# Parse logs
+[ -z "$*" ] && exit 0
+logparse-freeradius.detail "$@" | awk -F'|' 'BEGIN{ OFS="|" } $2=="OK" || $2="incorrect" {print $2,$3,$4}' | sort | uniq -c | awk 'BEGIN{OFS="|"} {print $2,$1}'
+
+

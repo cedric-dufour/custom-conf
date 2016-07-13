@@ -1,0 +1,7 @@
+## CUSTOM-CONF: File automatically created/updated [custom-conf-apt]
+
+# Multimedia (Christian Marillat)
+# KEY: apt-get install deb-multimedia-keyring
+#deb http://apt.example.org/debian-multimedia.jessie/ jessie main
+#deb-src http://apt.example.org/debian-multimedia.jessie/ jessie main
+

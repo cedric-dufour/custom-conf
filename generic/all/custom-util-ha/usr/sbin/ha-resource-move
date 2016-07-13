@@ -1,0 +1,175 @@
+#!/bin/bash
+
+# Usage
+[ $# -lt 2 -o "${1##*-}" == 'help' ] && cat << EOF && exit 1
+USAGE:
+  ${0##*/} [options] <node> <resource-id> [<resource-id> ...]
+
+SYNOPSIS:
+  Move the given resource to the specified node (forcefully)
+
+OPTIONS:
+  -l, --no-live-migration
+    Do NOT use live migration while moving resource
+  -L, --force-live-migration
+    DO (force) use live migration while moving resource
+  --batch
+    Do NOT ask for confirmation before proceeding
+EOF
+
+# Arguments
+HA_NODE_DST=
+HA_RESOURCES_IDS=
+HA_LIVE='default'
+HA_BATCH=
+while [ -n "${1}" ]; do
+  case "${1}" in
+  -l|--no-live-migration) HA_LIVE='false';;
+  -L|--force-live-migration) HA_LIVE='true';;
+  --batch) HA_BATCH='true';;
+  -*) echo "ERROR: Unknown/unsupported option (${1})" >&2 && exit 1;;
+  *)
+    if [ -n "${HA_NODE_DST}" ]; then
+      HA_RESOURCES_IDS="${HA_RESOURCES_IDS}${HA_RESOURCES_IDS:+ }${1}"
+    else
+      HA_NODE_DST="${1}"
+    fi
+    ;;
+  esac
+  shift
+done
+
+
+## Check (dependencies and arguments)
+
+# ... dependencies
+[ -z "$(which cibadmin)" ] && echo 'ERROR: Missing required depencency (cibadmin)' >&2 && exit 1
+[ -z "$(which crm)" ] && echo 'ERROR: Missing required depencency (crm)' >&2 && exit 1
+[ -z "$(which xmllint)" ] && echo 'ERROR: Missing required depencency (xmllint)' >&2 && exit 1
+
+# ... HA/Pacemaker configuration/status
+HA_CIB_XML="/tmp/${0##*/}.$$.cib.xml"
+HA_CRM_XML="/tmp/${0##*/}.$$.crm.xml"
+trap "rm -f '${HA_CIB_XML}' '${HA_CRM_XML}' " EXIT
+cibadmin -o resources -Q 2>/dev/null > "${HA_CIB_XML}"
+crm_mon -1 -X 2>/dev/null > "${HA_CRM_XML}"
+
+# ... stickiness
+HA_STICKINESS_VALUE="$(crm_attribute -t rsc_defaults -n resource-stickiness -G 2>/dev/null | fgrep -i 'value=' | sed 's|.*value=||i' | fgrep -v 'null')"
+[ -z "${HA_STICKINESS_VALUE}" ] && echo 'ERROR: Resource stickiness MUST be enabled' >&2 && exit
+[ ${HA_STICKINESS_VALUE} -le 0 ] && echo 'ERROR: Resource stickiness MUST be set to a positive value' >&2 && exit
+
+# ... destination node
+[ -z "$(cibadmin -Q -A "//node[@id='${HA_NODE_DST}']" 2>/dev/null)" ] && echo "ERROR: No HA/Pacemaker node matches the given destination node (${HA_NODE_DST})" >&2 && exit 1
+
+
+## Traps
+HA_INTERRUPTED=0
+trap 'HA_INTERRUPTED=1' SIGINT
+
+
+## Move resources
+HA_RESOURCES_COUNT=0; for ha_resource_id in ${HA_RESOURCES_IDS}; do
+  [ ${HA_INTERRUPTED} -ne 0 ] && break
+  [ ${HA_RESOURCES_COUNT} -gt 0 ] && echo
+  HA_RESOURCES_COUNT=$(( ${HA_RESOURCES_COUNT}+1 ))
+
+  # Resource primitives
+  ha_primitives_ids="$(xmllint --xpath "/resources/primitive[@id='${ha_resource_id}']/@id | /resources/*[@id='${ha_resource_id}']/primitive/@id" "${HA_CIB_XML}" 2>/dev/null | sed 's| *id="\([^"]*\)"|\1\n|g')"
+  [ -z "${ha_primitives_ids}" ] && echo "WARNING: No primitives are matching the given resource (${ha_resource_id})" >&2 && continue
+  ha_primitives_count=$(echo "${ha_primitives_ids}" | wc -l)
+  ha_primitives_stopped="$(xmllint --xpath "//*[@id='${ha_resource_id}']//*[@role!='Started']/@id" "${HA_CRM_XML}" 2>/dev/null | sed 's| *id="\([^"]*\)"|\1\n|g' | wc -l)"
+  [ ${ha_primitives_stopped} -ne 0 ] && echo "WARNING: Can not move stopped resource (${ha_resource_id})" >&2 && continue
+  ha_primitives_moved="$(xmllint --xpath "//*[@id='${ha_resource_id}']//node[@name='${HA_NODE_DST}']/@id" "${HA_CRM_XML}" 2>/dev/null | sed 's| *id="\([^"]*\)"|\1\n|g' | wc -l)"
+  [ ${ha_primitives_moved} -ne 0 ] && echo "WARNING: Resource already moved (${ha_resource_id})" >&2 && continue
+
+  # Live migration
+  ha_vdom_live='default'
+  ha_vdom_live_actual='unknown'
+  ha_vdom_id="$(xmllint --xpath "//*[@id='${ha_resource_id}']/primitive[@type='VirtualDomain']/@id | //*[@id='${ha_resource_id}']/primitive[@type='LibvirtQemu']/@id" "${HA_CIB_XML}" 2>/dev/null | sed 's| *id="\([^"]*\)"|\1\n|g')"
+  for id in ${ha_vdom_id}; do
+    ha_vdom_live_actual="$(crm resource meta "${id}" show allow-migrate)"
+    [ "${HA_LIVE}" == 'default' ] && break
+    [ "${ha_vdom_live_actual}" == "${HA_LIVE}" ] && continue
+    ha_vdom_live="${HA_LIVE}"
+    break
+  done
+  if [ "${ha_vdom_live_actual}" == 'unknown' ]; then
+    ha_vdom_live_action='n/a'
+  elif [ "${ha_vdom_live}" != 'default' ] && [ "${ha_vdom_live_actual}" != "${ha_vdom_live}" ]; then
+    ha_vdom_live_actual="${ha_vdom_live}"
+    ha_vdom_live_action='forced'
+  else
+    ha_vdom_live_action='default'
+  fi
+
+  # Feedback
+  if [ "${HA_BATCH}" != 'true' ]; then
+    cat << EOF
+ABOUT TO MOVE THE FOLLOWING HA/PACEMAKER RESOURCE:
+ - DESTINATION NODE: ......... ${HA_NODE_DST}
+ - RESOURCE ID: .............. ${ha_resource_id}
+ - PRIMITIVE(S) ID(S): ....... $(echo "${ha_primitives_ids}" | tr '\n' ',' | sed 's|,$||')
+ - LIVE MIGRATION: ........... ${ha_vdom_live_actual} (${ha_vdom_live_action})
+PRESS <ENTER> TO CONTINUE, <CTRL+C> TO ABORT...
+EOF
+    trap 'exit' SIGINT
+    read
+    trap 'HA_INTERRUPTED=1' SIGINT
+  fi
+  echo "INFO: Moving ${ha_resource_id} to ${HA_NODE_DST}"
+
+  # Configure live migration
+  if [ "${ha_vdom_live}" != 'default' ]; then
+    echo "INFO: Configuring live migration"
+    for id in ${ha_vdom_id}; do
+      crm resource meta "${id}" set allow-migrate "${ha_vdom_live}"
+    done
+  fi
+
+  # Add location constraint
+  ha_constraint_xml="<rsc_location id=\"${ha_resource_id}-ha-resource-move\" node=\"${HA_NODE_DST}\" rsc=\"${ha_resource_id}\" score=\"+INFINITY\"/>"
+  echo "INFO: Adding resource location constraint"
+  echo "<constraints>${ha_constraint_xml}</constraints>" | cibadmin -o constraints -M -c -p
+
+  # Wait for resource primitives to move
+  echo "INFO: Waiting for resource primitives to move..."
+  echo '1-------10--------20--------30--------40--------50--------60'
+  ha_count_start="${SECONDS}"
+  ha_count_dots=0
+  while true; do
+    [ ${HA_INTERRUPTED} -ne 0 ] && break
+    [ "$(xmllint --xpath "//*[@id='${ha_resource_id}']//*[@role='Started']/node[@name!='${HA_NODE_DST}']/@id" <(crm_mon -1 -X) 2>/dev/null | sed 's| *id="\([^"]*\)"|\1\n|g' | wc -l)" == '0' ] && [ "$(xmllint --xpath "//*[@id='${ha_resource_id}']//*[@role='Started']/node[@name='${HA_NODE_DST}']/@id" <(crm_mon -1 -X) 2>/dev/null | sed 's| *id="\([^"]*\)"|\1\n|g' | wc -l)" == "${ha_primitives_count}" ] && break
+    ha_count_elapsed=$(( ${SECONDS} - ${ha_count_start} ))
+    while [ ${ha_count_dots} -lt ${ha_count_elapsed} ]; do
+      ha_count_dots=$(( ${ha_count_dots} + 1 ))
+      echo -n '.'
+      [ $(( ${ha_count_dots} % 60 )) -eq 0 ] && echo
+    done
+    sleep 1
+  done
+  echo
+  if [ ${HA_INTERRUPTED} -ne 0 ]; then
+    echo 'WARNING: Interrupted while waiting for resource primitives to move!'
+  fi
+
+  # Remove resource location constraint
+  echo "INFO: Removing resource location constraint"
+  cibadmin -o constraints -D -X "${ha_constraint_xml}"
+
+  # Configure live migration (back to default)
+  if [ "${ha_vdom_live}" != 'default' ]; then
+    echo "INFO: Configuring live migration (back to default)"
+    [ "${ha_vdom_live}" == 'true' ] && ha_vdom_live='false' || ha_vdom_live='true'
+    for id in ${ha_vdom_id}; do
+      crm resource meta "${id}" set allow-migrate "${ha_vdom_live}"
+    done
+  fi
+
+  # Done
+  [ "$(xmllint --xpath "//*[@id='${ha_resource_id}']//*[@role='Started']/node[@name='${HA_NODE_DST}']/@id" <(crm_mon -1 -X) 2>/dev/null | sed 's| *id="\([^"]*\)"|\1\n|g' | wc -l)" != "${ha_primitives_count}" ] \
+    && echo "WARNING: Failed to move resource! Please check logs!" >&2 \
+    || echo "INFO: Resource successfully moved"
+
+done
+

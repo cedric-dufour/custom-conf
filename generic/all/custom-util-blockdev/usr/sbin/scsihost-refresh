@@ -1,0 +1,15 @@
+#!/bin/bash
+## CUSTOM-UTIL: File automatically created/updated [custom-util-blockdev]
+
+# Usage
+[ "${1##*-}" == 'help' ] && cat << EOF >&2 && exit 1
+USAGE: ${0##*/}
+
+HINT: echo '- - -' > /sys/class/scsi_host/host0/scan
+EOF
+
+# Command
+echo '- - -' > /sys/class/scsi_host/host0/scan
+echo 'Waiting for SCSI host refresh...'
+sleep 3
+ls -al /dev/disk/by-id/

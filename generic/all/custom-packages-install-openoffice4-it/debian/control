@@ -1,0 +1,12 @@
+Source: custom-packages-install-openoffice4-it
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 3.9.7
+
+Package: custom-packages-install-openoffice4-it
+Architecture: all
+Depends: openoffice-it (>= 4.0.0), openoffice-it-calc (>= 4.0.0), openoffice-it-draw (>= 4.0.0), openoffice-it-help (>= 4.0.0), openoffice-it-impress (>= 4.0.0), openoffice-it-math (>= 4.0.0), openoffice-it-res (>= 4.0.0), openoffice-it-writer (>= 4.0.0)
+Description: Custom Configuration Framework - OpenOffice.org 4, Italian language pack (original Apache packages)
+

@@ -1,0 +1,151 @@
+## CUSTOM-CONF: File automatically created/updated [custom-conf-apache2-templates]
+
+
+## LDAP parameters
+
+# For SSL/TLS
+LDAPTrustedGlobalCert CA_BASE64 /etc/ssl/local/localsite-ca.pem
+
+
+## Authentication macros
+
+# Intranet only
+<Macro AUTH_Intranet>
+  Order Deny,Allow
+  Deny from All
+  Allow from 192.168.1.0/24 2001:db8:a:1:/64  # INTRANET
+</Macro>
+
+# Users only
+<Macro AUTH_User>
+  SSLRequireSSL
+  Satisfy Any
+
+  # Users-only network segments
+  Order Deny,Allow
+  Deny from All
+  Allow from 192.168.1.0/24 2001:db8:a:1:/64  # INTRANET
+  # NOTE: Use 'Order Allow,Deny' to disable network-based authentication when using this macro
+
+  # Users authentication (LDAP)
+  AuthType Basic
+  AuthName "Access Restricted - Users ONLY (please authenticate using your account USERNAME)"
+  AuthBasicProvider ldap
+  AuthzLDAPAuthoritative Off
+  AuthLDAPURL ldaps://ldap.example.org/ou=users,dc=example,dc=org?uid?one?(objectClass=posixAccount)
+  AuthLDAPGroupAttribute memberUid
+  AuthLDAPGroupAttributeIsDN Off
+
+  # Authorization
+  Require valid-user
+</Macro>
+
+# Selected users only
+# WARNING: An appropriate 'Require' directive MUST follow the inclusion of this macro!
+<Macro AUTH_User_Selected>
+  SSLRequireSSL
+  Satisfy Any
+
+  # No privileged network segments
+  Order Allow,Deny
+  Deny from All
+
+  # Users authentication (LDAP)
+  AuthType Basic
+  AuthName "Access Restricted - Selected Users ONLY (please authenticate using your account USERNAME)"
+  AuthBasicProvider ldap
+  AuthzLDAPAuthoritative Off
+  AuthLDAPURL ldaps://ldap.example.org/ou=users,dc=example,dc=org?uid?one?(objectClass=posixAccount)
+  AuthLDAPGroupAttribute memberUid
+  AuthLDAPGroupAttributeIsDN Off
+
+  # Authorization
+  # WARNING: Do NOT uncomment this authorization directive (given as an example only)!
+  # NOTE: 'username' must be a LDAP user (login) name
+  #Require user <username> [...]
+</Macro>
+
+# Users and guests
+<Macro AUTH_Guest>
+  SSLRequireSSL
+  Satisfy Any
+
+  # Users-only network segments
+  Order Deny,Allow
+  Deny from All
+  Allow from 192.168.1.0/24 2001:db8:a:1:/64  # INTRANET
+  Allow from 192.168.2.0/24 2001:db8:a:2:/64  # GUEST
+  # NOTE: Use 'Order Allow,Deny' to disable network-based authentication when using this macro
+
+  # Basic Authentication
+  AuthType Basic
+  AuthName "Access Restricted - Users and Guests ONLY (please authenticate using your E-MAIL address)"
+  AuthBasicProvider file ldap
+  AuthBasicAuthoritative On
+
+  # Guests Authentication (file)
+  AuthUserFile /etc/apache2/htpasswd/guests
+
+  # Users authentication (LDAP)
+  AuthzLDAPAuthoritative On
+  AuthLDAPURL ldaps://ldap.example.org/ou=users,dc=example,dc=org?mail?one?(objectClass=posixAccount)
+  AuthLDAPGroupAttribute memberUid
+  AuthLDAPGroupAttributeIsDN Off
+
+  # Authorization
+  Require valid-user
+</Macro>
+
+# Selected users and guests
+# WARNING: An appropriate 'Require' directive MUST follow the inclusion of this macro!
+<Macro AUTH_Guest_Selected>
+  SSLRequireSSL
+  Satisfy Any
+
+  # No privileged network segments
+  Order Allow,Deny
+  Deny from All
+
+  # Basic Authentication
+  AuthType Basic
+  AuthName "Access Restricted - Selected Users and Guests ONLY (please authenticate using your E-MAIL address)"
+  AuthBasicProvider file ldap
+  AuthBasicAuthoritative On
+
+  # Guests Authentication (file)
+  AuthUserFile /etc/apache2/htpasswd/guests
+
+  # Users authentication (LDAP)
+  AuthzLDAPAuthoritative On
+  AuthLDAPURL ldaps://ldap.example.org/ou=users,dc=example,dc=org?mail?one?(objectClass=posixAccount)
+  AuthLDAPGroupAttribute memberUid
+  AuthLDAPGroupAttributeIsDN Off
+
+  # Authorization
+  # WARNING: Do NOT uncomment this authorization directive (given as an example only)!
+  # NOTE: 'e-mail' can be a LDAP user or file-based guest e-mail address
+  #Require user <e-mail> [...]
+</Macro>
+
+# Administrators only
+<Macro AUTH_Admin>
+  SSLRequireSSL
+  Satisfy Any
+
+  # No privileged network segments
+  Order Allow,Deny
+  Deny from All
+
+  # Users authentication (LDAP)
+  AuthType Basic
+  AuthName "Access Restricted - Administrators ONLY"
+  AuthBasicProvider ldap
+  AuthzLDAPAuthoritative Off
+  AuthLDAPURL ldaps://ldap.example.org/ou=users,dc=example,dc=org?uid?one?(objectClass=posixAccount)
+  AuthLDAPGroupAttribute memberUid
+  AuthLDAPGroupAttributeIsDN Off
+
+  # Authorization
+  Require ldap-group cn=admin,ou=groups,dc=example,dc=org
+</Macro>
+

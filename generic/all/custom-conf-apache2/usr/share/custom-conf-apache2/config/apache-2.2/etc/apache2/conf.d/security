@@ -1,0 +1,18 @@
+## CUSTOM-CONF: File automatically created/updated [custom-conf-apache2]
+
+
+## Security/production settings
+
+# Prevent root access
+<Directory />
+  Order Deny,Allow
+  Deny from All
+  Options None
+  AllowOverride None
+</Directory>
+
+# ServerTokens
+ServerTokens Prod
+ServerSignature Off
+TraceEnable Off
+

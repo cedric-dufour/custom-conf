@@ -1,0 +1,96 @@
+#!/bin/bash
+PKGNAME='custom-conf-iptables'
+
+
+## Usage
+[ $# -lt 1 -o "${1##*-}" == 'help' ] && cat << EOF && exit 1
+USAGE: ${0##*/} {detect|upgrade}
+
+SYNOPSIS:
+  Detect and upgrade former ${PKGNAME} configuration to its new version.
+EOF
+
+# Arguments
+ACTION="${1}"
+
+
+## Functions
+
+# Detect
+function _detect {
+  for file in \
+    /etc/iptables/rules.d/iptables-* \
+    /etc/iptables/rules.d/ip6tables-* \
+  ; do
+    [ -e "${file}" ] && exit 0
+  done
+  exit 1
+}
+
+# Upgrade
+function _upgrade {
+  # Move files
+  source gcfg.config "${PKGNAME}"
+  IFS=$'\n'
+
+  # IPv4
+  for file in $(find /etc/iptables -type f -path "*/iptables-*.d/*"); do
+    file_src="${file}"
+    file_dst="$(echo "${file}" | sed 's|iptables-\([^/]*\).d|ipv4/\1.d|')"
+    echo "INFO: Migrating ${file_src} -> ${file_dst} ..."
+    gcfg mv "${file_src}" "${file_dst}" || mv -v "${file_src}" "${file_dst}"
+  done
+  for file in $(find /etc/iptables -type f -name "iptables-*"); do
+    file_src="${file}"
+    file_dst="$(echo "${file}" | sed 's|iptables-|ipv4/|')"
+    echo "INFO: Migrating ${file_src} -> ${file_dst} ..."
+    gcfg mv "${file_src}" "${file_dst}" || mv -v "${file_src}" "${file_dst}"
+  done
+  for directory in $(find /etc/iptables -type d -name "iptables-*.d"); do
+    rmdir "${directory}"
+  done
+
+  # IPv6
+  for file in $(find /etc/iptables -type f -path "*/ip6tables-*.d/*"); do
+    file_src="${file}"
+    file_dst="$(echo "${file}" | sed 's|ip6tables-\([^/]*\).d|ipv6/\1.d|')"
+    echo "INFO: Migrating ${file_src} -> ${file_dst} ..."
+    gcfg mv "${file_src}" "${file_dst}" || mv -v "${file_src}" "${file_dst}"
+  done
+  for file in $(find /etc/iptables -type f -name "ip6tables-*"); do
+    file_src="${file}"
+    file_dst="$(echo "${file}" | sed 's|ip6tables-|ipv6/|')"
+    echo "INFO: Migrating ${file_src} -> ${file_dst} ..."
+    gcfg mv "${file_src}" "${file_dst}" || mv -v "${file_src}" "${file_dst}"
+  done
+  for directory in $(find /etc/iptables -type d -name "ip6tables-*.d"); do
+    rmdir "${directory}"
+  done
+
+  # Upgrade paths within scripts
+  find /etc/iptables/rules.d -type f -exec gsed 's|rules.d/iptables-|rules.d/ipv4/|g;s|iptables-||g;s|rules.d/ip6tables-|rules.d/ipv6/|g;s|ip6tables-||g' {} \;
+}
+
+
+## Actions
+case "${ACTION}" in
+
+  detect)
+    _detect
+    ;;
+
+  upgrade)
+    _upgrade
+    ;;
+
+  *)
+    echo "ERROR: Invalid action (${ACTION})" >&2
+    exit 1
+    ;;
+
+esac
+
+
+## Done
+exit 0
+

@@ -1,0 +1,53 @@
+#!/bin/bash
+## CUSTOM-UTIL: File automatically created/updated [custom-util-skel]
+
+# Usage
+[ $# -lt 1 -o "${1##*-}" == 'help' ] && cat << EOF && exit 1
+USAGE: ${0##*/} <username> [<template-directory>]
+
+SYNOPSIS:
+  Kill all user's processes and reset all his resources (see 'profile-wipe').
+  Optionally copy the given template resources in the user's directory.
+EOF
+
+# Arguments
+MY_USER="${1}"; shift
+MY_TEMPLATE="${1}"; shift
+
+# Check user
+[ -z "$(id "${MY_USER}" 2>/dev/null)" ] && echo "ERROR: Invalid user (${MY_USER})" >&2 && exit 1
+
+# Check template
+MY_TEMPLATE="${MY_TEMPLATE%/}"
+if [ -n "${MY_TEMPLATE}" -a ! -r "${MY_TEMPLATE}" ]; then
+  echo "WARNING: Invalid/unreadable template directory (${MY_TEMPLATE})" >&2
+  MY_TEMPLATE=
+fi
+
+# Retrieve user home directory
+MY_HOME="$(getent passwd "${MY_USER}" | cut -d: -f 6)"
+MY_HOME="${MY_HOME%/}"
+# NB: checks carried-out by 'profile-wipe' (see below)
+
+# Reset user
+# ... kill processes
+pkill -U ${MY_USER}
+i=10; while [ -n "$(pgrep -U ${MY_USER} 2>/dev/null)" -a ${i} -ne 0 ]; do
+  i=$(( ${i} -1 ))
+  sleep 1
+done
+pkill -9 -U ${MY_USER}
+# ... wipe directory
+profile-wipe ${MY_USER} || exit 1
+# ... copy template
+if [ -n "${MY_TEMPLATE}" ]; then
+  rsync -av "${MY_TEMPLATE}/" "${MY_HOME}/"
+  [ $? -ne 0 ] && echo "WARNING: Failed to copy template directory (${MY_TEMPLATE} -> ${MY_HOME})" >&2
+  chown -R ${MY_USER}: "${MY_HOME}"
+  [ $? -ne 0 ] && echo "WARNING: Failed to set user directory owner (${MY_HOME})" >&2
+fi
+
+# Done
+echo "INFO: User resources successfully reset (${MY_USER})"
+exit 0
+

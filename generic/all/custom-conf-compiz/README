@@ -1,0 +1,7 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-conf-compiz
+
+This package contains various utilities to manage the Compiz compositor,
+along a few configuration examples.
+

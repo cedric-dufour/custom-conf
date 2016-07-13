@@ -1,0 +1,12 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-conf-utils
+
+This package contains the various utilities to manage the Custom Configuration
+Framework, including their dependencies.
+
+The very core of Custom Configuration Framework is the GIT-based Configuration
+Tracking Utility (GCFG), available from:
+
+  https://github.com/cedric-dufour/gcfg
+

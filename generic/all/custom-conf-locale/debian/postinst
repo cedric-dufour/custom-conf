@@ -1,0 +1,36 @@
+#!/bin/bash
+[ "${1}" != 'configure' ] && exit 0
+PKGNAME='custom-conf-locale'
+
+# Debconf
+. /usr/share/debconf/confmodule
+# ... preseed
+for var_priority in keyboard-type:high; do
+  var="${var_priority%:*}"
+  priority="${var_priority#*:}"
+  db_input ${priority} ${PKGNAME}/${var}
+  db_go
+done
+# ... get
+db_get ${PKGNAME}/keyboard-type && CUSTOM_CONF_LOCALE_KEYBOARD_TYPE="${RET}"
+db_stop
+
+# Install files
+custom-conf-install "${PKGNAME}" "/usr/share/${PKGNAME}/config" || exit 1
+
+# Fine-tune configuration
+case "${CUSTOM_CONF_LOCALE_KEYBOARD_TYPE}" in
+  us) CUSTOM_CONF_LOCALE_KEYBOARD_LAYOUT='us'; CUSTOM_CONF_LOCALE_KEYBOARD_VARIANT='';;
+  ch_fr) CUSTOM_CONF_LOCALE_KEYBOARD_LAYOUT='ch'; CUSTOM_CONF_LOCALE_KEYBOARD_VARIANT='fr';;
+  *)
+    echo "WARNING[${PKGNAME}]: Unsupported keyboard type (${CUSTOM_CONF_LOCALE_KEYBOARD_TYPE})"
+    CUSTOM_CONF_LOCALE_KEYBOARD_LAYOUT='us'; CUSTOM_CONF_LOCALE_KEYBOARD_VARIANT=''
+    ;;
+esac
+gsed "s/%{CUSTOM_CONF_LOCALE_KEYBOARD_LAYOUT}/${CUSTOM_CONF_LOCALE_KEYBOARD_LAYOUT}/g;s/%{CUSTOM_CONF_LOCALE_KEYBOARD_VARIANT}/${CUSTOM_CONF_LOCALE_KEYBOARD_VARIANT}/g" /etc/default/keyboard
+setupcon
+udevadm trigger --subsystem-match=input --action=change
+
+# Exit
+exit 0
+

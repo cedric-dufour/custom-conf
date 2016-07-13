@@ -1,0 +1,11 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-conf-rsyslog
+
+This package provides standard configuration of RSyslog (logging) local server.
+
+In particular, it addresses standard configuration of:
+ - owernship of log files
+ - (a)synchronous logging of standard facilities
+ - emergency messages display on VT12
+

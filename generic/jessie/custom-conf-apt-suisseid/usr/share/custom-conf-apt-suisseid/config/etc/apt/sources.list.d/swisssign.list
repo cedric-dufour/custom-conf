@@ -1,0 +1,6 @@
+## CUSTOM-CONF: File automatically created/updated [custom-conf-apt-suisseid]
+
+# SwissSign repository
+# KEY: wget http://update.swisssign.com/media/stick/repository/PublicKey -O- | apt-key add -
+deb http://update.swisssign.com/media/stick/repository/ jessie free non-free
+

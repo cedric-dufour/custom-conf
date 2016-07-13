@@ -1,0 +1,38 @@
+#!/bin/bash
+## File automatically created/updated [nagios-plugins-custom]
+# EXIT: 0 = OK; 1 = WARNING; 2 = CRITITCAL; 3 = UNKNOWN (ERROR)
+# ECHO: <human-friendly status message> |<performance_data>
+
+# Usage
+[ $# -lt 2  -o "${1##*-}" == 'help' ] && cat << EOF && exit 3
+USAGE: ${0##*/} <percent_usage:warning> <percent_usage:critical>
+SYNOPSIS: Nagios-compliant command to check memory usage
+EOF
+
+# Arguments
+MEM_WARNING=${1%\%}
+MEM_CRITICAL=${2%\%}
+# ... checks
+[ $(( ${MEM_WARNING} <= 0 )) -ne 0 ] && echo 'ERROR: Warning threshold must be bigger than 0' && exit 3
+[ $(( ${MEM_WARNING} > 100 )) -ne 0 ] && echo 'ERROR: Warning threshold must be lower or equal to 100' && exit 3
+[ $(( ${MEM_CRITICAL} <= 0 )) -ne 0 ] && echo 'ERROR: Critical threshold must be bigger than 0' && exit 3
+[ $(( ${MEM_CRITICAL} > 100 )) -ne 0 ] && echo 'ERROR: Critical threshold must be lower or equal to 100' && exit 3
+[ $(( ${MEM_WARNING} > ${MEM_CRITICAL} )) -ne 0 ] && echo 'ERROR: Warning threshold must be lower than critical threshold' && exit 3
+
+# Memory usage
+PROC_OUTPUT=$(egrep '^(MemTotal|MemFree|Buffers|Cached):' /proc/meminfo | awk '{print $2}' | tr '\n' ' ')
+[ -z "${PROC_OUTPUT}" ] && echo 'ERROR: Missing memory usage data' && exit 3
+mem_total=${PROC_OUTPUT%% *}; PROC_OUTPUT=${PROC_OUTPUT#* }
+mem_free=${PROC_OUTPUT%% *}; PROC_OUTPUT=${PROC_OUTPUT#* }
+mem_buffers=${PROC_OUTPUT%% *}; PROC_OUTPUT=${PROC_OUTPUT#* }
+mem_cached=${PROC_OUTPUT%% *}
+[ -z "${mem_total}" -o -z "${mem_free}" -o -z "${mem_buffers}" -o -z "${mem_cached}" ] && echo 'ERROR: Invalid memory usage data' && exit 3
+mem_usage=$(( ${mem_total}-${mem_free}-${mem_buffers}-${mem_cached} ))
+MEM_USAGE=$(( ${mem_usage}*100/${mem_total} ))
+[ $(( ${MEM_USAGE} < 0 )) -ne 0 -o $(( ${MEM_USAGE} > 100 )) -ne 0 ] && echo "ERROR: Invalid memory percentage (${MEM_USAGE})" && exit 3
+
+# Check
+[ $(( ${MEM_USAGE} / ${MEM_CRITICAL} >= 1 )) -ne 0 ] && echo "CRITICAL: Memory usage (${MEM_USAGE}%) is bigger than ${MEM_CRITICAL}% |${MEM_USAGE},${MEM_WARNING},${MEM_CRITICAL},2;${mem_usage},${mem_total}" && exit 2
+[ $(( ${MEM_USAGE} / ${MEM_WARNING} >= 1 )) -ne 0 ] && echo "WARNING: Memory usage (${MEM_USAGE}%) is bigger than ${MEM_WARNING}% |${MEM_USAGE},${MEM_WARNING},${MEM_CRITICAL},1;${mem_usage},${mem_total}" && exit 1
+echo "OK: Memory usage (${MEM_USAGE}%) is within tolerance |${MEM_USAGE},${MEM_WARNING},${MEM_CRITICAL},0;${mem_usage},${mem_total}"
+

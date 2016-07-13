@@ -1,0 +1,52 @@
+#!/bin/bash
+## File automatically created/updated [nagios-plugins-custom]
+# EXIT: 0 = OK; 1 = WARNING; 2 = CRITITCAL; 3 = UNKNOWN (ERROR)
+# ECHO: <human-friendly status message> |<performance_data>
+
+# Usage
+[ $# -lt 2  -o "${1##*-}" == 'help' ] && cat << EOF && exit 3
+USAGE: ${0##*/} <bandwidth:warning> <bandwidth:critical> [<device>=eth0] [<direction>=RXTX]
+SYNOPSIS: Nagios-compliant command to check network device bandwidth usage
+EOF
+
+# Arguments
+MY_WARNING=$1
+MY_CRITICAL=$2
+[ $# -ge 3 ] && MY_DEVICE=$3 || MY_DEVICE='eth0'
+[ $# -ge 4 ] && MY_DIRECTION=$4 || MY_DIRECTION='RXTX'
+# ... checks
+[ $(( ${MY_WARNING} <= 0 )) -ne 0 ] && echo 'ERROR: Warning threshold must be bigger than 0' && exit 3
+[ $(( ${MY_CRITICAL} <= 0 )) -ne 0 ] && echo 'ERROR: Critical threshold must be bigger than 0' && exit 3
+[ $(( ${MY_WARNING} > ${MY_CRITICAL} )) -ne 0 ] && echo 'ERROR: Warning threshold must be lower than critical threshold' && exit 3
+case "${MY_DIRECTION}" in
+  'RX'|'TX'|'RXTX') ;;
+  *) echo 'ERROR: Invalid direction' && exit 3
+esac
+
+# Device statistics
+MY_STATS="$(date +'%s'; grep "^ *${MY_DEVICE}:" /proc/net/dev | cut -d':' -f2 | awk '{printf "%f,%f,%f", $1/1048576,$9/1048576,($1+$9)/1048576}' | tr ',' '\n')"
+[ -z "${MY_STATS}" ] && echo "ERROR: Invalid device (${MY_DEVICE})" && exit 3
+MY_STATS_FILE="/tmp/${0##*/}.${MY_DEVICE}"
+if [ ! -e "${MY_STATS_FILE}" ]; then
+  echo "${MY_STATS}" > "${MY_STATS_FILE}"
+  echo 'ERROR: Unavailable bandwidth data' && exit 3
+fi
+echo "${MY_STATS}" > "${MY_STATS_FILE}.new"
+MY_STATS="$(pr -tm "${MY_STATS_FILE}" "${MY_STATS_FILE}.new" | awk '{ if (NR==1) { ET=$2-$1 } else { printf "%d,", ($2-$1)/ET } }')"
+mv "${MY_STATS_FILE}.new" "${MY_STATS_FILE}"
+MY_RX_RATE="${MY_STATS%%,*}"; MY_STATS="${MY_STATS#*,}"
+MY_TX_RATE="${MY_STATS%%,*}"; MY_STATS="${MY_STATS#*,}"
+MY_RXTX_RATE="${MY_STATS%%,*}"
+[ $(( ${MY_RX_RATE} < 0 )) -ne 0 ] && echo "ERROR: Invalid RX rate (${MY_RX_RATE})" && exit 3
+[ $(( ${MY_TX_RATE} < 0 )) -ne 0 ] && echo "ERROR: Invalid TX rate (${MY_TX_RATE})" && exit 3
+case "${MY_DIRECTION}" in
+  'RX') MY_RATE=${MY_RX_RATE};;
+  'TX') MY_RATE=${MY_TX_RATE};;
+  'RXTX') MY_RATE=${MY_RXTX_RATE};;
+esac
+
+# Check
+[ $(( ${MY_RATE} / ${MY_CRITICAL} >= 1 )) -ne 0 ] && echo "CRITICAL: Bandwidth usage (${MY_RATE}MiB/s) is bigger than ${MY_CRITICAL}MiB/s |${MY_RATE},${MY_WARNING},${MY_CRITICAL},${MY_DEVICE},${MY_DIRECTION},2;${MY_RX_RATE},${MY_TX_RATE},${MY_RXTX_RATE}" && exit 2
+[ $(( ${MY_RATE} / ${MY_WARNING} >= 1 )) -ne 0 ] && echo "WARNING: Bandwidth usage (${MY_RATE}MiB/s) is bigger than ${MY_WARNING}MiB/s |${MY_RATE},${MY_WARNING},${MY_CRITICAL},${MY_DEVICE},${MY_DIRECTION},1;${MY_RX_RATE},${MY_TX_RATE},${MY_RXTX_RATE}" && exit 1
+echo "OK: Bandwidth usage (${MY_RATE}MiB/s) is within tolerance |${MY_RATE},${MY_WARNING},${MY_CRITICAL},${MY_DEVICE},${MY_DIRECTION},0;${MY_RX_RATE},${MY_TX_RATE},${MY_RXTX_RATE}"
+

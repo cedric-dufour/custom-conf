@@ -1,0 +1,15 @@
+## CUSTOM-CONF: File automatically created/updated [custom-conf-symfony]
+
+# Rotate Symfony logs
+/var/log/php/symfony/*.log {
+	weekly
+	missingok
+	rotate 10
+	compress
+	delaycompress
+	notifempty
+        su www-data adm
+	create 640 www-data adm
+	sharedscripts
+}
+

@@ -1,0 +1,13 @@
+Source: custom-packages-install-network
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 3.9.7
+
+Package: custom-packages-install-network
+Architecture: all
+Depends: network-manager, network-manager-gnome
+Suggests: custom-conf-polkit-network
+Description: Custom Configuration Framework - Network stack (user space)
+

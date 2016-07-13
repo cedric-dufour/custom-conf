@@ -1,0 +1,7 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-util-apt
+
+This package contains various utilities to manage APT repositories and
+APT-installed Debian packages.
+

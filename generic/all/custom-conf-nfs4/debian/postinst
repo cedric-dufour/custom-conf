@@ -1,0 +1,21 @@
+#!/bin/bash
+[ "${1}" != 'configure' ] && exit 0
+PKGNAME='custom-conf-nfs4'
+
+# Install files
+custom-conf-install "${PKGNAME}" "/usr/share/${PKGNAME}/config" || exit 1
+
+# Fine-tune configuration
+source /usr/share/custom-conf/custom-conf.defs
+gsed "s|%{CUSTOM_CONF_DOMAIN}|${CUSTOM_CONF_DOMAIN}|g" /etc/idmapd.conf
+
+# Additional actions
+[ ! -e /var/lib/nfs/rpc_pipefs -a -e /run/rpc_pipefs ] && ln -s /run/rpc_pipefs /var/lib/nfs/rpc_pipefs
+invoke-rc.d nfs-common restart
+invoke-rc.d statd stop; invoke-rc.d statd start
+invoke-rc.d idmapd stop; invoke-rc.d idmapd start
+invoke-rc.d gssd stop; invoke-rc.d gssd start
+
+# Exit
+exit 0
+

@@ -1,0 +1,13 @@
+Source: custom-util-ha
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 3.9.7
+
+Package: custom-util-ha
+Architecture: all
+Depends: bsd-mailx
+Suggests: pacemaker, snmp
+Description: Custom Configuration Framework - High-Availability (HA) utilities
+

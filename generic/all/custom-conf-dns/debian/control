@@ -1,0 +1,14 @@
+Source: custom-conf-dns
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 3.9.7
+
+Package: custom-conf-dns
+Architecture: all
+Conflicts: resolvconf
+Depends: custom-conf
+Recommends: custom-conf-nscd
+Description: Custom Configuration Framework - DNS (client)
+

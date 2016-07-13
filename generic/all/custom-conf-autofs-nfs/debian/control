@@ -1,0 +1,12 @@
+Source: custom-conf-autofs-nfs
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 3.9.7
+
+Package: custom-conf-autofs-nfs
+Architecture: all
+Depends: custom-conf, custom-conf-autofs, nfs-common
+Description: Custom Configuration Framework - AutoFS <-> NFS
+

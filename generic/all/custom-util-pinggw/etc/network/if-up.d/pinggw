@@ -1,0 +1,18 @@
+#!/bin/bash
+# Ping the gateway (and make all network devices aware that we are alive)
+
+# Ignore the local loopback interface
+[ "${IFACE}" == 'lo' ] && exit 0
+
+# Only run from on network 'up'
+[ "${MODE}" != 'start' ] && exit 0
+
+# Handle only IPv4
+[ "${ADDRFAM}" != 'inet' ] && exit 0
+
+# Ping gateway
+pinggw ${IFACE} -c 1 -W 1 >/dev/null
+
+# Done
+exit 0
+

@@ -1,0 +1,74 @@
+#!/bin/bash
+PKGNAME='custom-conf-apache2'
+
+
+## Usage
+[ $# -lt 1 -o "${1##*-}" == 'help' ] && cat << EOF && exit 1
+USAGE: ${0##*/} {detect|upgrade}
+
+SYNOPSIS:
+  Detect and upgrade former Apache 2.2 configuration to its 2.4 counterpart.
+EOF
+
+# Arguments
+ACTION="${1}"
+
+
+## Functions
+
+# Detect
+function _detect {
+  for file in \
+    /etc/apache2/conf.d/security \
+    /etc/apache2/sites-available/default \
+    /etc/apache2/sites-available/default-ssl \
+  ; do
+    [ -e "${file}" ] && exit 0
+  done
+  exit 1
+}
+
+# Upgrade
+function _upgrade {
+  # Move configuration files
+  source gcfg.config "${PKGNAME}"
+  for file in \
+    /etc/apache2/conf.d/security:/etc/apache2/conf-available/security.conf \
+    /etc/apache2/sites-available/default:/etc/apache2/sites-available/000-default.conf \
+    /etc/apache2/sites-available/default-ssl:/etc/apache2/sites-available/default-ssl.conf \
+  ; do
+    file_src="${file%:*}"
+    [ ! -e "${file_src}" ] && continue
+    file_dst="${file#*:}"
+    echo "INFO: Migrating configuration file: ${file_src} -> ${file_dst}"
+    gcfg mv "${file_src}" "${file_dst}"
+  done
+
+  # Fix symlinks
+  find /etc/apache2/sites-enabled -name '*default' -delete -exec ln -s ../sites-available/000-default.conf /etc/apache2/sites-enabled/. \;
+  find /etc/apache2/sites-enabled -name '*default-ssl' -delete -exec ln -s ../sites-available/default-ssl.conf /etc/apache2/sites-enabled/001-default-ssl.conf \;
+}
+
+
+## Actions
+case "${ACTION}" in
+
+  detect)
+    _detect
+    ;;
+
+  upgrade)
+    _upgrade
+    ;;
+
+  *)
+    echo "ERROR: Invalid action (${ACTION})" >&2
+    exit 1
+    ;;
+
+esac
+
+
+## Done
+exit 0
+

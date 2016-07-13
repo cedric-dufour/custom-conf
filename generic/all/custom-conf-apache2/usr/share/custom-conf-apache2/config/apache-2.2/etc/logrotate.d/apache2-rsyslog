@@ -1,0 +1,17 @@
+## CUSTOM-CONF: File automatically created/updated [custom-conf-apache2]
+
+# Rotate rsyslog-redirected Apache logs
+/var/log/apache2.rsyslog {
+	weekly
+	missingok
+	rotate 10
+	compress
+	delaycompress
+	notifempty
+	create 640 %{CUSTOM_CONF_APACHE2_LOGOWNER} adm
+	sharedscripts
+	postrotate
+		%{CUSTOM_CONF_APACHE2_LOGROTATE}
+	endscript
+}
+

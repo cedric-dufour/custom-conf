@@ -1,0 +1,11 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-conf-krb5
+
+This package provides standard configuration of MIT Kerberos V authentication
+protocol.
+
+In particular, it addresses standard configuration of:
+ - administration and key distribution servers (<-> 'custom-defs-...' package)
+ - weak cryptography for NFSv4 interoperability
+

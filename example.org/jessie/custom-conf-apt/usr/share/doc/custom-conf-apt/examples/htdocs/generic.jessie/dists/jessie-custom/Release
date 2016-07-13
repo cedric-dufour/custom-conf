@@ -1,0 +1,7 @@
+Origin: Local
+Label: Custom APT Repository - Debian/Jessie
+Suite: All
+Codename: jessie-custom
+Architectures: amd64
+Components: generic
+

@@ -1,0 +1,47 @@
+#!/bin/bash
+
+# Usage
+[ "${1##*-}" == 'help' ] && cat << EOF && exit 1
+USAGE: ${0##*/} [-H|--header] {-I|--ip|-U|--user|-C|--cert} <file> ...
+
+SYNOPSIS:
+  Parse OpenVPN server logs and output access details to stdout
+EOF
+
+# Options
+MY_HEADER=
+MY_DETAIL='ip'
+while [ "${1:0:1}" == '-' ]; do
+  case "${1}" in
+    '-H'|'--header') MY_HEADER='yes';;
+    '-I'|'--ip') MY_DETAIL='ip';;
+    '-U'|'--user') MY_DETAIL='user';;
+    '-C'|'--cert') MY_DETAIL='cert';;
+    *) echo "ERROR: Unsupported option (${1})" >&2;;
+  esac
+  shift
+done
+
+# Parse logs
+case "${MY_DETAIL}" in
+
+  'ip')
+    [ -n "${MY_HEADER}" ] && echo 'TIMESTAMP|USERNAME|IPADDR_REMOTE|IPADDR_LOCAL'
+    [ -z "$*" ] && exit 0
+    logparse-acat "$@" | grep -i 'vpn.*sent control.*ifconfig' | sed 's/^\([^ ]*\) (.*) /\1|/;s/\([^|\/]*\)\/\([0-9\.]*\|[0-9a-f:]*\):[0-9]* sent control.*ifconfig \([0-9\.]*\|[0-9a-f:]*\).*/\1|\2|\3/i'
+    ;;
+
+  'user')
+    [ -n "${MY_HEADER}" ] && echo 'TIMESTAMP|IPADDR|USERNAME'
+    [ -z "$*" ] && exit 0
+    logparse-acat "$@" | grep -i 'vpn.*tls: username/password authentication' | sed "s/^\([^ ]*\) (.*) /\1|/;s/\([0-9\.]*\|[0-9a-f:]*\):[0-9]* tls.*username '\([^']*\)'.*/\1|\2/i" 
+    ;;
+
+  'cert')
+    [ -n "${MY_HEADER}" ] && echo 'TIMESTAMP|IPADDR|CERTIFICATE'
+    [ -z "$*" ] && exit 0
+    logparse-acat "$@" | grep -i 'nvpn.*verify ok: depth=0' | sed "s/^\([^ ]*\) (.*) /\1|/;s/\([0-9\.]*\|[0-9a-f:]*\):[0-9]* verify ok: depth=0.*\/cn=\([^\/ ]*\).*/\1|\2/i" 
+    ;;
+
+esac
+

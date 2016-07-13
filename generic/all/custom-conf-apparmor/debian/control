@@ -1,0 +1,12 @@
+Source: custom-conf-apparmor
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 3.9.7
+
+Package: custom-conf-apparmor
+Architecture: all
+Depends: custom-conf, apparmor, apparmor-profiles, apparmor-profiles-extra | apparmor-profiles
+Description: Custom Configuration Framework - AppArmor
+

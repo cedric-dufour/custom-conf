@@ -1,0 +1,36 @@
+## CUSTOM-CONF: File automatically created/updated [custom-conf-django]
+
+
+## Django/WSGI integration
+#  WARNING: Do NOT enable this 'site' directly!
+#           Instead, include it in the actual 'site(s)' where it is needed
+
+# Standard HTML resources
+Alias /robots.txt /usr/share/custom-conf-django/htdocs/robots.txt
+AliasMatch ^/media/([^/]*\.css)$ /usr/share/custom-conf-django/htdocs/media/css/$1
+AliasMatch ^/media/([^/]*\.(png|jpe?g|gif))$ /usr/share/custom-conf-django/htdocs/media/img/$1
+AliasMatch ^/media/([^/]*\.js)$ /usr/share/custom-conf-django/htdocs/media/js/$1
+Alias /media /usr/share/custom-conf-django/htdocs/media
+Alias /htdocs /usr/share/custom-conf-django/htdocs
+<Directory /usr/share/custom-conf-django/htdocs>
+  # Options
+  Options SymLinksIfOwnerMatch IncludesNoExec
+  AllowOverride FileInfo Indexes Options=Indexes
+
+  # ACL
+  Order deny,allow
+  Allow from all
+</Directory>
+
+# Django/WSGI handler
+WSGIScriptAlias / /etc/django/custom-conf-django/wsgi/django.wsgi
+<Directory /etc/django/custom-conf-django/wsgi>
+  # Options
+  Options None
+  AllowOverride None
+
+  # ACL
+  Order deny,allow
+  Allow from all
+</Directory>
+

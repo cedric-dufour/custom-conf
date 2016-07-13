@@ -1,0 +1,12 @@
+Source: custom-conf
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 3.9.7
+
+Package: custom-conf
+Architecture: all
+Depends: custom-conf-defs, custom-conf-utils
+Description: Custom Configuration Framework - Root package
+

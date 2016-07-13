@@ -1,0 +1,176 @@
+#!/bin/bash
+[ "${1}" != 'configure' ] && exit 0
+PKGNAME='custom-conf-ssh'
+
+# Debconf
+. /usr/share/debconf/confmodule
+# ... preseed
+for var_priority in bind-address:high allow-user:high; do
+  var="${var_priority%:*}"
+  priority="${var_priority#*:}"
+  db_input ${priority} ${PKGNAME}/${var}
+  db_go
+done
+# ... get
+db_get custom-conf/host-type && HOST_TYPE="${RET}"
+db_get ${PKGNAME}/bind-address && BIND_ADDR="${RET}"
+db_get ${PKGNAME}/allow-user && ALLOW_USER="${RET}"
+db_stop
+
+# Install files
+custom-conf-install "${PKGNAME}" "/usr/share/${PKGNAME}/config" || exit 1
+
+# Fine-tune configuration
+source /usr/share/custom-conf/custom-conf.defs
+
+# ... bind address (IPv4)
+ipv4="$(ip -4 addr 2>/dev/null | fgrep 'scope global')"
+CUSTOM_CONF_SSH_LISTEN_IPV4=
+if [ -n "${ipv4}" ]; then
+  if [ "${BIND_ADDR}" == 'gateway' -a -n "${CUSTOM_CONF_NETWORK_GATEWAY_IPV4}" ]; then
+    LISTEN_ADDR="$(custom-conf-getifaceip -I "${CUSTOM_CONF_NETWORK_GATEWAY_IPV4}")"
+    [ -n "${LISTEN_ADDR}" ] \
+      && CUSTOM_CONF_SSH_LISTEN_IPV4="ListenAddress ${LISTEN_ADDR}" \
+      || echo "ERROR[${PKGNAME}]: Failed to retrieve IPv4 address matching configured gateway" >&2
+  elif [ -n "${BIND_ADDR}" ]; then
+    for bind_addr in ${BIND_ADDR}; do
+      [[ ${bind_addr} != *'.'* ]] && continue
+      CUSTOM_CONF_SSH_LISTEN_IPV4="${CUSTOM_CONF_SSH_LISTEN_IPV4:+${CUSTOM_CONF_SSH_LISTEN_IPV4}%NL;}ListenAddress ${bind_addr}"
+    done
+  fi
+fi
+
+# ... bind address (IPv6)
+ipv6="$(ip -6 addr 2>/dev/null | fgrep 'scope global')"
+CUSTOM_CONF_SSH_LISTEN_IPV6=
+if [ -n "${ipv6}" ]; then
+  if [ "${BIND_ADDR}" == 'gateway' -a -n "${CUSTOM_CONF_NETWORK_GATEWAY_IPV6}" ]; then
+    LISTEN_ADDR="$(custom-conf-getifaceip -I "${CUSTOM_CONF_NETWORK_GATEWAY_IPV6}")"
+    [ -n "${LISTEN_ADDR}" ] \
+      && CUSTOM_CONF_SSH_LISTEN_IPV6="ListenAddress ${LISTEN_ADDR}" \
+      || echo "ERROR[${PKGNAME}]: Failed to retrieve IPv6 address matching configured gateway" >&2
+  elif [ -n "${BIND_ADDR}" ]; then
+    for bind_addr in ${BIND_ADDR}; do
+      [[ ${bind_addr} != *':'* ]] && continue
+      CUSTOM_CONF_SSH_LISTEN_IPV6="${CUSTOM_CONF_SSH_LISTEN_IPV6:+${CUSTOM_CONF_SSH_LISTEN_IPV6}%NL;}ListenAddress ${bind_addr}"
+    done
+  fi
+fi
+
+# ... bind address (finalize)
+if [ -z "${CUSTOM_CONF_SSH_LISTEN_IPV4}" -a -z "${CUSTOM_CONF_SSH_LISTEN_IPV6}" -a -n "${BIND_ADDR}" ]; then
+  if [ -n "${ipv4}" ]; then
+    echo "WARNING[${PKGNAME}]: Failed to retrieve a valid IPv4 address to bind to (using 127.0.0.1)"
+    CUSTOM_CONF_SSH_LISTEN_IPV4='ListenAddress 127.0.0.1'
+  fi
+  if [ -n "${ipv6}" ]; then
+    echo "WARNING[${PKGNAME}]: Failed to retrieve a valid IPv6 address to bind to (using ::1)"
+    CUSTOM_CONF_SSH_LISTEN_IPV6='ListenAddress ::1'
+  fi
+fi
+[ -z "${CUSTOM_CONF_SSH_LISTEN_IPV4}" ] && CUSTOM_CONF_SSH_LISTEN_IPV4='#ListenAddress [IPv4:unspecified]'
+[ -z "${CUSTOM_CONF_SSH_LISTEN_IPV6}" ] && CUSTOM_CONF_SSH_LISTEN_IPV6='#ListenAddress [IPv6:unspecified]'
+
+# ... host-specific parameters
+CUSTOM_CONF_SSH_PASSWORDAUTHENTICATION='PasswordAuthentication no'
+CUSTOM_CONF_SSH_FORWARDX11='ForwardX11 no'
+CUSTOM_CONF_SSH_TCPKEEPALIVE='TCPKeepAlive no'
+CUSTOM_CONF_SSH_ALLOWUSERS='#AllowUsers N/A'
+CUSTOM_CONF_SSH_HASHKNOWNHOSTS='HashKnownHosts yes'
+case "${HOST_TYPE}" in
+
+  workstation|computation|laptop)
+    CUSTOM_CONF_SSH_PASSWORDAUTHENTICATION='PasswordAuthentication yes'
+    CUSTOM_CONF_SSH_FORWARDX11='ForwardX11 yes'
+    CUSTOM_CONF_SSH_TCPKEEPALIVE='TCPKeepAlive yes'
+    users=
+    if [ -n "${ALLOW_USER}" ]; then
+      for user in root ${ALLOW_USER}; do
+        users="${users:+${users} }${user}"
+      done
+    fi
+    [ -n "${users}" ] && CUSTOM_CONF_SSH_ALLOWUSERS="AllowUsers ${users}"
+    CUSTOM_CONF_SSH_HASHKNOWNHOSTS='HashKnownHosts no'
+    ;;
+
+  server)
+    CUSTOM_CONF_SSH_PASSWORDAUTHENTICATION='PasswordAuthentication yes'
+    CUSTOM_CONF_SSH_FORWARDX11='ForwardX11 no'
+    CUSTOM_CONF_SSH_TCPKEEPALIVE='TCPKeepAlive no'
+    users=
+    for user in root ${ALLOW_USER}; do
+      if [ -n "${CUSTOM_CONF_SSH_ALLOWSEGMENTS}" ]; then
+        for segment in ${CUSTOM_CONF_SSH_ALLOWSEGMENTS}; do
+          users="${users:+${users} }${user}@${segment}"
+        done
+      else
+        users="${users:+${users} }${user}"
+      fi
+    done
+    [ -n "${users}" ] && CUSTOM_CONF_SSH_ALLOWUSERS="AllowUsers ${users}"
+    CUSTOM_CONF_SSH_HASHKNOWNHOSTS='HashKnownHosts yes'
+    ;;
+
+  vserver)
+    CUSTOM_CONF_SSH_PASSWORDAUTHENTICATION='PasswordAuthentication no'
+    CUSTOM_CONF_SSH_FORWARDX11='ForwardX11 no'
+    CUSTOM_CONF_SSH_TCPKEEPALIVE='TCPKeepAlive no'
+    users=
+    for user in root ${ALLOW_USER}; do
+      if [ -n "${CUSTOM_CONF_SSH_ALLOWSEGMENTS}" ]; then
+        for segment in ${CUSTOM_CONF_SSH_ALLOWSEGMENTS}; do
+          users="${users:+${users} }${user}@${segment}"
+        done
+      else
+        users="${users:+${users} }${user}"
+      fi
+    done
+    [ -n "${users}" ] && CUSTOM_CONF_SSH_ALLOWUSERS="AllowUsers ${users}"
+    CUSTOM_CONF_SSH_HASHKNOWNHOSTS='HashKnownHosts yes'
+    ;;
+
+  *)
+    echo "WARNING[${PKGNAME}]: Unsupported host type (${HOST_TYPE})"
+    users=
+    for user in root ${ALLOW_USER}; do
+      if [ -n "${CUSTOM_CONF_SSH_ALLOWSEGMENTS}" ]; then
+        for segment in ${CUSTOM_CONF_SSH_ALLOWSEGMENTS}; do
+          users="${users:+${users} }${user}@${segment}"
+        done
+      else
+        users="${users:+${users} }${user}"
+      fi
+    done
+    [ -n "${users}" ] && CUSTOM_CONF_SSH_ALLOWUSERS="AllowUsers ${users}"
+    ;;
+
+esac
+
+# ... do it
+gsed "s|%{CUSTOM_CONF_SSH_LISTEN_IPV4}|${CUSTOM_CONF_SSH_LISTEN_IPV4}|g;s|%{CUSTOM_CONF_SSH_LISTEN_IPV6}|${CUSTOM_CONF_SSH_LISTEN_IPV6}|g;s|%{CUSTOM_CONF_SSH_PASSWORDAUTHENTICATION}|${CUSTOM_CONF_SSH_PASSWORDAUTHENTICATION}|g;s|%{CUSTOM_CONF_SSH_FORWARDX11}|${CUSTOM_CONF_SSH_FORWARDX11/ForwardX11/X11Forwarding}|g;s|%{CUSTOM_CONF_SSH_TCPKEEPALIVE}|${CUSTOM_CONF_SSH_TCPKEEPALIVE}|g;s|%{CUSTOM_CONF_SSH_ALLOWUSERS}|${CUSTOM_CONF_SSH_ALLOWUSERS}|g;s|%NL;|\n|g" /etc/ssh/sshd_config
+gsed "s|%{CUSTOM_CONF_SSH_FORWARDX11}|${CUSTOM_CONF_SSH_FORWARDX11}|g;s|%{CUSTOM_CONF_SSH_TCPKEEPALIVE}|${CUSTOM_CONF_SSH_TCPKEEPALIVE}|g;s|%{CUSTOM_CONF_SSH_HASHKNOWNHOSTS}|${CUSTOM_CONF_SSH_HASHKNOWNHOSTS}|g;s|%NL;|\n|g" /etc/ssh/ssh_config
+
+# Additional actions
+if [ "$(ssh-keygen -lf /etc/ssh/ssh_host_rsa_key.pub | cut -d' ' -f1)" != "2543" ]; then
+  echo "WARNING[${PKGNAME}]: The RSA key length does not match security policies"
+  echo ": creating new RSA key..."
+  rm -f /etc/ssh/ssh_host_rsa_key /etc/ssh/ssh_host_rsa_key.pub
+  LIBSSL_VERSION="$(dpkg -l | grep 'ii\s*libssl' | awk '{print $3}')"
+  /usr/bin/ssh-keygen -q -b 2543 -t rsa -N '' -f /etc/ssh/ssh_host_rsa_key -C "$(hostname -f) (generated $(date +"%Y-%m-%d") with OpenSSL ${LIBSSL_VERSION})"
+  /usr/bin/ssh-keygen -lf /etc/ssh/ssh_host_rsa_key.pub
+fi
+invoke-rc.d ssh reload >/dev/null
+
+# Warning
+[ "${CUSTOM_CONF_SSH_PASSWORDAUTHENTICATION}" == 'no' ] && cat << EOF
+!!! WARNING !!! WARNING !!! WARNING !!! WARNING !!! WARNING !!! WARNING !!!
+
+           PASSWORD-BASED AUTHENTICATION HAS BEEN DISABLED!!!
+ Make sure to install the appropriate authorized keys before logging-out!
+
+!!! WARNING !!! WARNING !!! WARNING !!! WARNING !!! WARNING !!! WARNING !!!
+EOF
+
+# Exit
+exit 0
+

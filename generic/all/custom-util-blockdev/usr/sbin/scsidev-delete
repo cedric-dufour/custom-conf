@@ -1,0 +1,23 @@
+#!/bin/bash
+## CUSTOM-UTIL: File automatically created/updated [custom-util-blockdev]
+
+# Usage
+[ $# -lt 1 -o "${1##*-}" == 'help' ] && cat << EOF >&2 && exit 1
+USAGE: ${0##*/} <lun#>
+
+HINT: echo 1 > /sys/class/scsi_device/0:0:0:<lun#>/device/delete
+EOF
+
+# Command
+LUNDEV="/sys/class/scsi_device/0:0:0:${1}"
+[ ! -e "${LUNDEV}" ] && echo "ERROR: Invalid device/LUN (${LUNDEV})" >&2 && exit 1
+echo 'CRITICAL: Make sure to umount all partitions on the device!'
+for dev in ${LUNDEV}/device/block/sd*; do
+  echo " > device: ${dev##*/}"
+  for part in ${dev}/sd*; do
+    echo " > partition: /dev/${part##*/}"
+  done
+done
+echo 'PRESS <ENTER> TO CONTINUE OR <CTRL+C> TO ABORT...'
+read
+echo 1 > ${LUNDEV}/device/delete

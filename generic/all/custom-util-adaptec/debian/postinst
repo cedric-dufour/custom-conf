@@ -1,0 +1,13 @@
+#!/bin/bash
+[ "${1}" != 'configure' ] && exit 0
+
+# Make sure arcconf binary is executable
+chmod a+x /usr/StorMan/arcconf
+
+# Make sure StorMan agent is not running by default (we only use the CLI)
+invoke-rc.d stor_agent stop
+update-rc.d stor_agent disable
+
+# Exit
+exit 0
+

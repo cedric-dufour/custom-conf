@@ -1,0 +1,40 @@
+#!/bin/bash
+[ "${1}" != 'configure' ] && exit 0
+PKGNAME='custom-conf-krb5'
+
+# Install files
+custom-conf-install "${PKGNAME}" "/usr/share/${PKGNAME}/config" || exit 1
+
+# Fine-tune configuration
+source /usr/share/custom-conf/custom-conf.defs
+ipv6="$(ip -6 addr 2>/dev/null | fgrep 'scope global')"
+server_admin=
+for s in ${CUSTOM_CONF_KRB5_SERVER_ADMIN}; do
+  if [ -n "$(echo "${s}" | grep '^[:a-f0-9]*$')" ]; then
+    [ -z "${ipv6}" ] && continue
+  fi
+  server_admin="    admin_server = ${s}"
+  break
+done
+[ -n "${CUSTOM_CONF_KRB5_SERVER_ADMIN}" -a -z "${server_admin}" ] && echo "ERROR[${PKGNAME}]: No IPv4 server found (${CUSTOM_CONF_KRB5_SERVER_ADMIN})" >&2
+servers_kdc=
+for s in ${CUSTOM_CONF_KRB5_SERVERS_KDC}; do
+  if [ -n "$(echo "${s}" | grep '^[:a-f0-9]*$')" ]; then
+    [ -z "${ipv6}" ] && continue
+  fi
+  servers_kdc="${servers_kdc}${servers_kdc:+%NL;}    kdc = ${s}"
+done
+[ -n "${CUSTOM_CONF_KRB5_SERVERS_KDC}" -a -z "${servers_kdc}" ] && echo "ERROR[${PKGNAME}]: No IPv4 server found (${CUSTOM_CONF_KRB5_SERVERS_KDC})" >&2
+gsed "s|%{CUSTOM_CONF_KRB5_REALM}|${CUSTOM_CONF_KRB5_REALM}|g;s|%{CUSTOM_CONF_KRB5_SERVER_ADMIN}|${server_admin}|g;s|%{CUSTOM_CONF_KRB5_SERVERS_KDC}|${servers_kdc}|g;s|%NL;|\n|g" /etc/krb5.conf
+
+# Warning
+if [ ! -e /etc/krb5.keytab ]; then
+cat << EOF
+WARNING[${PKGNAME}]: This host's /etc/krb5.keytab is missing!
+: Access to Kerberos-protected services will NOT work until you create it
+EOF
+fi
+
+# Exit
+exit 0
+

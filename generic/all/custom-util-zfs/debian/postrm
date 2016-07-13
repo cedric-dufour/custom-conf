@@ -1,0 +1,12 @@
+#!/bin/bash
+[ "${1}" != 'remove' -a "${1}" != 'purge' ] && exit 0
+
+# Uninstall the service
+update-rc.d zfs-mount-late remove >/dev/null
+if [ -d /run/systemd/system ] ; then
+  systemctl --system daemon-reload >/dev/null
+fi
+
+# Exit
+exit 0
+

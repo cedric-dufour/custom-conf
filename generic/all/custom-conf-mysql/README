@@ -1,0 +1,11 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-conf-mysql
+
+This package provides standard configuration of MySQL database server.
+
+In particular, it addresses standard configuration of:
+ - SSL/TLS (<-> 'custom-certificates' package)
+ - listening address/interface
+ - UTF-8 client charset
+

@@ -1,0 +1,40 @@
+#!/bin/bash
+## CUSTOM-UTIL: File automatically created/updated [custom-util-apt]
+
+# Usage
+[ $# -lt 1 -o "${1##*-}" == 'help' ] && cat << EOF && exit 1
+USAGE: ${0##*/} <packages-regexp>
+
+SYNOPSIS:
+  Mark transitional package(s) dependencies as manually installed and purge
+  transitional package(s) afterwards.
+EOF
+
+# Arguments
+MY_PACKAGES_REGEXP="${1}"; shift
+
+# Update repositories
+echo 'Updating APT repositories'
+apt-get update --quiet=2
+
+# Remove/purge transitional packages
+echo 'Purging transitional packages'
+APT_MARK_COMMAND='manual'
+apt-mark -h | fgrep -q unmarkauto && APT_MARK_COMMAND='unmarkauto'
+packages=
+depends=
+for package in $(dpkg --get-selections | awk '{print $1}' | egrep "${MY_PACKAGES_REGEXP}"); do
+  packages="${packages} ${package}"
+  for depend in $(apt-cache show ${package} | grep '^Depends:' | sed 's/^Depends: *//;s/([^)]*)//g;s/[|,]//g'); do
+    depends="${depends} ${depend}"
+  done
+done
+[ -z "${packages}" ] && echo 'No packages found' && exit 0
+echo "Packages to be removed: ${packages}"
+echo "Packages to be marked as manually installed: ${depends}"
+apt-get remove --purge $* ${packages}
+apt-mark ${APT_MARK_COMMAND} ${depends}
+
+# Clean APT cache
+apt-get clean
+

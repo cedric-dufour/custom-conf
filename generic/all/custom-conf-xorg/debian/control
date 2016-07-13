@@ -1,0 +1,12 @@
+Source: custom-conf-xorg
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 3.9.7
+
+Package: custom-conf-xorg
+Architecture: all
+Depends: custom-conf-xorg-generic (>= 2016.07.05a)
+Description: Custom Configuration Framework - TRANSITIONAL PACKAGE
+

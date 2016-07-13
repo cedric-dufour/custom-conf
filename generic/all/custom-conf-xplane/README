@@ -1,0 +1,9 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-conf-xplane
+
+This package provides standard configuration of X-Plane flight simulator.
+
+In particular, it addresses standard configuration of:
+ - Advanced Linux Sound Architecture (ALSA) quirks
+

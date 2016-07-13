@@ -1,0 +1,6 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-conf-ginn
+
+This package contains various quirks for the ginn multitouch handler daemon.
+

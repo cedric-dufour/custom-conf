@@ -1,0 +1,30 @@
+#!/bin/bash
+## File automatically created/updated [nagios-plugins-custom]
+# EXIT: 0 = OK; 1 = WARNING; 2 = CRITITCAL; 3 = UNKNOWN (ERROR)
+# ECHO: <human-friendly status message> |<performance_data>
+
+# Usage
+[ $# -lt 4  -o "${1##*-}" == 'help' ] && cat << EOF && exit 3
+USAGE: ${0##*/} <host> <uuid> <power:warning> <power:critical>
+SYNOPSIS: Nagios-compliant command to check MiCasaVerde power meters
+EOF
+
+# Arguments
+MY_HOST=$1
+MY_UUID=$2
+MY_WARNING=$3
+MY_CRITICAL=$4
+# ... checks
+[ $(( ${MY_WARNING} <= 0 )) -ne 0 ] && echo 'ERROR: Warning threshold must be bigger than 0' && exit 3
+[ $(( ${MY_CRITICAL} <= 0 )) -ne 0 ] && echo 'ERROR: Critical threshold must be bigger than 0' && exit 3
+[ $(( ${MY_WARNING} > ${MY_CRITICAL} )) -ne 0 ] && echo 'ERROR: Warning threshold must be lower than critical threshold' && exit 3
+
+# Device output
+MY_OUTPUT="$(wget -O- -q "http://${MY_HOST}:49451/data_request?id=status&UDN=uuid:${MY_UUID}&output_format=xml" | fgrep 'service="urn:micasaverde-com:serviceId:EnergyMetering1" variable="Watts"' | sed 's/.*value="//;s/".*//')"
+[ -z "${MY_OUTPUT}" ] && echo "ERROR: Failed to query host/UUID (${MY_HOST}/${MY_UUID})" && exit 3
+
+# Check
+[ $(( ${MY_OUTPUT} / ${MY_CRITICAL} >= 1 )) -ne 0 ] && echo "CRITICAL: Power (${MY_OUTPUT}W) is bigger than ${MY_CRITICAL}W |${MY_OUTPUT},${MY_WARNING},${MY_CRITICAL},${MY_UUID},2" && exit 2
+[ $(( ${MY_OUTPUT} / ${MY_WARNING} >= 1 )) -ne 0 ] && echo "WARNING: Power (${MY_OUTPUT}W) is bigger than ${MY_WARNING}W |${MY_OUTPUT},${MY_WARNING},${MY_CRITICAL},${MY_UUID},1" && exit 1
+echo "OK: Power (${MY_OUTPUT}W) is within tolerance |${MY_OUTPUT},${MY_WARNING},${MY_CRITICAL},${MY_UUID},0"
+

@@ -1,0 +1,37 @@
+#!/bin/sh
+## CUSTOM-CONF: File automatically created/updated [custom-conf-pam-krb5]
+
+
+## Rename misnamed Kerberos 5 credential cache (ticket)
+#  FIX: https://bugs.launchpad.net/ubuntu/+source/lightdm/+bug/1336663
+
+# Parameters
+KRB5CC_DIR='/tmp'
+
+# Look for matching - although misnamed - credential cache (ticket)
+# ... user UID
+KRB5CC_UID="$(id -u "${PAM_USER}")"
+[ -z "${KRB5CC_UID}" ] && echo 'ERROR: Failed to retrieve user UID' >&2 && exit 1
+# ... matching/misnamed ticket
+KRB5CC_SRC="$(find "${KRB5CC_DIR}" -maxdepth 1 -uid "${KRB5CC_UID}" -name 'krb5cc_0')"
+[ -z "${KRB5CC_SRC}" ] && echo 'INFO: No Kerberos 5 matching/misnamed ticket found' && exit 0
+KRB5CC_SRC_PRINC="$(klist "${KRB5CC_SRC}" | grep '^Default principal:')"
+[ -z "${KRB5CC_SRC_PRINC}" ] && echo 'ERROR: Failed to retrieve Kerberos 5 ticket principal' >&2 && exit 1
+# ... (older) user tickets
+KRB5CC_DST_N="$(find "${KRB5CC_DIR}" -maxdepth 1 -uid "${KRB5CC_UID}" -name "krb5cc_${KRB5CC_UID}_*" -not -newer "${KRB5CC_SRC}")"
+[ -z "${KRB5CC_DST_N}" ] && echo 'INFO: No Kerberos 5 user ticket found'
+IFS='
+'; for KRB5CC_DST in ${KRB5CC_DST_N}; do
+  KRB5CC_DST_PRINC="$(klist "${KRB5CC_DST}" | grep '^Default principal:')"
+  [ -z "${KRB5CC_DST_PRINC}" ] && echo 'ERROR: Failed to retrieve Kerberos 5 ticket principal' >&2 && continue
+  [ "${KRB5CC_DST_PRINC}" != "${KRB5CC_SRC_PRINC}" ] && echo 'ERROR: Mismatched Kerberos 5 principal' >&2 && continue
+  cat "${KRB5CC_SRC}" > "${KRB5CC_DST}"
+  [ $? -ne 0 ] && echo 'ERROR: Failed to update Kerberos 5 user ticket' >&2 && continue
+  echo "INFO: Successfully updated Kerberos 5 user ticket (${KRB5CC_DST})"
+done
+# ... remove matching/misnamed ticket
+rm -f "${KRB5CC_SRC}"
+
+# Done
+exit 0
+

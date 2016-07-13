@@ -1,0 +1,12 @@
+Source: custom-conf-symfony-lts
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 3.9.7
+
+Package: custom-conf-symfony-lts
+Architecture: all
+Depends: custom-conf-symfony-2.7
+Description: Custom Configuration Framework - PHP/Symfony (LTS version meta-package)
+

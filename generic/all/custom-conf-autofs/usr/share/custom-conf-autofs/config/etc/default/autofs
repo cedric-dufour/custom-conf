@@ -1,0 +1,12 @@
+## CUSTOM-CONF: File automatically created/updated [custom-conf-autofs]
+
+# Timeout [seconds]
+TIMEOUT=3600
+
+# General settings
+DISABLE_DIRECT=1
+AUTOFS_DONT_RESTART_ON_UPGRADES=1
+
+# Additional options
+daemonoptions='--ghost'
+

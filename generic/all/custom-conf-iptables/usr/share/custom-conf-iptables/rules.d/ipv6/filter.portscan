@@ -1,0 +1,43 @@
+## Default rules/definitions (portscan)
+#
+#  This snippet creates PORTSCAN chains that detect attempts to scan
+#  accross well-knwon ports that we would NEVER use. This chain can
+#  then be used where appropriate (eg. on public interfaces).
+#
+#  source "${IPTABLES_RULESD_DFLT}/filter.portscan"
+#  "${IPTABLES}" --table filter [...] --jump PORTSCAN
+#
+
+# Portscan chains
+[ -n "${VERBOSE}" ] && echo "INFO: Creating portscan chains [IPv6]"
+# ... LOG and DROP
+"${IPTABLES}" --table filter --new-chain PORTSCAN_DROP
+"${IPTABLES}" --table filter --append PORTSCAN_DROP --match recent --name PORTSCAN_DROP --rcheck --seconds 3600 --jump DROP
+"${IPTABLES}" --table filter --append PORTSCAN_DROP --jump LOG --log-level warning --log-prefix '[IPTABLES:PORTSCAN_DROP] '
+"${IPTABLES}" --table filter --append PORTSCAN_DROP --match recent --name PORTSCAN_DROP --set --jump DROP
+
+# ... DETECT and DROP
+"${IPTABLES}" --table filter --new-chain PORTSCAN
+# ... (trigger)
+"${IPTABLES}" --table filter --append PORTSCAN --match recent --name PORTSCAN --rcheck --seconds 86400 --hitcount 3 --reap --jump PORTSCAN_DROP
+# ... FTP
+"${IPTABLES}" --table filter --append PORTSCAN --protocol tcp --dport 20:21 --match recent --name PORTSCAN --set --jump RETURN
+# ... Telnet
+"${IPTABLES}" --table filter --append PORTSCAN --protocol tcp --dport 23 --match recent --name PORTSCAN --set --jump RETURN
+# ... POP
+"${IPTABLES}" --table filter --append PORTSCAN --protocol tcp --dport 110 --match recent --name PORTSCAN --set --jump RETURN
+# ... NetBIOS
+"${IPTABLES}" --table filter --append PORTSCAN --protocol tcp --dport 137:139 --match recent --name PORTSCAN --set --jump RETURN
+# ... IMAP
+"${IPTABLES}" --table filter --append PORTSCAN --protocol tcp --dport 143 --match recent --name PORTSCAN --set --jump RETURN
+# ... LDAP
+"${IPTABLES}" --table filter --append PORTSCAN --protocol tcp --dport 389 --match recent --name PORTSCAN --set --jump RETURN
+# ... CIFS
+"${IPTABLES}" --table filter --append PORTSCAN --protocol tcp --dport 445 --match recent --name PORTSCAN --set --jump RETURN
+# ... PPTP
+"${IPTABLES}" --table filter --append PORTSCAN --protocol tcp --dport 1723 --match recent --name PORTSCAN --set --jump RETURN
+# ... RDP
+"${IPTABLES}" --table filter --append PORTSCAN --protocol tcp --dport 3389 --match recent --name PORTSCAN --set --jump RETURN
+# ... (return)
+"${IPTABLES}" --table filter --append PORTSCAN --jump RETURN
+

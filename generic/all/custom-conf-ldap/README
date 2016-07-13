@@ -1,0 +1,11 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-conf-ldap
+
+This package provides standard configuration of the Lightweight Directory
+Access Protocol (LDAP) client.
+
+In particular, it addresses standard configuration of:
+ - LDAP base DN and server URLs (<-> 'custom-defs-...' package)
+ - SSL/TLS (<-> 'custom-certificates' packages)
+

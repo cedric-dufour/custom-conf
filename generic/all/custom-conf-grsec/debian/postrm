@@ -1,0 +1,29 @@
+#!/bin/bash
+[ "${1}" != 'purge' ] && exit 0
+PKGNAME='custom-conf-grsec'
+
+# Delete grsecurity specific groups
+for group in \
+  grsec-proc \
+  grsec-sock-srv \
+  grsec-sock-clt \
+  grsec-sock-all \
+  grsec-tpe \
+  grsec-siom \
+  grsec-audit \
+; do
+  delgroup ${group} || echo "ERROR[${PKGNAME}]: Failed to remove group (${group})" >&2
+done
+
+# Warning
+[ ! -e /proc/sys/kernel/grsecurity ] && cat << EOF
+!!! WARNING !!! WARNING !!! WARNING !!! WARNING !!! WARNING !!! WARNING !!!
+
+              !!! GRSECURITY CONFIGURATION IS INCOMPLETE !!!
+
+!!! WARNING !!! WARNING !!! WARNING !!! WARNING !!! WARNING !!! WARNING !!!
+EOF
+
+# Exit
+exit 0
+

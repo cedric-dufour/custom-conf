@@ -1,0 +1,62 @@
+#!/usr/bin/perl
+
+use Net::DNS;
+use Geo::IP;
+
+my $oGeoIp = Geo::IP->open( '/usr/share/GeoIP/GeoIP.dat' );
+my $oDNSResolver = Net::DNS::Resolver->new;
+
+sub ip2hostname {
+  my $sHostname;
+  my $oDNSQuery = $oDNSResolver->query( join( '.', reverse( split( '\.', $_[0] ) ) ).'.in-addr.arpa', 'PTR' );
+  if( $oDNSQuery ) {
+    foreach( $oDNSQuery->answer ) {
+      next unless $_->type eq 'PTR';
+      $sHostname = $_->rdatastr;
+      $sHostname =~ s/\.$//;
+      break;
+    }
+  }
+  return( $sHostname );
+}
+
+sub ip2country {
+  my $sCountry = $oGeoIp->country_code_by_addr( $_[0] );
+  return( $sCountry );
+}
+
+while(<STDIN>) {
+  my $sIP;
+  my $sDetail;
+  if( /(^|\|)(\d+(\.\d+){3})(\||$)/ ) {
+    $sIP = $2;
+    if( $sIP =~ /^(10(\.\d+){3})$/ ) {
+      $sDetail = ip2hostname( $sIP );
+      if( !$sDetail ) { $sDetail = 'private/8'; }
+    }
+    elsif( $sIP =~ /^(172\.(1[6-9]|2[0-9]|3[0-1])(\.\d+){2})$/ ) {
+      $sDetail = ip2hostname( $sIP );
+      if( !$sDetail ) { $sDetail = 'private/16'; }
+    }
+    elsif( $sIP =~ /^(192\.168(\.\d+){2})$/ ) {
+      $sDetail = ip2hostname( $sIP );
+      if( !$sDetail ) { $sDetail = 'private/24'; }
+    }
+    elsif( $sIP =~ /^(2(2[4-9]|3[0-9])(\.\d+){3})$/ ) {
+      $sDetail = 'multicast';
+    }
+    else {
+      foreach( @ARGV ) {
+        if( $sIP =~ /^$_/i ) {
+          $sDetail = ip2hostname( $sIP );
+          if( $sDetail ) { break; }
+        }
+      }
+      if( !$sDetail ) { $sDetail = ip2country( $sIP ); }
+      if( !$sDetail ) { $sDetail = 'unkwown'; }
+    }
+    $_ =~ s/$sIP/$sIP ($sDetail)/;
+  }
+  print "$_";
+}
+

@@ -1,0 +1,98 @@
+#!/bin/bash
+[ "${1}" != 'configure' ] && exit 0
+PKGNAME='custom-conf-nrpe'
+
+# Debconf
+. /usr/share/debconf/confmodule
+# ... preseed
+for var_priority in bind-address:high; do
+  var="${var_priority%:*}"
+  priority="${var_priority#*:}"
+  db_input ${priority} ${PKGNAME}/${var}
+  db_go
+done
+# ... get
+db_get ${PKGNAME}/bind-address && BIND_ADDR="${RET}"
+db_stop
+
+# Install files
+custom-conf-install "${PKGNAME}" "/usr/share/${PKGNAME}/config" || exit 1
+
+# Fine-tune configuration
+source /usr/share/custom-conf/custom-conf.defs
+
+# ... allowed hosts
+ipv4="$(ip -4 addr 2>/dev/null | fgrep 'scope global')"
+ipv6="$(ip -6 addr 2>/dev/null | fgrep 'scope global')"
+bind_family='ipv4'
+servers=
+for s in ${CUSTOM_CONF_NAGIOS_SERVERS}; do
+  if [[ ${s} == *':'* ]]; then
+    [ -z "${ipv6}" ] && continue
+    bind_family='ipv6'
+  fi
+  servers="${servers:+${servers},}${s}"
+done
+[ -n "${CUSTOM_CONF_NAGIOS_SERVERS}" -a -z "${servers}" ] && echo "ERROR[${PKGNAME}]: No valid server found (${CUSTOM_CONF_NAGIOS_SERVERS})" >&2
+
+# ... bind address (start)
+CUSTOM_CONF_NRPE_LISTEN_IPADDR=
+
+# ... bind address (IPv4)
+if [ "${bind_family}" == 'ipv4' -a -n "${ipv4}" ]; then
+  if [ "${BIND_ADDR}" == 'gateway' -a -n "${CUSTOM_CONF_NETWORK_GATEWAY_IPV4}" ]; then
+    LISTEN_ADDR="$(custom-conf-getifaceip -I "${CUSTOM_CONF_NETWORK_GATEWAY_IPV4}")"
+    [ -n "${LISTEN_ADDR}" ] \
+      && CUSTOM_CONF_NRPE_LISTEN_IPADDR="server_address=${LISTEN_ADDR}" \
+      || echo "ERROR[${PKGNAME}]: Failed to retrieve IPv4 address matching configured gateway" >&2
+  elif [ -n "${BIND_ADDR}" ]; then
+    for bind_addr in ${BIND_ADDR}; do
+      [ -n "${CUSTOM_CONF_NRPE_LISTEN_IPADDR}" ] && break
+      [[ ${bind_addr} != *'.'* ]] && continue
+      CUSTOM_CONF_NRPE_LISTEN_IPADDR="server_address=${bind_addr}"
+    done
+  fi
+fi
+
+# ... bind address (IPv6)
+if [ "${bind_family}" == 'ipv6' -a -n "${ipv6}" ]; then
+  if [ "${BIND_ADDR}" == 'gateway' -a -n "${CUSTOM_CONF_NETWORK_GATEWAY_IPV6}" ]; then
+    LISTEN_ADDR="$(custom-conf-getifaceip -I "${CUSTOM_CONF_NETWORK_GATEWAY_IPV6}")"
+    [ -n "${LISTEN_ADDR}" ] \
+      && CUSTOM_CONF_NRPE_LISTEN_IPADDR="server_address=${LISTEN_ADDR}" \
+      || echo "ERROR[${PKGNAME}]: Failed to retrieve IPv6 address matching configured gateway" >&2
+  elif [ -n "${BIND_ADDR}" ]; then
+    for bind_addr in ${BIND_ADDR}; do
+      [ -n "${CUSTOM_CONF_NRPE_LISTEN_IPADDR}" ] && break
+      [[ ${bind_addr} != *':'* ]] && continue
+      CUSTOM_CONF_NRPE_LISTEN_IPADDR="server_address=${bind_addr}"
+    done
+  fi
+fi
+
+# ... bind address (finalize)
+if [ -z "${CUSTOM_CONF_NRPE_LISTEN_IPADDR}" ]; then
+  if [ -n "${BIND_ADDR}" ]; then
+    if [ "${bind_family}" == 'ipv4' ]; then
+      echo "WARNING[${PKGNAME}]: Failed to retrieve a valid IPv4 address to bind to (using 127.0.0.1)"
+      CUSTOM_CONF_NRPE_LISTEN_IPADDR='server_address=127.0.0.1'
+    else
+      echo "WARNING[${PKGNAME}]: Failed to retrieve a valid IPv6 address to bind to (using ::1)"
+      CUSTOM_CONF_NRPE_LISTEN_IPADDR='server_address=::1'
+    fi
+  else
+    CUSTOM_CONF_NRPE_LISTEN_IPADDR='#server_address=[IP:unspecified]'
+  fi
+fi
+
+# ... do it
+gsed "s|%{CUSTOM_CONF_NRPE_LISTEN_IPADDR}|${CUSTOM_CONF_NRPE_LISTEN_IPADDR}|g;s|%{CUSTOM_CONF_NRPE_ALLOWEDHOSTS}|${servers:+allowed_hosts=${servers}}|g" /etc/nagios/nrpe.cfg
+
+# Additional actions
+invoke-rc.d nagios-nrpe-server stop
+pkill -f /usr/sbin/nrpe
+invoke-rc.d nagios-nrpe-server start
+
+# Exit
+exit 0
+

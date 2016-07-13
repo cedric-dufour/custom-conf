@@ -1,0 +1,5 @@
+# Permissions
+Satisfy All
+Order Allow,Deny
+Deny from All
+

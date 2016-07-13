@@ -1,0 +1,13 @@
+#!/bin/bash
+## CUSTOM-UTIL: File automatically created/updated [custom-util-ha]
+
+# Usage
+[ "${1##*-}" == 'help' ] && cat << EOF >&2 && exit 1
+USAGE: ${0##*/}
+
+HINT: crm_simulate -QLU
+EOF
+
+# Command
+crm_simulate -QLU | grep -v ':$'
+

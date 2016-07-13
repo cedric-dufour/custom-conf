@@ -1,0 +1,8 @@
+#!/bin/bash
+## CUSTOM-UTIL: File automatically created/update [custom-util-adaptec]
+ARCCONF=/usr/StorMan/arcconf
+[ ! -e "${ARCCONF}" ] && echo "ERROR: Missing \'arcconf\' binary (${ARCCONF})" >&2 && exit 1
+[ ! -x "${ARCCONF}" ] && echo "ERROR: Non-executable \'arcconf\' binary (${ARCCONF})" >&2 && exit 1
+export LD_LIBRARY_PATH="$(dirname "${ARCCONF}")"
+${ARCCONF} $*
+

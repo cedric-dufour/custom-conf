@@ -1,0 +1,18 @@
+#!/bin/bash
+[ "${1}" != 'configure' ] && exit 0
+PKGNAME='custom-conf-apparmor'
+
+# Install files
+custom-conf-install "${PKGNAME}" "/usr/share/${PKGNAME}/config" || exit 1
+
+# Finalize configuration
+source /usr/share/custom-conf/custom-conf.defs
+[ -n "${CUSTOM_CONF_APPARMOR_HOMEDIRS}" ] && CUSTOM_CONF_APPARMOR_HOMEDIRS="@{HOMEDIRS}+=${CUSTOM_CONF_APPARMOR_HOMEDIRS}" || CUSTOM_CONF_APPARMOR_HOMEDIRS="#No additional @{HOMEDIRS}"
+gsed "s|%{CUSTOM_CONF_APPARMOR_HOMEDIRS}|${CUSTOM_CONF_APPARMOR_HOMEDIRS}|g" /etc/apparmor.d/tunables/home.d/custom
+
+# Additional actions
+invoke-rc.d apparmor reload >/dev/null
+
+# Exit
+exit 0
+

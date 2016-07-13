@@ -1,0 +1,14 @@
+# Jessie
+#gpg --no-default-keyring --keyring trustedkeys.gpg --keyserver keys.gnupg.net --recv-keys C857C906  # Jessie
+/usr/bin/debmirror $@ \
+"$(dirname $0)/debian-security.jessie" \
+--method=http \
+--host=ftp.debian.org \
+--root=debian-security \
+--dist=jessie/updates \
+--arch=amd64 \
+--section=main,contrib,non-free \
+--diff=none \
+--rsync-extra=none \
+--nosource | /usr/bin/tee "$(dirname $0)/debian-security.jessie.debmirror.log"
+

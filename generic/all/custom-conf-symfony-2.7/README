@@ -1,0 +1,14 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-conf-symfony-2.7
+
+This package provides standard configuration of PHP/Symfony (version 2.7) web
+applications framework.
+
+In particular, it addresses standard configuration of:
+ - PHP5/Apache2 or PHP5/FPM integration (<-> 'custom-conf-php5-...' packages)
+ - installation and update via 'composer' (and a dedicated user/group)
+
+It also provides a sample skeleton to have a PHP/Symfony application jump-
+started correspondingly.
+

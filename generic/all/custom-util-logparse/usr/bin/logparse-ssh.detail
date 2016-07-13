@@ -1,0 +1,23 @@
+#!/bin/bash
+
+# Usage
+[ "${1##*-}" == 'help' ] && cat << EOF && exit 1
+USAGE: ${0##*/} [-H|--header] <file> ...
+
+SYNOPSIS:
+  Parse SSH server logs and output access details to stdout
+EOF
+
+# Options
+while [ "${1:0:1}" == '-' ]; do
+  case "${1}" in
+    '-H'|'--header') echo 'TIMESTAMP|STATUS|USERNAME|IPADDR';;
+    *) echo "ERROR: Unsupported option (${1})" >&2;;
+  esac
+  shift
+done
+
+# Parse logs
+[ -z "$*" ] && exit 0
+logparse-acat "$@" | egrep -i 'sshd.*((failed|accepted) (password|publickey)|invalid user)' | sed 's/^\([^ ]*\) (.*) /\1|/;s/[^|]*accepted .* for \([^ ]*\) /OK|\1|/i;s/[^|]*invalid user [^ ]* /invalid_user|-|/i;s/[^|]*failed password for [^ ]* /invalid_password|-|/i;s/from \([0-9\.]*\|[0-9a-f:]*\)\($\| .*\)/\1/i'
+

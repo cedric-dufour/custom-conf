@@ -1,0 +1,55 @@
+#!/bin/bash
+## CUSTOM-CONF: File automatically created/updated [custom-conf-utils]
+
+
+## Command-line/help
+[ $# -lt 1 -o "${1##*-}" == 'help' ] && cat << EOF && exit 1
+USAGE: ${0##*/} <username>[,<username>,...]
+
+SYNOPSIS: Add the given user(s) to the local groups appropriate for standard
+          desktop usage.
+EOF
+
+
+## Arguments
+MY_USERS="${1}"
+
+
+## Add user to groups
+LOCAL_USERS=
+for user in $(echo "local,${MY_USERS}" | tr ',' '\n' | uniq); do
+  id ${user} >/dev/null || continue
+  LOCAL_USERS="${LOCAL_USERS}${LOCAL_USERS:+,}${user}"
+done
+cp -p /etc/group /etc/group.bak
+gsed "s/:\([^:]*\)local.*/:\1/;s/,$//;
+s/^audio:\\([^:]*\\):\\([^:]*\\):.*/audio:\\1:\\2:pulse${LOCAL_USERS:+,}${LOCAL_USERS}/;
+s/^camera:\\([^:]*\\):\\([^:]*\\):.*/camera:\\1:\\2:${LOCAL_USERS}/;
+s/^cdrom:\\([^:]*\\):\\([^:]*\\):.*/cdrom:\\1:\\2:${LOCAL_USERS}/;
+s/^dialout:\\([^:]*\\):\\([^:]*\\):.*/dialout:\\1:\\2:${LOCAL_USERS}/;
+s/^dip:\\([^:]*\\):\\([^:]*\\):.*/dip:\\1:\\2:${LOCAL_USERS}/;
+s/^disk:\\([^:]*\\):\\([^:]*\\):.*/disk:\\1:\\2:${LOCAL_USERS}/;
+s/^fax:\\([^:]*\\):\\([^:]*\\):.*/fax:\\1:\\2:${LOCAL_USERS}/;
+s/^floppy:\\([^:]*\\):\\([^:]*\\):.*/floppy:\\1:\\2:${LOCAL_USERS}/;
+s/^fuse:\\([^:]*\\):\\([^:]*\\):.*/fuse:\\1:\\2:${LOCAL_USERS}/;
+s/^kvm:\\([^:]*\\):\\([^:]*\\):.*/kvm:\\1:\\2:${LOCAL_USERS}/;
+s/^lpadmin:\\([^:]*\\):\\([^:]*\\):.*/lpadmin:\\1:\\2:local/;
+s/^plugdev:\\([^:]*\\):\\([^:]*\\):.*/plugdev:\\1:\\2:${LOCAL_USERS}/;
+s/^scanner:\\([^:]*\\):\\([^:]*\\):.*/scanner:\\1:\\2:hplip${LOCAL_USERS:+,}${LOCAL_USERS}/;
+s/^tape:\\([^:]*\\):\\([^:]*\\):.*/tape:\\1:\\2:${LOCAL_USERS}/;
+s/^users:\\([^:]*\\):\\([^:]*\\):.*/users:\\1:\\2:${LOCAL_USERS}/;
+s/^vboxusers:\\([^:]*\\):\\([^:]*\\):.*/vboxusers:\\1:\\2:${LOCAL_USERS}/;
+s/^video:\\([^:]*\\):\\([^:]*\\):.*/video:\\1:\\2:lightdm${LOCAL_USERS:+,}${LOCAL_USERS}/
+" /etc/group
+
+# Create local scratch space
+if [ -d /local/scratch ]; then
+  for user in $(echo "${LOCAL_USERS}" | tr ',' '\n'); do
+    MY_SCRATCH="/local/scratch/${user}"
+    [ -e "${MY_SCRATCH}" ] && continue
+    mkdir "${MY_SCRATCH}" \
+      && chmod go= "${MY_SCRATCH}" \
+      && chown ${user}: "${MY_SCRATCH}"
+  done
+fi
+

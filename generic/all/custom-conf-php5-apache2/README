@@ -1,0 +1,11 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-conf-php5-apache2
+
+This package provides standard configuration of the PHP: Hypertext Processor
+(version 5) along the Apache2 web server.
+
+In particular, it addresses standard configuration of:
+ - Apache2 integration (<-> 'custom-conf-apache2' package)
+ - default settings hardening (php.ini)
+

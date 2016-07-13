@@ -1,0 +1,14 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-conf-lightdm
+
+This package contains the tenant-specific LightDM (login/diplay manager)
+configuration.
+
+
+!!! SAMPLE PACKAGE !!! SAMPLE PACKAGE !!! SAMPLE PACKAGE !!! SAMPLE PACKAGE !!!
+
+  This package ought to be further customized to match the tenant environment
+
+!!! SAMPLE PACKAGE !!! SAMPLE PACKAGE !!! SAMPLE PACKAGE !!! SAMPLE PACKAGE !!!
+

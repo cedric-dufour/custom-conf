@@ -1,0 +1,10 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-conf-pam-ldap
+
+This package provides standard configuration of the Pluggable Authentication
+Modules (PAM) stack along the Lightweight Directory Access Protocol (LDAP).
+
+In particular, it addresses standard configuration of:
+ - LDAP and name services integration (<-> 'custom-conf-nss' package)
+

@@ -1,0 +1,27 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-conf-apt
+
+This package provides standard configuration of the tenant APT repositories.
+
+In particular, it addresses standard configuration of:
+ - custom APT repositories and preferences hierarchy
+ - disabling installation of recommended and translation packages
+ - checking available updates on a regular basis
+
+The '/usr/share/doc/custom-conf-apt/examples' directory contains the corresponding
+web server document ('htdocs') directory along the utilities required to manage it
+('dpkg/*' and 'debmirror/*').
+
+Custom packages ought to be placed in the matching 'binary' or 'source' sub-direc-
+tory and the correponding 'dpkg' utility executed to update the repository index.
+
+Official Debian packages can be mirrored using the supplied 'debmirror' scripts.
+
+
+!!! SAMPLE PACKAGE !!! SAMPLE PACKAGE !!! SAMPLE PACKAGE !!! SAMPLE PACKAGE !!!
+
+  This package ought to be further customized to match the tenant environment
+
+!!! SAMPLE PACKAGE !!! SAMPLE PACKAGE !!! SAMPLE PACKAGE !!! SAMPLE PACKAGE !!!
+

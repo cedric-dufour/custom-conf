@@ -1,0 +1,17 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-conf-apache2
+
+This package provides standard configuration of Apache2, version 2.2 and 2.4
+(automatically detected).
+
+In particular, it addresses standard configuration of:
+ - error pages (<-> 'custom-conf-apache2-templates' package)
+ - syslog logging (<-> 'custom-conf-rsyslog' package)
+ - LDAP authentication (<-> 'custom-conf-ldap' package)
+ - SSL/TLS (<-> 'custom-certificates' package)
+ - listening address/interface
+
+Apache2 mod_macro is used to allow the user to easily include the relevant
+LDAP or SSL configuration where it's needed.
+

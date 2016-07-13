@@ -1,0 +1,16 @@
+#!/bin/bash
+## CUSTOM-CONF: File automatically created/updated [custom-conf-utils]
+
+
+## Command-line/help
+[ "${1##*-}" == 'help' ] && cat << EOF && exit 1
+USAGE: ${0##*/}
+
+SYNOPSIS: Retrieve the users added to the local groups appropriate for standard
+          workstation usage.
+EOF
+
+
+## Retrieve users
+grep '^users:' /etc/group | sed 's/.*://;s/.*local,*//'
+

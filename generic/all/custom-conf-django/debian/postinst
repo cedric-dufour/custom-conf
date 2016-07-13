@@ -1,0 +1,51 @@
+#!/bin/bash
+[ "${1}" != 'configure' ] && exit 0
+PKGNAME='custom-conf-django'
+
+# Retrieve Django version
+CUSTOM_CONF_DJANGO_VERSION="$(django-admin --version | sed 's/^\([0-9]*\).\([0-9]*\).*$/\1.\2/')"
+case "${CUSTOM_CONF_DJANGO_VERSION}" in
+  '1.4'|'1.7')
+    echo "INFO[${PKGNAME}]: Detected supported Django version (${CUSTOM_CONF_DJANGO_VERSION})"
+    ;;
+  *)
+    echo "ERROR[${PKGNAME}]: Unsupported Django version (${CUSTOM_CONF_DJANGO_VERSION})"
+    exit 1
+    ;;
+esac
+
+# Retrieve Apache version
+CUSTOM_CONF_APACHE2_VERSION="$(apachectl -v 2>/dev/null | fgrep 'Apache/2' | sed 's/^.*Apache\/\([0-9]*\).\([0-9]*\).*$/\1.\2/')"
+case "${CUSTOM_CONF_APACHE2_VERSION}" in
+  '2.2'|'2.4')
+    echo "INFO[${PKGNAME}]: Detected supported Apache version (${CUSTOM_CONF_APACHE2_VERSION})"
+    ;;
+  '')
+    echo "NOTICE[${PKGNAME}]: Apache apparently not installed"
+    ;;
+  *)
+    echo "ERROR[${PKGNAME}]: Unsupported Apache version (${CUSTOM_CONF_APACHE2_VERSION})"
+    exit 0
+    ;;
+esac
+
+# Install files
+custom-conf-install "${PKGNAME}" "/usr/share/${PKGNAME}/config/django${CUSTOM_CONF_DJANGO_VERSION}" >/dev/null || exit 1
+[ -n "${CUSTOM_CONF_APACHE2_VERSION}" ] && custom-conf-install "${PKGNAME}" "/usr/share/${PKGNAME}/config/apache${CUSTOM_CONF_APACHE2_VERSION}" >/dev/null || exit 1
+custom-conf-install "${PKGNAME}" "/usr/share/${PKGNAME}/config/common" || exit 1
+
+# Fine-tune configuration
+source /usr/share/custom-conf/custom-conf.defs
+CUSTOM_CONF_DJANGO_DOMAIN="${CUSTOM_CONF_DOMAIN}"
+CUSTOM_CONF_DJANGO_SECRET="$(dd if=/dev/urandom bs=1k count=1 2>/dev/null | md5sum | awk '{print $1}')"
+gsed "s|%{CUSTOM_CONF_DJANGO_DOMAIN}|${CUSTOM_CONF_DJANGO_DOMAIN}|g;s|%{CUSTOM_CONF_DJANGO_SECRET}|${CUSTOM_CONF_DJANGO_SECRET}|g" /etc/django/custom-conf-django/settings.py
+
+# File permissions
+chmod 640 /etc/django/custom-conf-django/settings.py
+chgrp www-data /etc/django/custom-conf-django/settings.py
+chmod 350 /var/log/django
+chown www-data:adm /var/log/django
+
+# Exit
+exit 0
+

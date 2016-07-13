@@ -1,0 +1,5 @@
+## CUSTOM-CONF: File automatically created/updated [custom-conf-apparmor]
+
+# Add site-specific home directories
+%{CUSTOM_CONF_APPARMOR_HOMEDIRS}
+

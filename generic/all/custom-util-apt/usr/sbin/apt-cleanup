@@ -1,0 +1,32 @@
+#!/bin/bash
+## CUSTOM-UTIL: File automatically created/updated [custom-util-apt]
+
+# Usage
+[ "${1##*-}" == 'help' ] && cat << EOF && exit 1
+USAGE: ${0##*/} [list]
+
+SYNOPSIS:
+  Purge packages that can not be found in any defined repository (and which
+  are consequently considered as deprecated).
+  If the 'list' parameter is supplied, orphaned packages are only displayed
+  (but not purged).
+EOF
+
+# Update repositories
+echo 'Updating APT repositories'
+apt-get update --quiet=2
+
+# List (?)
+if [ "${1}" == 'list' ]; then
+  echo 'Orphaned packages:'
+  join -v 1 <(dpkg --get-selections | awk '{print $1}' | cut -d: -f1 | sort) <(for p in $(dpkg --get-selections | awk '{print $1}'); do apt-cache policy ${p}; done | egrep '(^[^ ]*:|http://)' | fgrep -B 1 'http://' | fgrep -v 'http://' | cut -d: -f1 | sort)
+  exit 0
+fi
+
+# Remove/purge any package not found in repositories
+echo 'Purging deprecated packages'
+apt-get autoremove --purge $* $(dpkg --get-selections | grep 'deinstall$' | awk '{print $1}') $(join -v 1 <(dpkg --get-selections | awk '{print $1}' | cut -d: -f1 | sort) <(for p in $(dpkg --get-selections | awk '{print $1}'); do apt-cache policy ${p}; done | egrep '(^[^ ]*:|http://)' | fgrep -B 1 'http://' | fgrep -v 'http://' | cut -d: -f1 | sort))
+
+# Clean APT cache
+apt-get clean
+

@@ -1,0 +1,27 @@
+## CUSTOM-CONF: File automatically created/updated [custom-conf-polkit-nopower]
+
+# Prevent users to control system power
+[DisableShutdown]
+Identity=unix-user:*
+Action=org.freedesktop.consolekit.system.stop;org.freedesktop.consolekit.system.stop-multiple-users;org.freedesktop.login1.power-off;org.freedesktop.login1.power-off-multiple-sessions
+ResultActive=no
+ResultAny=no
+
+[DisableRestart]
+Identity=unix-user:*
+Action=org.freedesktop.consolekit.system.restart;org.freedesktop.consolekit.system.restart-multiple-users;org.freedesktop.login1.reboot;org.freedesktop.login1.reboot-multiple-sessions
+ResultActive=no
+ResultAny=no
+
+[DisableHibernate]
+Identity=unix-user:*
+Action=org.freedesktop.upower.hibernate;org.freedesktop.login1.hibernate;org.freedesktop.login1.hibernate-multiple-sessions
+ResultActive=no
+ResultAny=no
+
+[DisableSuspend]
+Identity=unix-user:*
+Action=org.freedesktop.upower.suspend;org.freedesktop.login1.suspend;org.freedesktop.login1.suspend-multiple-sessions
+ResultActive=no
+ResultAny=no
+

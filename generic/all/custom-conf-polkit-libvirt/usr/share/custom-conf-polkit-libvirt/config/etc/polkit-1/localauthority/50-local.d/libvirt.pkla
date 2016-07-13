@@ -1,0 +1,9 @@
+## CUSTOM-CONF: File automatically created/updated [custom-conf-polkit-libvirt]
+
+# Allow users to manage LibVirt
+[AllowLibvirtManage]
+Identity=unix-user:*
+Action=org.libvirt.unix.manage
+ResultActive=yes
+ResultAny=no
+

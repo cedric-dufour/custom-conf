@@ -1,0 +1,39 @@
+#!/bin/bash
+## CUSTOM-UTIL: File automatically created/updated [custom-util-skel]
+
+# Usage
+[ $# -lt 1 -o "${1##*-}" == 'help' ] && cat << EOF && exit 1
+USAGE: ${0##*/} <username> [<home-directory>]
+
+SYNOPSIS:
+  Erase the given user's directory and recreate it from scratch (/etc/skel)
+EOF
+
+# Arguments
+MY_USER="${1}"; shift
+MY_HOME="${1}"; shift
+
+# Retrieve user home directory
+[ -z "${MY_HOME}" ] && MY_HOME="$(getent passwd "${MY_USER}" | cut -d: -f 6)"
+MY_HOME="${MY_HOME%/}"
+[ -z "${MY_HOME}" ] && echo "ERROR: Invalid/missing home directory for user (${MY_USER})" >&2 && exit 1
+[ -e "${MY_HOME}" -a ! -w "${MY_HOME}" ] && echo "ERROR: Unwritable user directory (${MY_HOME})" >&2 && exit 1
+MY_HOME_PARENT="${MY_HOME%/*}"
+[ ! -e "${MY_HOME_PARENT}" -o ! -w "${MY_HOME_PARENT}" ] && echo "ERROR: Invalid/unwritable parent directory (${MY_HOME_PARENT})" >&2 && exit 1
+
+# Wipe user's diretory
+if [ -e "${MY_HOME}" ]; then
+  rm -rf "${MY_HOME}"
+  [ $? -ne 0 ] && echo "WARNING: Failed to delete user directory (${MY_HOME})" >&2
+fi
+find /tmp /var/tmp -maxdepth 1 -user "${MY_USER}" -exec rm -rf {} \;
+[ $? -ne 0 ] && echo "WARNING: Failed to delete user temporary files" >&2
+cp -rp /etc/skel "${MY_HOME}"
+[ $? -ne 0 ] && echo "ERROR: Failed to create user directory (${MY_HOME})" >&2 && exit 1
+chown -R ${MY_USER}: "${MY_HOME}"
+[ $? -ne 0 ] && echo "WARNING: Failed to set user directory owner (${MY_HOME})" >&2
+
+# Done
+echo "INFO: User directory successfully wiped/re-created (${MY_HOME})"
+exit 0
+

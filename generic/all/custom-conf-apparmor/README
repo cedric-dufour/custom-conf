@@ -1,0 +1,10 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-conf-apparmor
+
+This package provides standard configuration of the AppArmor Mandatory Access
+Control (MAC) stack.
+
+In particular, it addresses standard configuration of:
+ - user home directories (<-> 'custom-defs-...' package)
+

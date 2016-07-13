@@ -1,0 +1,8 @@
+# Sample SNMP configuration file to access SNMP (v3) service
+defVersion 3
+defSecurityLevel authPriv
+defSecurityName snmpv3user
+defAuthType SHA
+defAuthPassphrase ********
+defPrivType AES
+defPrivPassphrase ********

@@ -1,0 +1,107 @@
+#!/bin/bash
+## CUSTOM-CONF: File automatically created/updated [custom-conf-utils]
+
+
+## Command-line/help
+[ "${1##*-}" == 'help' ] && cat << EOF && exit 1
+USAGE: ${0##*/} [REVERT] [DOIT]
+
+SYNOPSIS: Renumber all GIDs potentially used by users to GID above 50000
+          to circumvent the NFSv3 RPC 16 groups limit.
+EOF
+[ "$1" == 'DOIT' -o "$2" == 'DOIT' ] && export _DO=1
+
+# Utility
+function _do {
+ echo "DO: $1"
+ [ "${_DO}" == '1' ] && eval $1
+}
+
+## Fix GIDs
+if [ "${_DO}" == '1' ]; then
+  CFGFILE=/etc/group
+  if [ ! -e "${CFGFILE}.bak" ]; then
+    if [ -e "${CFGFILE}" ]; then
+      sort -t':' -n -k3,3 "${CFGFILE}" > "${CFGFILE}.new" && mv "${CFGFILE}.new" "${CFGFILE}"
+      cp -p "${CFGFILE}" "${CFGFILE}.bak"
+    else
+      echo "## No original file" > "${CFGFILE}.bak"
+    fi
+  fi
+  CFGFILE=/etc/passwd
+  if [ ! -e "${CFGFILE}.bak" ]; then
+    if [ -e "${CFGFILE}" ]; then
+      sort -t':' -n -k4,4 "${CFGFILE}" > "${CFGFILE}.new" && mv "${CFGFILE}.new" "${CFGFILE}"
+      cp -p "${CFGFILE}" "${CFGFILE}.bak"
+    else
+      echo "## No original file" > "${CFGFILE}.bak"
+    fi
+  fi
+fi
+
+# Stop NSCD
+_do "invoke-rc.d nscd stop"
+
+# List of potential groups
+g_list='audio camera cdrom dialout dip disk fax floppy fuse kvm lpadmin plugdev scanner tape users vboxusers video'
+
+# Retrieve mountpoints where to fix GIDs
+m_list="$(mount | egrep 'type ext.? ' | sed 's/.* on \([^ ]*\) type .*/\1/' )"
+
+# Retrieve lists of files with 'setuid'
+u_setuid="$(find ${m_list} -xdev -perm -4000 -not -gid 0)"
+g_setuid="$(find ${m_list} -xdev -perm -6000 -not -gid 0)"
+
+# Loop though groups
+if [ "$1" == 'REVERT' ]; then
+
+  # Renumber GIDs for groups between 50001 and 50999 (substract 50000)
+  for i in $(seq 50001 50999); do
+    g="$(fgrep ":x:${i}:" /etc/group)"
+    [ -z "${g}" ] && continue
+    let ni=i-50000
+    echo "INFO: Renumbering group ${g%%:*}: ${i} -> ${ni}"
+    _do "perl -pi -e \"s/:x:${i}:/:x:${ni}:/\" /etc/group"
+    _do "perl -pi -e \"s/:x:([^:]*):${i}:/:x:\1:${ni}:/\" /etc/passwd"
+    _do "find ${m_list} -xdev -gid ${i} -exec chgrp ${ni} {} \;"
+  done
+
+else
+
+  # Make sure all potential groups exists
+  for g in $g_list; do
+    [ -n "$(grep "^${g}:" /etc/group)" ] && continue
+    _do "addgroup --system ${g}"
+  done
+
+  # Renumber GIDs for affected groups (add 50000)
+  for g in $g_list; do
+    i="$(grep "^${g}:" /etc/group | cut -d':' -f3)"
+    [ -z "${i}" ] && echo "ERROR: Failed to retrieve group GID (${g})" >&2 && continue
+    [ ${i} -gt 50000 ] && echo "INFO: Group GID already fixed ${g}: ${i} (skipping)" && continue
+    let ni=50000+i
+    echo "INFO: Renumbering group ${g}: ${i} -> ${ni}"
+    _do "perl -pi -e \"s/:x:${i}:/:x:${ni}:/\" /etc/group"
+    _do "perl -pi -e \"s/:x:([^:]*):${i}:/:x:\1:${ni}:/\" /etc/passwd"
+    _do "find ${m_list} -xdev -gid ${i} -exec chgrp ${ni} {} \;"
+  done
+
+fi
+
+# Fix files with 'setuid'
+IFS=$'\n'
+for f in ${u_setuid}; do echo "INFO: Resetting setuid (user) for file ${f}"; _do "chmod u+s \"${f}\""; done
+for f in ${g_setuid}; do echo "INFO: Resetting setuid (group) for file ${f}"; _do "chmod ug+s \"${f}\""; done
+
+# Reboot
+echo "DONE: You MUST now reboot the machine!"
+echo "PRESS <RETURN> TO PROCEED, <CTRL+C> TO ABORT..."
+read
+_do "reboot"
+
+# For those who never read the '--help' section...
+[ "${_DO}" != '1' ] && echo "WARNING: See '${0##*/} --help' on how to actually apply the changes!" >&2 && exit 1
+
+# Done
+exit 0
+

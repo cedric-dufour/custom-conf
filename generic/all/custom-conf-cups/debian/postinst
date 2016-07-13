@@ -1,0 +1,34 @@
+#!/bin/bash
+[ "${1}" != 'configure' ] && exit 0
+PKGNAME='custom-conf-cups'
+
+# Install files
+custom-conf-install "${PKGNAME}" "/usr/share/${PKGNAME}/config" || exit 1
+
+# Fine-tune configuration
+source /usr/share/custom-conf/custom-conf.defs
+ipv6="$(ip -6 addr 2>/dev/null | fgrep 'scope global')"
+server=
+for s in ${CUSTOM_CONF_CUPS_SERVER}; do
+  if [ -n "$(echo "${s}" | grep '^[:a-f0-9]*$')" ]; then
+    [ -z "${ipv6}" ] && continue
+    s="[${s}]"
+  fi
+  server="${s}"
+  break
+done
+[ -n "${CUSTOM_CONF_CUPS_SERVER}" -a -z "${server}" ] && echo "ERROR[${PKGNAME}]: No IPv4 server found (${CUSTOM_CONF_CUPS_SERVER})" >&2
+gsed "s|%{CUSTOM_CONF_CUPS_SERVER}|${server}|g" /etc/cups/cupsd.conf /etc/cups/cups-browsed.conf
+
+# SSL certificates
+[ ! -e /etc/cups/ssl/server.crt -a -e /etc/ssl/local/localhost-cert.pem -a -e /etc/ssl/local/localhost-cachain.pem ] && cat /etc/ssl/local/localhost-cert.pem /etc/ssl/local/localhost-cachain.pem > /etc/cups/ssl/server.crt
+[ ! -e /etc/cups/ssl/server.key -a -e /etc/ssl/local/localhost-key.pem ] && ln -s /etc/ssl/local/localhost-key.pem /etc/cups/ssl/server.key
+
+# Additional actions
+invoke-rc.d cups restart
+invoke-rc.d cups-browsed restart
+invoke-rc.d apparmor reload
+
+# Exit
+exit 0
+

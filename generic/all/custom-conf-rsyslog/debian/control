@@ -1,0 +1,13 @@
+Source: custom-conf-rsyslog
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 3.9.7
+
+Package: custom-conf-rsyslog
+Architecture: all
+Depends: custom-conf, rsyslog, lsb-release
+Suggests: custom-conf-rsyslog-remote
+Description: Custom Configuration Framework - RSyslog
+

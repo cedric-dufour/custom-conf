@@ -1,0 +1,13 @@
+Source: custom-util-multimedia
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 3.9.7
+
+Package: custom-util-multimedia
+Architecture: all
+Depends: imagemagick | graphicsmagick-imagemagick-compat, faad, flac, lame, libid3-tools, mplayer, mencoder, mkvtoolnix, sox
+Recommends: gddrescue
+Description: Custom Configuration Framework - Multimedia utilities
+

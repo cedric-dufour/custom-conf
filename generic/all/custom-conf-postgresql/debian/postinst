@@ -1,0 +1,140 @@
+#!/bin/bash
+[ "${1}" != 'configure' ] && exit 0
+PKGNAME='custom-conf-postgresql'
+
+# Debconf
+. /usr/share/debconf/confmodule
+# ... preseed
+for var_priority in bind-address:high ssl-enable:high; do
+  var="${var_priority%:*}"
+  priority="${var_priority#*:}"
+  db_input ${priority} ${PKGNAME}/${var}
+  db_go
+done
+# ... get
+db_get ${PKGNAME}/bind-address && BIND_ADDR="${RET}"
+db_get ${PKGNAME}/ssl-enable && SSL_ENABLE="${RET}"
+db_stop
+
+# Retrieve PostgreSQL version
+CUSTOM_CONF_POSTGRESQL_VERSION='unsupported'
+for version in 9.{9..0}; do
+  [ -e /usr/lib/postgresql/${version}/bin/initdb ] && CUSTOM_CONF_POSTGRESQL_VERSION=${version} && break
+done
+case "${CUSTOM_CONF_POSTGRESQL_VERSION}" in
+  '9.1'|'9.4')
+    echo "INFO[${PKGNAME}]: Detected supported PostgreSQL version (${CUSTOM_CONF_POSTGRESQL_VERSION})"
+    ;;
+  *)
+    echo "ERROR[${PKGNAME}]: Unsupported PostgreSQL version (${CUSTOM_CONF_POSTGRESQL_VERSION})"
+    exit 1
+    ;;
+esac
+
+# Configuration upgrade
+if [ -e /usr/share/${PKGNAME}/upgrade-config.postgresql-${CUSTOM_CONF_POSTGRESQL_VERSION} ]; then
+  /usr/share/${PKGNAME}/upgrade-config.postgresql-${CUSTOM_CONF_POSTGRESQL_VERSION} detect && cat << EOF && exit 0
+WARNING[${PKGNAME}]: Old PostgreSQL configuration detected! Please upgrade and re-configure.
+: /usr/share/${PKGNAME}/upgrade-config.postgresql-${CUSTOM_CONF_POSTGRESQL_VERSION}
+: dpkg-reconfigure ${PKGNAME}
+EOF
+fi
+
+# Install files
+custom-conf-install "${PKGNAME}" "/usr/share/${PKGNAME}/config/postgresql-${CUSTOM_CONF_POSTGRESQL_VERSION}" || exit 1
+
+# Permissions
+chmod 400 /etc/postgresql/${CUSTOM_CONF_POSTGRESQL_VERSION}/main/pg.inc
+chmod 640 /etc/postgresql/${CUSTOM_CONF_POSTGRESQL_VERSION}/main/{postgresql,pg_hba}.conf
+chown root.postgres /etc/postgresql/${CUSTOM_CONF_POSTGRESQL_VERSION}/main/{postgresql,pg_hba}.conf
+
+# Fine-tune configuration
+source /usr/share/custom-conf/custom-conf.defs
+
+# ... bind address (IPv4)
+ipv4="$(ip -4 addr 2>/dev/null | fgrep 'scope global')"
+CUSTOM_CONF_POSTGRESQL_LISTEN_IPV4=
+if [ -n "${ipv4}" ]; then
+  if [ "${BIND_ADDR}" == 'localhost' ]; then
+    CUSTOM_CONF_POSTGRESQL_LISTEN_IPV4="127.0.0.1"
+  elif [ "${BIND_ADDR}" == 'gateway' -a -n "${CUSTOM_CONF_NETWORK_GATEWAY_IPV4}" ]; then
+    LISTEN_ADDR="$(custom-conf-getifaceip -I "${CUSTOM_CONF_NETWORK_GATEWAY_IPV4}")"
+    [ -n "${LISTEN_ADDR}" ] \
+      && CUSTOM_CONF_POSTGRESQL_LISTEN_IPV4="127.0.0.1,${LISTEN_ADDR}" \
+      || echo "ERROR[${PKGNAME}]: Failed to retrieve IPv4 address matching configured gateway" >&2
+  elif [ -n "${BIND_ADDR}" ]; then
+    for bind_addr in ${BIND_ADDR}; do
+      [[ ${bind_addr} != *'.'* ]] && continue
+      CUSTOM_CONF_POSTGRESQL_LISTEN_IPV4="${CUSTOM_CONF_POSTGRESQL_LISTEN_IPV4:+${CUSTOM_CONF_POSTGRESQL_LISTEN_IPV4},}${bind_addr}"
+    done
+  fi
+fi
+
+# ... bind address (IPv6)
+ipv6="$(ip -6 addr 2>/dev/null | fgrep 'scope global')"
+CUSTOM_CONF_POSTGRESQL_LISTEN_IPV6=
+if [ -n "${ipv6}" ]; then
+  if [ "${BIND_ADDR}" == 'localhost' ]; then
+    CUSTOM_CONF_POSTGRESQL_LISTEN_IPV6="::1"
+  elif [ "${BIND_ADDR}" == 'gateway' -a -n "${CUSTOM_CONF_NETWORK_GATEWAY_IPV6}" ]; then
+    LISTEN_ADDR="$(custom-conf-getifaceip -I "${CUSTOM_CONF_NETWORK_GATEWAY_IPV6}")"
+    [ -n "${LISTEN_ADDR}" ] \
+      && CUSTOM_CONF_POSTGRESQL_LISTEN_IPV6="::1,${LISTEN_ADDR}" \
+      || echo "ERROR[${PKGNAME}]: Failed to retrieve IPv6 address matching configured gateway" >&2
+  elif [ -n "${BIND_ADDR}" ]; then
+    for bind_addr in ${BIND_ADDR}; do
+      [[ ${bind_addr} != *':'* ]] && continue
+      CUSTOM_CONF_POSTGRESQL_LISTEN_IPV6="${CUSTOM_CONF_POSTGRESQL_LISTEN_IPV6:+${CUSTOM_CONF_POSTGRESQL_LISTEN_IPV6},}${bind_addr}"
+    done
+  fi
+fi
+
+# ... bind address (finalize)
+if [ -z "${CUSTOM_CONF_POSTGRESQL_LISTEN_IPV4}" -a -z "${CUSTOM_CONF_POSTGRESQL_LISTEN_IPV6}" -a -n "${BIND_ADDR}" ]; then
+  if [ -n "${ipv4}" ]; then
+    echo "WARNING[${PKGNAME}]: Failed to retrieve a valid IPv4 address to bind to (using 127.0.0.1)"
+    CUSTOM_CONF_POSTGRESQL_LISTEN_IPV4='127.0.0.1'
+  fi
+  if [ -n "${ipv6}" ]; then
+    echo "WARNING[${PKGNAME}]: Failed to retrieve a valid IPv6 address to bind to (using ::1)"
+    CUSTOM_CONF_POSTGRESQL_LISTEN_IPV6='::1'
+  fi
+fi
+[ -n "${CUSTOM_CONF_POSTGRESQL_LISTEN_IPV4}" ] && CUSTOM_CONF_POSTGRESQL_LISTEN_IPADDR="${CUSTOM_CONF_POSTGRESQL_LISTEN_IPV4}"
+[ -n "${CUSTOM_CONF_POSTGRESQL_LISTEN_IPV6}" ] && CUSTOM_CONF_POSTGRESQL_LISTEN_IPADDR="${CUSTOM_CONF_POSTGRESQL_LISTEN_IPADDR:+${CUSTOM_CONF_POSTGRESQL_LISTEN_IPADDR},}${CUSTOM_CONF_POSTGRESQL_LISTEN_IPV6}"
+[ -z "${CUSTOM_CONF_POSTGRESQL_LISTEN_IPADDR}" ] && CUSTOM_CONF_POSTGRESQL_LISTEN_IPADDR='*'
+CUSTOM_CONF_POSTGRESQL_LISTEN_IPADDR="listen_addresses = '${CUSTOM_CONF_POSTGRESQL_LISTEN_IPADDR}'"
+
+# ... SSL
+[ "${SSL_ENABLE}" == 'true' ] && CUSTOM_CONF_POSTGRESQL_SSL='ssl = true' || CUSTOM_CONF_POSTGRESQL_SSL='ssl = false'
+
+# ... monitoring client (nagios)
+servers=
+for s in ${CUSTOM_CONF_NAGIOS_SERVERS}; do
+  if [[ ${s} == *':'* ]]; then
+    [ -z "${ipv6}" ] && continue
+    s="${s}/128"
+  else
+    s="${s}/32"
+  fi
+  servers="${servers:+${servers}%NL;}host template1 nagios ${s} trust"
+done
+[ -n "${CUSTOM_CONF_NAGIOS_SERVERS}" -a -z "${servers}" ] && echo "ERROR[${PKGNAME}]: No IPv4 server found (${CUSTOM_CONF_NAGIOS_SERVERS})" >&2
+CUSTOM_CONF_POSTGRESQL_MONITORING="${servers}"
+[ -z "${CUSTOM_CONF_POSTGRESQL_MONITORING}" ] && CUSTOM_CONF_POSTGRESQL_MONITORING='#host template1 nagios [server:unspecified] trust'
+
+# ... do it
+gsed "s|%{CUSTOM_CONF_POSTGRESQL_LISTEN_IPADDR}|${CUSTOM_CONF_POSTGRESQL_LISTEN_IPADDR}|g;s|%{CUSTOM_CONF_POSTGRESQL_SSL}|${CUSTOM_CONF_POSTGRESQL_SSL}|g;s|%NL;|\n|g" /etc/postgresql/${CUSTOM_CONF_POSTGRESQL_VERSION}/main/postgresql.conf
+gsed "s|%{CUSTOM_CONF_POSTGRESQL_MONITORING}|${CUSTOM_CONF_POSTGRESQL_MONITORING}|g;s|%NL;|\n|g" /etc/postgresql/${CUSTOM_CONF_POSTGRESQL_VERSION}/main/pg_hba.conf
+
+# SSL certificates
+[ ! -e /var/lib/postgresql/${CUSTOM_CONF_POSTGRESQL_VERSION}/main/root.crt ] && ln -sf /etc/ssl/local/localhost-cachain.pem /var/lib/postgresql/${CUSTOM_CONF_POSTGRESQL_VERSION}/main/root.crt
+[ ! -e /var/lib/postgresql/${CUSTOM_CONF_POSTGRESQL_VERSION}/main/server.crt ] && ln -sf /etc/ssl/local/localhost-cert.pem /var/lib/postgresql/${CUSTOM_CONF_POSTGRESQL_VERSION}/main/server.crt
+[ ! -e /var/lib/postgresql/${CUSTOM_CONF_POSTGRESQL_VERSION}/main/server.key ] && ln -sf /etc/ssl/local/localhost-key.pem /var/lib/postgresql/${CUSTOM_CONF_POSTGRESQL_VERSION}/main/server.key
+
+# Additional actions
+invoke-rc.d postgresql restart
+
+# Exit
+exit 0
+

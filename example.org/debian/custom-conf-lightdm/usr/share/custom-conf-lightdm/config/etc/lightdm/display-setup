@@ -1,0 +1,15 @@
+#!/bin/sh
+## CUSTOM-CONF: File automatically created/updated [custom-conf-lightdm]
+
+
+## LightDM display setup script
+
+# Disable DPMS (prevent X86Wakeup bugs; bug #10915)
+#xset -dpms
+
+# Disable system beep
+xset -b b off
+
+# HACK: configure non-US keyboard in greeter (Launchpad #995715)
+#display-setup-script=setxkbmap ch fr
+ 

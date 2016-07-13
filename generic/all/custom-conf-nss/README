@@ -1,0 +1,6 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-conf-nss
+
+TRANSITIONAL PACKAGE -> custom-conf-nss-ldap
+

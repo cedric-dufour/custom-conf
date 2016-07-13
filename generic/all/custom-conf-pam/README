@@ -1,0 +1,6 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-conf-pam
+
+TRANSITIONAL PACKAGE -> custom-conf-pam-ldap
+

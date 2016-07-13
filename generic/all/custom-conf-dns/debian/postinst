@@ -1,0 +1,26 @@
+#!/bin/bash
+[ "${1}" != 'configure' ] && exit 0
+PKGNAME='custom-conf-dns'
+
+# Install files
+custom-conf-install "${PKGNAME}" "/usr/share/${PKGNAME}/config" || exit 1
+
+# Fine-tune configuration
+source /usr/share/custom-conf/custom-conf.defs
+ipv6="$(ip -6 addr 2>/dev/null | fgrep 'scope global')"
+servers=
+for s in ${CUSTOM_CONF_DNS_SERVERS}; do
+  if [ -n "$(echo "${s}" | grep '^[:a-f0-9]*$')" ]; then
+    [ -z "${ipv6}" ] && continue
+  fi
+  servers="${servers}${servers:+%NL;}nameserver ${s}"
+done
+[ -n "${CUSTOM_CONF_DNS_SERVERS}" -a -z "${servers}" ] && echo "ERROR[${PKGNAME}]: No IPv4 server found (${CUSTOM_CONF_DNS_SERVERS})" >&2
+gsed "s|%{CUSTOM_CONF_DOMAIN}|${CUSTOM_CONF_DOMAIN}|g;s|%{CUSTOM_CONF_DNS_SERVERS}|${servers}|g;s|%NL;|\n|g" /etc/resolv.conf
+
+# Additional actions
+invoke-rc.d nscd restart
+
+# Exit
+exit 0
+

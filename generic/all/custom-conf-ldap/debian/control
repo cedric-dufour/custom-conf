@@ -1,0 +1,13 @@
+Source: custom-conf-ldap
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 3.9.7
+
+Package: custom-conf-ldap
+Architecture: all
+Depends: custom-conf, custom-certificates (>= 2016.07.05a)
+Suggests: ldap-utils, custom-conf-nss-ldap, custom-conf-pam-ldap
+Description: Custom Configuration Framework - LDAP (client)
+

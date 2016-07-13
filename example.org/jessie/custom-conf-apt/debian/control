@@ -1,0 +1,13 @@
+Source: custom-conf-apt
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 3.9.7
+
+Package: custom-conf-apt
+Architecture: all
+Depends: custom-conf, custom-util-apt
+Recommends: debian-multimedia-keyring
+Description: Custom Configuration Framework - APT (customization and repositories)
+

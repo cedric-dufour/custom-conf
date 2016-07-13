@@ -1,0 +1,20 @@
+## CUSTOM-CONF: File automatically created/updated [custom-conf-apt]
+
+# Generic custom repositories
+deb http://apt.example.org/generic.jessie/ jessie-custom generic
+#deb-src http://apt.example.org/generic.jessie/ jessie-custom generic
+deb http://apt.example.org/generic.debian/ debian-custom generic
+#deb-src http://apt.example.org/generic.debian/ debian-custom generic
+deb http://apt.example.org/generic.all/ all-custom generic
+#deb-src http://apt.example.org/generic.all/ all-custom generic
+
+# example.org custom repositories
+#deb http://apt.example.org/example.org.jessie/ jessie-custom example.org-proposed
+#deb-src http://apt.example.org/example.org.jessie/ jessie-custom example.org-proposed
+deb http://apt.example.org/example.org.jessie/ jessie-custom example.org example.org-override
+#deb-src http://apt.example.org/example.org.jessie/ jessie-custom example.org example.org-override
+deb http://apt.example.org/example.org.debian/ debian-custom example.org
+#deb-src http://apt.example.org/example.org.debian/ debian-custom example.org
+deb http://apt.example.org/example.org.all/ all-custom example.org
+#deb-src http://apt.example.org/example.org.all/ all-custom example.org
+

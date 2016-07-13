@@ -1,0 +1,170 @@
+#!/bin/bash
+
+
+## Usage
+[ "${1##*-}" == 'help' ] && cat << EOF && exit 1
+USAGE: ${0##*/} [<options>] <input.mkv>
+
+SYNOPSIS:
+  Reencode the given Matroska container H.264 video stream to the given bitrate.
+  Only the video stream is re-encoded. Other streams and metadata (audio, sub-
+  titles, chapters, etc.) are copied transparently to the output Matroska
+  container.
+
+OPTIONS:
+  -O, --output <path> [default:./output.mkv]
+      Transcoded content output path (Matroska container)
+
+  -R, --h264-kbitrate <integer> [default:5000]
+      Video - H.264-encoded - (kilo)bitrate; recommended values are:
+       NTCS:  1600
+       PAL:   2200
+       720p:  3200
+       1080p: 5000
+
+  -T, --h264-tune <type> [default:film]
+      H.264 tunning type are:
+       film
+       animation
+       grain
+       stillimage
+       ...
+
+  -k, --keep-aux-files
+      Do not remove auxiliary transconding files
+
+  -v, --verbose
+      Show all error messages
+
+AUTHOR:
+  Cédric Dufour - http://cedric.dufour.name
+EOF
+
+
+## Arguments
+MKV_INFILE=
+MKV_OUTPUT='./output.mkv'
+MKV_X264KBR='5000'
+MKV_X264TUNE='film'
+MKV_KEEPAUXFILES=
+MKV_STDERR='2>/dev/null'
+ARGS_SEP=
+X264_OPTS=
+while [ -n "${1}" ]; do
+  case "${1}" in
+    --) ARGS_SEP='yes';;
+    -O|--output) shift; [ -z "${1}" ] && echo 'ERROR: Missing option value (--output)' >&2 && exit 1; MKV_OUTPUT="${1}";;
+    -R|--h264-kbitrate) shift; [ -z "${1}" ] && echo 'ERROR: Missing option value (--h264-kbitrate)' >&2 && exit 1; MKV_X264KBR="${1}";;
+    -T|--h264-tune) shift; [ -z "${1}" ] && echo 'ERROR: Missing option value (--h264-tune)' >&2 && exit 1; MKV_X264TUNE="${1}";;
+    -k|--keep-aux-files) MKV_KEEPAUXFILES='yes';;
+    -v|--verbose) MKV_STDERR='';;
+    -*)
+      if [ -n "${ARGS_SEP}" ]; then
+        X264_OPTS="${X264_OPTS:+ }${X264_OPTS}${1}"
+      else
+        echo "ERROR: Invalid option (${1})" >&2 && exit 1
+      fi
+      ;;
+    *)
+      if [ -n "${ARGS_SEP}" ]; then
+        X264_OPTS="${X264_OPTS:+ }${X264_OPTS}${1}"
+      elif [ -z "${MKV_INFILE}" ]; then
+        MKV_INFILE="${1}"
+      else
+        echo "ERROR: Too many arguments (${1})" >&2 && exit 1
+      fi
+      ;;
+  esac
+  shift
+done
+[ -z "${MKV_INFILE}" ] && echo "ERROR: Missing argument (<input.mkv>)" >&2 && exit 1
+MKV_OUTDIR="$(dirname "${MKV_OUTPUT}")"
+MKV_OUTFILE="${MKV_OUTDIR}/$(basename "${MKV_OUTPUT}")"
+
+
+## Check dependencies
+[ ! "$(which mkvextract)" ] && echo "ERROR: Missing 'mkvextract' binary" >&2 && exit 1
+[ ! "$(which mkvmerge)" ] && echo "ERROR: Missing 'mkvmerge' binary" >&2 && exit 1
+[ ! "$(which x264)" ] && echo "ERROR: Missing 'x264' binary" >&2 && exit 1
+
+
+## Check arguments
+[ ! -r "${MKV_INFILE}" ] && echo "ERROR: Invalid/unreadable input file ('${MKV_INFILE}')" >&2 && exit 1
+[ "${MKV_INFILE##*.}" != 'mkv' ] && echo "ERROR: Input must be a Matroska container ('${MKV_INFILE}')" >&2 && exit 1
+[ -e "${MKV_OUTFILE}" ] && echo "ERROR: Output file already exists ('${MKV_OUTFILE}')" >&2 && exit 1
+[ ! -w "${MKV_OUTDIR}" ] && echo "ERROR: Invalid/unwritable output directory ('${MKV_OUTDIR}')" >&2 && exit 1
+[ "${MKV_OUTFILE##*.}" != 'mkv' ] && echo "ERROR: Output must be a Matroska container ('${MKV_OUTFILE}')" >&2 && exit 1
+
+
+## Transcode video stream
+MKV_OUTFILE_CURRENT=
+trap '[ -n "${MKV_OUTFILE_CURRENT}" ] && rm -v "${MKV_OUTFILE_CURRENT}"' EXIT
+
+# Retrieve MKV info
+MKV_VID="$(mkvmerge -i "${MKV_INFILE}" | grep '^Track ID.*: video' | sed 's|^Track ID *||;s|:.*$||')"
+[ -z "${MKV_VID}" ] && echo "ERROR: Failed to retrieve video stream ID" >&2 && exit 1
+
+# Extract input H.264 video stream
+MKV_OUTFILE_CURRENT="${MKV_OUTFILE%.*}.in.264"
+echo '********************************************************************************'
+echo "Extracting H.264 video stream ('${MKV_OUTFILE_CURRENT}')"
+if [ -e "${MKV_OUTFILE_CURRENT}" ]; then
+  echo "File already exists ('${MKV_OUTFILE_CURRENT}'); Skipping!"
+else
+  eval "mkvextract tracks '${MKV_INFILE}' ${MKV_VID}:'${MKV_OUTFILE_CURRENT}' ${MKV_STDERR}" || exit 1
+fi
+MKV_OUTFILE_CURRENT=
+
+# Extract input H.264 video stream timecodes
+MKV_OUTFILE_CURRENT="${MKV_OUTFILE%.*}.in.ts"
+echo '********************************************************************************'
+echo "Extracting H.264 video stream timecodes ('${MKV_OUTFILE_CURRENT}')"
+if [ -e "${MKV_OUTFILE_CURRENT}" ]; then
+  echo "File already exists ('${MKV_OUTFILE_CURRENT}'); Skipping!"
+else
+  eval "mkvextract timecodes_v2 '${MKV_INFILE}' ${MKV_VID}:'${MKV_OUTFILE_CURRENT}' ${MKV_STDERR}" || exit 1
+fi
+MKV_OUTFILE_CURRENT=
+
+# Transcode H.264 video stream (1st pass)
+MKV_OUTFILE_CURRENT="${MKV_OUTFILE%.*}.out.p1"
+echo '********************************************************************************'
+echo "Transcoding H.264 video stream; 1st pass ('${MKV_OUTFILE_CURRENT}')"
+if [ -e "${MKV_OUTFILE_CURRENT}" ]; then
+  echo "File already exists ('${MKV_OUTFILE_CURRENT}'); Skipping!"
+else
+  rm -f x264_*
+  eval "x264 '${MKV_OUTFILE%.*}.in.264' --tcfile-in '${MKV_OUTFILE%.*}.in.ts' --no-interlaced --profile high --tune ${MKV_X264TUNE} --preset slow --bitrate ${MKV_X264KBR} --rc-lookahead 60 --pass 1 ${X264_OPTS} -o /dev/null ${MKV_STDERR}" || exit 1
+  touch "${MKV_OUTFILE_CURRENT}"
+fi
+MKV_OUTFILE_CURRENT=
+
+# Transcode H.264 video stream (2nd pass)
+MKV_OUTFILE_CURRENT="${MKV_OUTFILE%.*}.out.264"
+echo '********************************************************************************'
+echo "Transcoding H.264 video stream; 2nd pass ('${MKV_OUTFILE_CURRENT}')"
+if [ -e "${MKV_OUTFILE_CURRENT}" ]; then
+  echo "File already exists ('${MKV_OUTFILE_CURRENT}'); Skipping!"
+else
+  eval "x264 '${MKV_OUTFILE%.*}.in.264' --tcfile-in '${MKV_OUTFILE%.*}.in.ts' --no-interlaced --profile high --tune ${MKV_X264TUNE} --preset slow --bitrate ${MKV_X264KBR} --rc-lookahead 60 --pass 2 ${X264_OPTS} --tcfile-out '${MKV_OUTFILE%.*}.out.ts' -o '${MKV_OUTFILE%.*}.out.264' ${MKV_STDERR}" || exit 1
+fi
+MKV_OUTFILE_CURRENT=
+
+# Re-assemble Matroska container
+MKV_OUTFILE_CURRENT="${MKV_OUTFILE}"
+echo '********************************************************************************'
+echo "Re-assembling Matroska container ('${MKV_OUTFILE_CURRENT}')"
+if [ -e "${MKV_OUTFILE_CURRENT}" ]; then
+  echo "File already exists ('${MKV_OUTFILE_CURRENT}'); Skipping!"
+else
+  eval "mkvmerge --timecodes 0:'${MKV_OUTFILE%.*}.out.ts' '${MKV_OUTFILE%.*}.out.264' --no-video '${MKV_INFILE}' -o '${MKV_OUTFILE_CURRENT}' ${MKV_STDERR}"
+fi
+MKV_OUTFILE_CURRENT=
+
+# Finish
+[ -z "${MKV_KEEPAUXFILES}" ] && rm -f x264_* "${MKV_OUTFILE%.*}"*.{in,out}.*
+
+
+## Done
+exit 0
+

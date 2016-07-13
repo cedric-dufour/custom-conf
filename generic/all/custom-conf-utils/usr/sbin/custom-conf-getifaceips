@@ -1,0 +1,54 @@
+#!/bin/bash
+## CUSTOM-CONF: File automatically created/updated [custom-conf-utils]
+
+
+## Usage
+[ $# -lt 1 -o "${1##*-}" == 'help' ] && cat << EOF && exit 1
+USAGE: ${0##*/} [<options>] <interface>
+
+SYNOPSIS:
+  Retrieve the IP address(es)/CIDR for the given network interface (name).
+
+OPTIONS:
+  -4 --ipv4
+    Show only IPv4 addresses
+
+  -6 --ipv6
+    Show only IPv4 addresses
+
+  -S --scope <scope>
+    Show only IP addresses for the given scope (global, host, link, etc.)
+
+  -I --ip-only
+    Strip the CIDR part from the IP addresses
+EOF
+
+# Arguments
+IPADDR_TYPE=
+IPADDR_SED=
+IPADDR_GREP='scope .*'
+IFACE=
+while [ -n "${1}" ]; do
+  case "${1}" in
+    -4|--ipv4) IPADDR_TYPE='ipv4';;
+    -6|--ipv6) IPADDR_TYPE='ipv6';;
+    -I|--ip-only) IPADDR_SED='s|/.*$||';;
+    -S|--scope) shift; IPADDR_GREP="scope ${1}";;
+    -*) echo "ERROR: Invalid option (${1})" >&2 && exit 1;;
+    *) [ -n "${IFACE}" ] && echo "ERROR: Too many arguments" >&2 && exit 1; IFACE="${1}";;
+  esac
+  shift
+done
+
+
+## Retrieve IP addresses
+if [ -z "${IPADDR_TYPE}" -o "${IPADDR_TYPE}" == 'ipv4' ]; then
+  ip -4 addr show dev ${IFACE} 2>/dev/null | egrep -i "^ *inet [0-9]{1,3}(\.[0-9]{1,3}){3}/.* ${IPADDR_GREP} ?( ${IFACE})?$" | awk '{print $2}' | sed "${IPADDR_SED}"
+fi
+if [ -z "${IPADDR_TYPE}" -o "${IPADDR_TYPE}" == 'ipv6' ]; then
+  ip -6 addr show dev ${IFACE} 2>/dev/null | egrep -i "^ *inet6 [0-9a-f]{0,4}(:[0-9a-f]{0,4}){1,7}/.* ${IPADDR_GREP} ?( ${IFACE})?$" | awk '{print $2}' | sed "${IPADDR_SED}"
+fi
+
+## Done
+exit 0
+

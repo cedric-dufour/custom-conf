@@ -1,0 +1,9 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-conf-grsec
+
+This package provides standard configuration for grsecurity-hardened kernels.
+
+In particular, it addresses standard configuration of:
+ - making sure to lock down the grsecurity configuration after boot
+

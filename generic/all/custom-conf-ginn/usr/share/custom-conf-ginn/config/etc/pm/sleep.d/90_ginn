@@ -1,0 +1,11 @@
+#!/bin/bash
+## CUSTOM-CONF: File automatically created/updated [custom-conf-ginn]
+
+# Kill any 'ginn' instance on resume
+# NOTE: 'ginn-daemon' will automatically spwan a new instance
+case "${1}" in
+  resume|thaw)
+    pkill -x ginn
+    ;;
+esac
+

@@ -1,0 +1,17 @@
+#!/bin/bash
+## CUSTOM-UTIL: File automatically created/updated [custom-util-ha]
+
+# Usage
+[ "${1##*-}" == 'help' ] && cat << EOF >&2 && exit 1
+USAGE: ${0##*/} [<egrep-expression>]
+
+HINT: crm_mon --inactive -1
+EOF
+
+# Command
+if [ -n "${1}" ]; then
+  crm_mon --inactive -1 | egrep -i "${1}"
+else
+  crm_mon --inactive -1
+fi
+

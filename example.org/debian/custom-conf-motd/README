@@ -1,0 +1,13 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-conf-motd
+
+This package contains the tenant-specific 'Mot of the Day' (motd).
+
+
+!!! SAMPLE PACKAGE !!! SAMPLE PACKAGE !!! SAMPLE PACKAGE !!! SAMPLE PACKAGE !!!
+
+  This package ought to be further customized to match the tenant environment
+
+!!! SAMPLE PACKAGE !!! SAMPLE PACKAGE !!! SAMPLE PACKAGE !!! SAMPLE PACKAGE !!!
+

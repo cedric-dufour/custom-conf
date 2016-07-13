@@ -1,0 +1,13 @@
+#!/bin/bash
+[ "${1}" != 'configure' ] && exit 0
+PKGNAME='custom-conf-ipv6-static'
+
+# Install files
+custom-conf-install "${PKGNAME}" "/usr/share/${PKGNAME}/config" || exit 1
+
+# Additional actions
+sysctl --system
+
+# Exit
+exit 0
+

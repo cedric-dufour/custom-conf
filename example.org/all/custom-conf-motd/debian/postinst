@@ -1,0 +1,19 @@
+#!/bin/bash
+[ "${1}" != 'configure' ] && exit 0
+PKGNAME='custom-conf-motd'
+
+# Install files
+custom-conf-install "${PKGNAME}" "/usr/share/${PKGNAME}/config" || exit 1
+
+# Additional actions
+echo -n '' > /etc/legal
+if [ -d /etc/update-motd.d ]; then
+  chmod a-x /etc/update-motd.d/[1-8]*
+  run-parts --lsbsysinit /etc/update-motd.d > /etc/motd
+else
+  ( echo "$(uname -o) $(uname -r) $(uname -v)"; cat /etc/motd.tail ) > /etc/motd
+fi
+
+# Exit
+exit 0
+

@@ -1,0 +1,10 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-conf-ssmtp
+
+This package provides standard configuration of the Secure Simple Mail Transfer
+Protocol (sSMTP) utility.
+
+In particular, it addresses standard configuration of:
+ - relay SMTP server (<-> 'custom-defs-...')
+

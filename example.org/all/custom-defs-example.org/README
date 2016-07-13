@@ -1,0 +1,18 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-defs-example.org
+
+This package contains the tenant-specific parameters definitions:
+ - default network range and gateway (IPv4/IPv6)
+ - DNS IP addresses
+ - NTP server names
+ - LDAP server URLs
+ - etc.
+
+
+!!! SAMPLE PACKAGE !!! SAMPLE PACKAGE !!! SAMPLE PACKAGE !!! SAMPLE PACKAGE !!!
+
+  This package ought to be further customized to match the tenant environment
+
+!!! SAMPLE PACKAGE !!! SAMPLE PACKAGE !!! SAMPLE PACKAGE !!! SAMPLE PACKAGE !!!
+

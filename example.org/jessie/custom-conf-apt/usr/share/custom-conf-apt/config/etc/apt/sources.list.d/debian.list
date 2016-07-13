@@ -1,0 +1,16 @@
+## CUSTOM-CONF: File automatically created/updated [custom-conf-apt]
+
+# Debian repositories
+
+# ... core
+deb http://apt.example.org/debian.jessie/ jessie main contrib non-free
+#deb-src http://apt.example.org/debian.jessie/ jessie main contrib non-free
+
+# ... security
+deb http://apt.example.org/debian-security.jessie/ jessie/updates main contrib non-free
+#deb-src http://apt.example.org/debian-security.jessie/ jessie/updates main contrib non-free
+
+# ... updates
+deb http://apt.example.org/debian.jessie/ jessie-updates main contrib non-free
+#deb-src http://apt.example.org/debian.jessie/ jessie-updates main contrib non-free
+

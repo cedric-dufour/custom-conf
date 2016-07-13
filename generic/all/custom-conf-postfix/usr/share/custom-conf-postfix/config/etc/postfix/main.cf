@@ -1,0 +1,29 @@
+## CUSTOM-CONF: File automatically created/updated [custom-conf-postfix]
+
+
+## Postfix Configuration
+
+# Server settings
+smtpd_banner = $myhostname ESMTP
+inet_interfaces = loopback-only
+inet_protocols = %{CUSTOM_CONF_POSTFIX_PROTOCOLS}
+biff = no
+
+# Host/network settings
+mydomain = %{CUSTOM_CONF_POSTFIX_MYDOMAIN}
+myhostname = %{CUSTOM_CONF_POSTFIX_MYHOSTNAME}
+mynetworks = %{CUSTOM_CONF_POSTFIX_MYNETWORKS}
+
+# Delivery settings: local delivery
+recipient_delimiter =
+# Honor local aliases (local delivery MUST be enabled in master.cf)
+alias_maps = hash:/etc/aliases
+alias_database = hash:/etc/aliases
+# Prevent local handling of ~/.forward file
+forward_path =
+# NO delivery into local mailbox -> MUST be handled by central server
+mailbox_transport = smtp:[%{CUSTOM_CONF_POSTFIX_RELAYHOST}]
+
+# Delivery settings: remote delivery
+relayhost = [%{CUSTOM_CONF_POSTFIX_RELAYHOST}]
+

@@ -1,0 +1,15 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-conf-iptables
+
+This package provides standard configuration of IPv4/IPv6 firewall rules
+(iptables).
+
+In particular, it addresses standard configuration of:
+ - blocking non-routable subnets
+ - blocking port scans
+ - blocking stealth scans
+ - throttling (anti-DoS) common ports
+ - white-/black-listing specific subnets/hosts (<-> 'custom-defs-...' package)
+ - easy addition of rules and hooks (<-> other 'custom-conf-...' packages)
+

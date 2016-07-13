@@ -1,0 +1,7 @@
+Origin: Local
+Label: Custom APT Repository - Debian / All Releases
+Suite: All
+Codename: debian-custom
+Architectures: amd64
+Components: example.org
+

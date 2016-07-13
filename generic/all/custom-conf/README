@@ -1,0 +1,7 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-conf
+
+This package acts as the very root of the Custom Configuration Framework, by
+pulling the needed definitions and utilities dependencies.
+

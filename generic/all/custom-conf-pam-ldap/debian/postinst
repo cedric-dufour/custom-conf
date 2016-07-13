@@ -1,0 +1,28 @@
+#!/bin/bash
+[ "${1}" != 'configure' ] && exit 0
+PKGNAME='custom-conf-pam-ldap'
+
+# Install files
+custom-conf-install "${PKGNAME}" "/usr/share/${PKGNAME}/config" || exit 1
+
+# Additional actions
+if [ -e /etc/pam_ldap.conf -a ! -h /etc/pam_ldap.conf ]; then
+  [ ! -e /etc/pam_ldap.conf.debian ] && cp -p /etc/pam_ldap.conf /etc/pam_ldap.conf.debian
+  rm -f /etc/pam_ldap.conf
+fi
+if [ ! -e /etc/pam_ldap.conf ]; then
+  ln -s /etc/ldap.conf /etc/pam_ldap.conf
+fi
+invoke-rc.d nscd restart
+
+# Additonal check
+if [ ! -e /etc/ldap.conf ]; then
+cat << EOF
+WARNING[${PKGNAME}]: LDAP configuration file is missing (/etc/ldap.conf)!
+: Running 'gcfg verify' should fix this
+EOF
+fi
+
+# Exit
+exit 0
+

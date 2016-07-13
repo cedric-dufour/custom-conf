@@ -1,0 +1,16 @@
+#!/bin/bash
+[ "${1}" != 'configure' ] && exit 0
+PKGNAME='custom-conf-apt-owncloud'
+
+# Install files
+custom-conf-install "${PKGNAME}" "/usr/share/${PKGNAME}/config" || exit 1
+
+# Message
+cat << EOF
+NOTICE[${PKGNAME}]: Please install the packages signing key MANUALLY
+: wget http://download.opensuse.org/repositories/isv:ownCloud:desktop/Debian_8.0/Release.key -O- | apt-key add -
+EOF
+
+# Exit
+exit 0
+

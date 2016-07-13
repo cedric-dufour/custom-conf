@@ -1,0 +1,12 @@
+Source: custom-certificates
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 3.9.7
+
+Package: custom-certificates
+Architecture: all
+Depends: ca-certificates
+Description: Custom Configuration Framework - SSL certificates
+

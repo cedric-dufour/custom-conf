@@ -1,0 +1,12 @@
+## CUSTOM-CONF: File automatically created/updated [custom-conf-pam-ldap]
+
+
+## PAM Configuration
+
+# User authentication
+# NOTE: We first try local account, then LDAP (simple bind)
+auth [success=2 default=ignore] pam_unix.so
+auth [success=1 default=ignore] pam_ldap.so use_first_pass
+auth requisite pam_deny.so
+auth required pam_permit.so
+

@@ -1,0 +1,26 @@
+#!/bin/bash
+## File automatically created/updated [nagios-plugins-custom]
+# EXIT: 0 = OK; 1 = WARNING; 2 = CRITICAL; 3 = UNKNOWN (ERROR)
+# ECHO: <human-friendly status message> |<performance_data>
+
+# Usage
+[ $# -lt 2 -o "${1##*-}" == 'help' ] && cat << EOF && exit 3
+USAGE: ${0##*/} <host> <token>
+SYNOPSIS: Nagios-compliant command to check Gitlab service status
+EOF
+
+# Arguments
+MY_HOST=${1}
+MY_TOKEN=${2}
+
+# Service output
+MY_OUTPUT="$(wget --timeout 3 -q -O- "https://${MY_HOST}/health_check.xml?token=${MY_TOKEN}" 2>/dev/null)"
+[ -z "${MY_OUTPUT}" ] && echo "ERROR: Failed to query host (${MY_HOST})" && exit 3
+MY_MESSAGE="$(echo "${MY_OUTPUT}" | grep -oPm1 '(?<=<message>)[^<]+')"
+MY_HEALTHY="$(echo "${MY_OUTPUT}" | grep -oPm1 '(?<=<healthy>|<healthy type="boolean">)[^<]+')"
+
+# Check
+[ "${MY_HEALTHY}" != 'true' ] && echo "CRITICAL: Service is unhealthy |${MY_MESSAGE}" && exit 2
+echo "OK: Service is healthy |${MY_MESSAGE}"
+exit 0
+

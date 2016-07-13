@@ -1,0 +1,241 @@
+#!/bin/bash
+## CUSTOM-UTIL: File automatically created/updated [custom-util-ha]
+
+###############################################################################
+# External STONITH module for Raritan PDU (SNMPv3)
+# 2011.11.14 <http://cedric.dufour.name>
+###############################################################################
+
+# Command-line arguments
+[ $# -lt 1 -o "${1##*-}" == 'help' ] && cat << EOF && exit 1
+USAGE: ${0##*/} <action> <hostname>
+
+WHERE:
+  Actions MUST be one of the following:
+    query            - Query the power state for the given host.
+    on               - Switch the given host on.
+    off              - Switch the given host off.
+    reset            - Reset the given host.
+    gethosts         - Return the list of hosts configured.
+    status           - Exit with return code zero if this device can be reached,
+                       non-zero if this device cannot be reached.
+    getconfignames   - Return the list of mandatory environment variables that
+                       needs to be configured.
+    getinfo-devid    - Return the device class.
+    getinfo-devname  - Return the device name.
+    getinfo-devdescr - Return the description of this device.
+    getinfo-devurl   - Return a URL pointing to more information on this device.
+    getinfo-xml      - Return an XML fragment defining all of the parameters
+                       and their descriptions.
+
+REFERENCE:
+  See http://www.linux-ha.org/ExternalStonithPlugins
+EOF
+
+# Arguments
+ARG_ACTION="$1"
+ARG_HOSTNAME="$2"
+
+# OIDs
+OID_RARITAN_SIG='.1.3.6.1.2.1.1.1.0'
+OID_RARITAN_SIG_CHECK='Raritan'
+OID_RARITAN_LABEL_PREFIX='.1.3.6.1.4.1.13742.4.1.2.2.1.2'
+OID_RARITAN_STATE_PREFIX='.1.3.6.1.4.1.13742.4.1.2.2.1.3'
+
+# Values
+VAL_RARITAN_STATE_OFF=0
+VAL_RARITAN_STATE_ON=1
+
+# Set the SNMP configuration directory path
+export SNMPCONFPATH="${snmp_conf_path}"
+
+# Useful function
+function _devchk() {
+  [ -z "${mgmt_address}" ] && echo "ERROR: Missing the device management IP address or hostname (mgmt_address)" >&2 && return 1
+  [ -z "${snmp_conf_path}" ] && echo "ERROR: Missing the SNMP configuration directory path (snmp_conf_path)" >&2 && return 1
+  [ ! -d "${snmp_conf_path}" ] && echo "ERROR: Invalid SNMP configuration directory path (${snmp_conf_path})" >&2 && return 1
+  [ ! -r "${snmp_conf_path}/snmp.conf" ] && echo "ERROR: Missing the SNMP configuration file (${snmp_conf_path}/snmp.conf)" >&2 && return 1
+  [ -z "$(which snmpwalk)" ] && echo "ERROR: Missing SNMP binary (snmpwalk)" >&2 && return 1
+  [ -z "$(which snmpget)" ] && echo "ERROR: Missing SNMP binary (snmpget)" >&2 && return 1
+  [ -z "$(which snmpset)" ] && echo "ERROR: Missing SNMP binary (snmpset)" >&2 && return 1
+  sig="$(snmpget -m '' -t 1 -r 15 -Ov -Oq ${mgmt_address} ${OID_RARITAN_SIG})"
+  [ $? -ne 0 ] && echo "ERROR: Failed to retrieve SNMP device signature" >&2 && return 1
+  sig="${sig//\"/}"; sig="${sig,,}"
+  [ "${sig%% *}" != "${OID_RARITAN_SIG_CHECK,,}" ] && echo "ERROR: Invalid device signature (${sig})" >&2 && return 1
+  return 0
+}
+
+function _gethosts() {
+  labels=$(snmpwalk -m '' -t 1 -Ov -Oq ${mgmt_address} ${OID_RARITAN_LABEL_PREFIX})
+  [ ${PIPESTATUS[0]} -ne 0 ] && echo "ERROR: Failed to retrieve label list" >&2 && return 1
+  IFS=$'\n'; for label in ${labels}; do
+    echo ${label//\"/}
+  done | uniq
+  return 0
+}
+
+function _getoids() {
+  labels=$(snmpwalk -m '' -t 1 -On -Oq ${mgmt_address} ${OID_RARITAN_LABEL_PREFIX})
+  [ ${PIPESTATUS[0]} -ne 0 ] && echo "ERROR: Failed to retrieve label list" >&2 && return 1
+  found=0
+  IFS=$'\n'; for label in ${labels}; do
+    oid=${label%% *}
+    label=${label#* }
+    [ "${label//\"/}" != "${ARG_HOSTNAME}" ] && continue
+    found=1
+    echo ${oid##*.}
+  done
+  [ ${found} -eq 0 ] && echo "ERROR: No outlet matches the given label (${ARG_HOSTNAME})" >&2 && return 1
+  return 0
+}
+
+function _query() {
+  oids=$(_getoids ${ARG_HOSTNAME}); [ -z "${oids}" ] && return 1
+  for oid in ${oids}; do
+    state=$(snmpget -m '' -t 1 -Ov -Oq ${mgmt_address} ${OID_RARITAN_STATE_PREFIX}.${oid})
+    [ $? -ne 0 ] && echo "ERROR: Failed to retrieve SNMP value" >&2 && return 1
+    case ${state} in
+      ${VAL_RARITAN_STATE_OFF}) echo 'OFF';;
+      ${VAL_RARITAN_STATE_ON}) echo 'ON';;
+      *) echo "Unknown power state (${state})";;
+    esac
+  done
+  return 0
+}
+
+function _on() {
+  oids=$(_getoids ${ARG_HOSTNAME}); [ -z "${oids}" ] && return 1
+  for oid in ${oids}; do
+    state=$(snmpget -m '' -t 1 -Ov -Oq ${mgmt_address} ${OID_RARITAN_STATE_PREFIX}.${oid})
+    [ $? -ne 0 ] && echo "ERROR: Failed to retrieve SNMP value" >&2 && return 1
+    [ "${state}" == "${VAL_RARITAN_STATE_ON}" ] && continue
+    snmpset -m '' -t 1 ${mgmt_address} ${OID_RARITAN_STATE_PREFIX}.${oid} i ${VAL_RARITAN_STATE_ON} >/dev/null
+    [ $? -ne 0 ] && echo "ERROR: Failed to send SNMP command (ON)" >&2 && return 1
+    for t in $(seq 1 60); do
+      state=$(snmpget -m '' -t 1 -r 1 -Ov -Oq ${mgmt_address} ${OID_RARITAN_STATE_PREFIX}.${oid})
+      [ $? -ne 0 ] && echo "WARNING: Failed to retrieve SNMP value" >&2 && continue
+      [ "${state}" == "${VAL_RARITAN_STATE_ON}" ] && break
+      sleep 1
+    done
+    [ "${state}" != "${VAL_RARITAN_STATE_ON}" ] && echo "ERROR: Failed to switch the server off (${ARG_HOSTNAME})" >&2 && return 1
+  done
+  return 0
+}
+
+function _off() {
+  oids=$(_getoids ${ARG_HOSTNAME}); [ -z "${oids}" ] && return 1
+  for oid in ${oids}; do
+    state=$(snmpget -m '' -t 1 -Ov -Oq ${mgmt_address} ${OID_RARITAN_STATE_PREFIX}.${oid})
+    [ $? -ne 0 ] && echo "ERROR: Failed to retrieve SNMP value" >&2 && return 1
+    [ "${state}" == "${VAL_RARITAN_STATE_OFF}" ] && continue
+    snmpset -m '' -t 1 ${mgmt_address} ${OID_RARITAN_STATE_PREFIX}.${oid} i ${VAL_RARITAN_STATE_OFF} >/dev/null
+    [ $? -ne 0 ] && echo "ERROR: Failed to send SNMP command (OFF)" >&2 && return 1
+    for t in $(seq 1 60); do
+      state=$(snmpget -m '' -t 1 -r 1 -Ov -Oq ${mgmt_address} ${OID_RARITAN_STATE_PREFIX}.${oid})
+      [ $? -ne 0 ] && echo "WARNING: Failed to retrieve SNMP value" >&2 && continue
+      [ "${state}" == "${VAL_RARITAN_STATE_OFF}" ] && break
+      sleep 1
+    done
+    [ "${state}" != "${VAL_RARITAN_STATE_OFF}" ] && echo "ERROR: Failed to switch the server off (${ARG_HOSTNAME})" >&2 && return 1
+  done
+  return 0
+}
+
+# Execute action
+case ${ARG_ACTION} in
+query)
+  _query || exit 1
+  exit 0
+  ;;
+
+on)
+  _on || exit 1
+  exit 0
+  ;;
+
+off)
+  _off || exit 1
+  exit 0
+  ;;
+
+reset)
+  _off || exit 1
+  sleep 1
+  _on || exit 1
+  exit 0
+  ;;
+
+gethosts)
+  _gethosts || exit 1
+  exit 0
+  ;;
+
+status)
+  _devchk || exit 1
+  exit 0
+  ;;
+
+getconfignames)
+  echo "mgmt_address"
+  echo "snmp_conf_path"
+  exit 0
+  ;;
+
+getinfo-devid)
+  echo "Raritan STONITH device"
+  exit 0
+  ;;
+
+getinfo-devname)
+  echo "Raritan STONITH device (${snmp_conf_path})"
+  exit 0
+  ;;
+
+getinfo-devdescr)
+  echo "Raritan PDU's STONITH device via SNMPv3"
+  exit 0
+  ;;
+
+getinfo-devurl)
+  echo 'http://www.raritan.com/'
+  exit 0
+  ;;
+
+getinfo-xml)
+  cat << EOF
+<parameters>
+
+<parameter name="mgmt_address" unique="1" required="1">
+<content type="string" />
+<shortdesc lang="en">
+Management Address (or Hostname)
+</shortdesc>
+<longdesc lang="en">
+The IP address or hostname for the Raritan PDU.
+</longdesc>
+</parameter>
+
+<parameter name="snmp_conf_path" unique="1" required="1">
+<content type="string" />
+<shortdesc lang="en">
+SNMP Configuration Directory Path
+</shortdesc>
+<longdesc lang="en">
+The path to the directory containing the 'snmp.conf' configuration file to
+access the Raritan PDU.
+See 'man snmp_config' and 'man snmp.conf' for details.
+</longdesc>
+</parameter>
+
+</parameters>
+EOF
+  exit 0
+  ;;
+
+*)
+  echo "ERROR: Invalid action (${ARG_ACTION})" >&2 && exit 1
+  exit 1
+  ;;
+
+esac
+

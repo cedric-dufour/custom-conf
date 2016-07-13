@@ -1,0 +1,14 @@
+Source: custom-conf-firefox-esr
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 3.9.7
+
+Package: custom-conf-firefox-esr
+Architecture: all
+Depends: custom-conf, firefox-esr
+Breaks: custom-conf-iceweasel (<< 2016.06.13a)
+Replaces: custom-conf-iceweasel (<< 2016.06.13a)
+Description: Custom Configuration Framework - Firefox ESR
+

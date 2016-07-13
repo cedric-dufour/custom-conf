@@ -1,0 +1,35 @@
+#!/bin/bash
+## CUSTOM-CONF: File automatically created/updated [custom-conf-utils]
+
+
+## Usage
+[ $# -lt 2 -o "${1##*-}" == 'help' ] && cat << EOF && exit 1
+USAGE: ${0##*/} <package-name> <config-root> [<flag> ...]
+EOF
+
+
+## Arguments
+PKGNAME="${1}"; shift
+CONFDIR="${1}"; shift
+
+
+## Install files
+pushd "${CONFDIR}" >/dev/null
+[ $? -ne 0 ] && echo "ERROR[${PKGNAME}]: Failed to switch to configuration repository" && exit 1
+find . -type f | while read file; do
+  file="${file##.}"
+  gcfg copy --silent --batch "${file}" "${CONFDIR}/${file##/}"
+  gcfg flag --silent "${file}" "${PKGNAME}"
+  for flag in "$@"; do
+    gcfg flag --silent --force "${file}" "${flag}"
+  done
+done
+popd >/dev/null
+echo "INFO[${PKGNAME}]: The following files are now tracked by GCFG:"
+echo ": gcfg list '${PKGNAME}'"
+gcfg list "${PKGNAME}" | sed 's/^/  /'
+
+
+## Done
+exit 0
+

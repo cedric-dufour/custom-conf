@@ -1,0 +1,17 @@
+## CUSTOM-CONF: File automatically created/updated [custom-conf-iptables]
+
+## FORMAT
+#      [[<src-ip-address>[/<mask>]][@<iface>]][:<dst-port>/{tcp|udp}]
+#  Examples
+#    - everything from IP range 10.0.0.0/8
+#      10.0.0.0/8
+#    - everything from interface eth1
+#      @eth1
+#    - anything to TCP port 22 (SSH)
+#      :22/tcp
+#    - to TCP port 22 (SSH) from IP range 10.0.0.0/8 via interface eth1
+#      10.0.0.0/8@eth1:22/tcp
+
+# Whitelisted segments
+%{CUSTOM_CONF_IPTABLES_WHITELIST_IPV4S}
+

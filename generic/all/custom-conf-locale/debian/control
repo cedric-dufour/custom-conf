@@ -1,0 +1,12 @@
+Source: custom-conf-locale
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 3.9.7
+
+Package: custom-conf-locale
+Architecture: all
+Depends: custom-conf
+Description: Custom Configuration Framework - Locale settings (keyboard, string format, paper size, etc.)
+

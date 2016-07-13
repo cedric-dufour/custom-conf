@@ -1,0 +1,12 @@
+Source: custom-conf-xplane
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 3.9.7
+
+Package: custom-conf-xplane
+Architecture: all
+Depends: libglu1-mesa, libopenal1, libpulse0, libxrandr2
+Description: Custom Configuration Framework - X-Plane-friendly settings
+

@@ -1,0 +1,59 @@
+#!/bin/bash
+[ "${1}" != 'configure' ] && exit 0
+PKGNAME='custom-conf-postfix'
+
+# Debconf
+. /usr/share/debconf/confmodule
+db_get custom-conf/root-email && CUSTOM_CONF_POSTFIX_ROOT="${RET}"
+db_stop
+
+# Install files
+custom-conf-install "${PKGNAME}" "/usr/share/${PKGNAME}/config" || exit 1
+
+# Fine-tune configuration
+CUSTOM_CONF_POSTFIX_PROTOCOLS='ipv4'
+CUSTOM_CONF_POSTFIX_MYNETWORKS='127.0.0.0/8'
+source /usr/share/custom-conf/custom-conf.defs
+ipv6="$(ip -6 addr 2>/dev/null | fgrep 'scope global')"
+server=
+for s in ${CUSTOM_CONF_SMTP_SERVER}; do
+  if [ -n "$(echo "${s}" | grep '^[:a-f0-9]*$')" ]; then
+    [ -z "${ipv6}" ] && continue
+  fi
+  server="${s}"
+  break
+done
+[ -n "${CUSTOM_CONF_SMTP_SERVER}" -a -z "${server}" ] && echo "ERROR[${PKGNAME}]: No IPv4 server found (${CUSTOM_CONF_SMTP_SERVER})" >&2
+CUSTOM_CONF_POSTFIX_MYDOMAIN="${CUSTOM_CONF_DOMAIN}"
+CUSTOM_CONF_POSTFIX_MYHOSTNAME="$(hostname -f)"
+if [ -n "${ipv6}" ]; then
+  CUSTOM_CONF_POSTFIX_PROTOCOLS='ipv4, ipv6'
+  CUSTOM_CONF_POSTFIX_MYNETWORKS='127.0.0.0/8, [::1]/128'
+fi
+[ "${CUSTOM_CONF_POSTFIX_MYHOSTNAME}" == "${CUSTOM_CONF_POSTFIX_MYHOSTNAME%%.*}" ] && CUSTOM_CONF_POSTFIX_MYHOSTNAME="${CUSTOM_CONF_POSTFIX_MYHOSTNAME}.${CUSTOM_CONF_POSTFIX_MYDOMAIN}"
+gsed "s|%{CUSTOM_CONF_POSTFIX_PROTOCOLS}|${CUSTOM_CONF_POSTFIX_PROTOCOLS}|g;s|%{CUSTOM_CONF_POSTFIX_MYDOMAIN}|${CUSTOM_CONF_POSTFIX_MYDOMAIN}|g;s|%{CUSTOM_CONF_POSTFIX_MYHOSTNAME}|${CUSTOM_CONF_POSTFIX_MYHOSTNAME}|g;s|%{CUSTOM_CONF_POSTFIX_MYNETWORKS}|${CUSTOM_CONF_POSTFIX_MYNETWORKS}|g;s|%{CUSTOM_CONF_POSTFIX_RELAYHOST}|${server}|g" /etc/postfix/main.cf
+
+# Root alias
+if grep -q '^root:' /etc/aliases; then
+  gsed "s|^root:.*|root: ${CUSTOM_CONF_POSTFIX_ROOT}|" /etc/aliases
+else
+  echo "# Root is..." >> /etc/aliases
+  echo "root: ${CUSTOM_CONF_POSTFIX_ROOT}" >> /etc/aliases
+fi
+
+# Additional actions
+newaliases
+invoke-rc.d postfix restart
+
+# Warning
+cat << EOF
+
+NOTICE[${PKGNAME}]:  If 'ssmtp' or 'exim4' packages were replaced, please...
+: dpkg --purge ssmtp
+: dpkg --purge exim4 exim4-base exim4-config exim4-daemon-light
+
+EOF
+
+# Exit
+exit 0
+

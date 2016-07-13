@@ -1,0 +1,31 @@
+#!/bin/bash
+[ "${1}" != 'configure' ] && exit 0
+PKGNAME='custom-conf-smartd'
+
+# Debconf
+. /usr/share/debconf/confmodule
+db_get custom-conf/harddisk-type && HARDDISK_TYPE="${RET}"
+db_stop
+
+# Install files
+custom-conf-install "${PKGNAME}" "/usr/share/${PKGNAME}/config" || exit 1
+
+# Fine-tune configuration
+CUSTOM_CONF_SMARTD_DISKS=
+[ "${HARDDISK_TYPE}" == 'sata' ] && SMARTCTL_OPTION='-d ata'
+for harddisk in /dev/hd[a-z]; do
+  smartctl -i >/dev/null ${harddisk} && \
+    CUSTOM_CONF_SMARTD_DISKS="${CUSTOM_CONF_SMARTD_DISKS}${CUSTOM_CONF_SMARTD_DISKS:+%NL;}${harddisk} -a -H -m root"
+done
+for harddisk in /dev/sd[a-z]; do
+  smartctl ${SMARTCTL_OPTION} -i >/dev/null ${harddisk} && \
+    CUSTOM_CONF_SMARTD_DISKS="${CUSTOM_CONF_SMARTD_DISKS}${CUSTOM_CONF_SMARTD_DISKS:+%NL;}${harddisk} ${SMARTCTL_OPTION} -a -H -m root"
+done
+gsed "s|%{CUSTOM_CONF_SMARTD_DISKS}|${CUSTOM_CONF_SMARTD_DISKS}|g;s|%NL;|\n|g" /etc/smartd.conf
+
+# Additional actions
+invoke-rc.d smartmontools restart >/dev/null
+
+# Exit
+exit 0
+

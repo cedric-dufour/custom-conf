@@ -1,0 +1,33 @@
+#!/bin/bash
+## File automatically created/updated [nagios-plugins-custom]
+# EXIT: 0 = OK; 1 = WARNING; 2 = CRITITCAL; 3 = UNKNOWN (ERROR)
+# ECHO: <human-friendly status message> |<performance_data>
+
+# Usage
+[ "${1##*-}" == 'help' ] && cat << EOF && exit 3
+USAGE: ${0##*/}
+SYNOPSIS: Nagios-compliant command to check DRBD status
+REQUIRED: drbd8-utils (check: /etc/init.d/drbd status)
+EOF
+
+# Parameters
+DRBD_COMMAND='/etc/init.d/drbd status'
+
+# DRBD status
+DRBD_OUTPUT="$(${DRBD_COMMAND})"
+DRBD_EXIT=$?
+[ ${DRBD_EXIT} -ne 0 ] && echo "ERROR: Failed to retrieve DRBD status; Exit code: ${DRBD_EXIT}" && exit 3
+
+# Check
+DRBD_OUTPUT="$(echo "${DRBD_OUTPUT}" | egrep -i '(primary|secondary)' | awk '{print $1,$2,$3,$4}')"
+DRBD_STATUS=0
+DRBD_DATA="$(echo "${DRBD_OUTPUT}" | tr '\n' ';' | sed 's/;$//')"
+IFS=$'\n'; for r in ${DRBD_OUTPUT}; do
+  [ -n "$(echo ${r} | fgrep -i 'primary')" -a -n "$(echo ${r} | fgrep -i 'uptodate/uptodate')" ] && continue
+  [ -z "$(echo ${r} | fgrep -i 'uptodate')" ] && DRBD_STATUS=2 && break
+  DRBD_STATUS=1
+done
+[ ${DRBD_STATUS} -eq 2 ] && echo "CRITICAL: DRBD status is CRITICAL |${DRBD_DATA}" && exit 2
+[ ${DRBD_STATUS} -eq 1 ] && echo "WARNING: DRBD status is WARNING |${DRBD_DATA}" && exit 1
+echo "OK: DRBD status is OK |${DRBD_DATA}"
+

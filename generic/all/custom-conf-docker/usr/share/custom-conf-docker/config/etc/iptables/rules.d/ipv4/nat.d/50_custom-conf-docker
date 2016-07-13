@@ -1,0 +1,23 @@
+#!/bin/sh
+## CUSTOM-CONF: File automatically created/updated [custom-conf-docker]
+
+# (Please use 'dpkg-reconfigure custom-conf-docker' to change this setting)
+%{CUSTOM_CONF_DOCKER_IPTABLES_AUTO_EXIT}
+
+
+## Docker-specific rules
+
+# Inbound traffic (to containers published ports)
+"${IPTABLES}" --table nat --new-chain DOCKER_INBOUND
+"${IPTABLES}" --table nat --append PREROUTING --match addrtype --dst-type LOCAL --jump DOCKER_INBOUND
+"${IPTABLES}" --table nat --append OUTPUT --match addrtype --dst-type LOCAL --jump DOCKER_INBOUND
+# (Please use a separate file to add containers-specific rules)
+# "${IPTABLES}" --table nat --append DOCKER_INBOUND \
+#   --protocol <proto> \
+#   --dport <port> \
+#   --jump DNAT --to-destination <ip>:<port>
+
+# Outbound traffic (from containers to the wide wild world)
+"${IPTABLES}" --table nat --append POSTROUTING --out-interface docker1 --match addrtype --src-type LOCAL --jump MASQUERADE
+"${IPTABLES}" --table nat --append POSTROUTING --source 192.168.214.0/24 ! --out-interface docker1 --jump MASQUERADE
+

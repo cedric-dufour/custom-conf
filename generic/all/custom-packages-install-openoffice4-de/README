@@ -1,0 +1,7 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-packages-install-openoffice4-de
+
+This meta-package installs OpenOffice.org German (de) translation
+dependencies (and dictionary).
+

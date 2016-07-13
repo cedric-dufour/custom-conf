@@ -1,0 +1,11 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-conf-nfs4
+
+This package provides standard configuration of the Network File System,
+version 4 (NFSv4).
+
+In particular, it addresses standard configuration of:
+ - required daemon startup (idmapd and gssd)
+ - ID mapping (<-> 'custom-defs-...' package)
+

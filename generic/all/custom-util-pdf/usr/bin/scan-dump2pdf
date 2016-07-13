@@ -1,0 +1,69 @@
+#!/bin/bash
+
+# Usage
+[ $# -lt 1 -o "${1##*-}" == 'help' ] && cat << EOF && exit 1
+USAGE: ${0##*/} [<options>] <output.pdf> [-- <scanimage-options>]
+
+SYNOPSIS:
+  Scans (multiple) page(s) from scanner (optionally specified by device ID) to TIF file.
+
+OPTIONS:
+  -P --pages       Page quantity                    [1]
+  -M --mode        Color mode {Lineart|Gray|Color}  [Lineart]
+  -R --resolution  Resolution (DPI)                 [600]
+  -X --width       Scan width (mm)                  [210]
+  -Y --height      Scan height (mm)                 [297]
+  -Q --quality     JPEG compression quality         [80]
+EOF
+
+# Arguments
+MY_FILE=
+MY_OPTIONS=
+MY_MODE='Lineart'
+MY_QUALITY=80
+EXT_OPTIONS=
+while [ -n "${1}" ]; do
+  case "${1}" in
+    --) EXT_OPTIONS=' ' ;;
+    -M|--mode) if [ -z "${EXT_OPTIONS}" ]; then MY_OPTIONS="${MY_OPTIONS} ${1} ${2}"; shift; MY_MODE="${1}"; else EXT_OPTIONS="${EXT_OPTIONS} ${1}"; fi ;;
+    -Q|--quality) if [ -z "${EXT_OPTIONS}" ]; then MY_OPTIONS="${MY_OPTIONS} ${1} ${2}"; shift; MY_QUALITY="${1}"; else EXT_OPTIONS="${EXT_OPTIONS} ${1}"; fi ;;
+    -*) if [ -z "${EXT_OPTIONS}" ]; then MY_OPTIONS="${MY_OPTIONS} ${1} ${2}"; shift; else EXT_OPTIONS="${EXT_OPTIONS} ${1}"; fi ;;
+    *) if [ -z "${EXT_OPTIONS}" ]; then MY_FILE="${1}"; else EXT_OPTIONS="${EXT_OPTIONS} ${1}"; fi ;;
+  esac
+  shift
+done
+
+# Parameters
+MY_FILETMP="${TMP:-/tmp}/${0##*/}.$$.tif"
+MY_COMPRESSION=
+case "${MY_MODE}" in
+  'lineart'|'Lineart'|'LineArt') MY_COMPRESSION='-compress fax' ;;
+  'gray'|'Gray') MY_COMPRESSION='-compress lzw' ;;
+  'color'|'Color') MY_COMPRESSION="-compress jpeg -quality ${MY_QUALITY}" ;;
+esac
+
+# Check arguments
+[ -z "${MY_FILE}" ] && echo 'ERROR: Missing file argument' >&2 && exit 1
+
+# Check dependencies
+[ -z "$(which scan-dump2tif)" ] && echo "ERROR: 'scan-dump2tif' was not found" >&2 && exit 1
+#[ -z "$(which tiff2pdf)" ] && echo "ERROR: 'tiff2pdf' was not found" >&2 && exit 1
+[ -z "$(which convert)" ] && echo "ERROR: 'convert' (ImageMagick) was not found" >&2 && exit 1
+
+# Trap
+trap "rm -f '${MY_FILETMP}'" EXIT
+
+# Scan image
+touch "${MY_FILETMP}" && chmod 600 "${MY_FILETMP}"
+scan-dump2tif "${MY_FILETMP}" ${MY_OPTIONS} ${EXT_OPTIONS:+--} ${EXT_OPTIONS}
+[ $? -ne 0 ] && exit $?
+
+# Create PDF
+#tiff2pdf -p A4 -o "${MY_FILE}" "${MY_FILETMP}"
+convert "${MY_FILETMP}" ${MY_COMPRESSION} "${MY_FILE}"
+[ $? -ne 0 ] && echo 'ERROR: Failed to convert document' >&2 && exit 1
+echo "Document(s)/page(s) successfully converted to: ${MY_FILE}"
+
+# Done
+exit 0
+

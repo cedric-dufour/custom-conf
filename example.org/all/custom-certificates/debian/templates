@@ -1,0 +1,6 @@
+Template: custom-certificates/pki-id
+Type: select
+Choices: 2016, 2014
+Default: 2016
+Description: Which PKI (CA chain) should be enabled for this host/server ?
+

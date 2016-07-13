@@ -1,0 +1,9 @@
+## CUSTOM-CONF: File automatically created/updated [custom-conf-iptables]
+
+# HEADER: /usr/share/custom-conf-iptables/rules.d/ipv6/filter.header
+
+# Include iptables snippets
+run-parts ${VERBOSE:+--verbose} /etc/iptables/rules.d/ipv6/filter.d
+
+# FOOTER: /usr/share/custom-conf-iptables/rules.d/ipv6/filter.footer
+

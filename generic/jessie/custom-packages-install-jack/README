@@ -1,0 +1,7 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-packages-install-jack
+
+This meta-package installs all dependencies required to have a fully functional
+JACK stack. 
+

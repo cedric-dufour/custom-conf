@@ -1,0 +1,7 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-conf-autofs-ldap
+
+This package provides standard configuration of AutoFS, the auto-mounting
+daemon, along the Network File System (NFS).
+

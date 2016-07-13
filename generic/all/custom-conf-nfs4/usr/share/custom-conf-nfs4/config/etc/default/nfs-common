@@ -1,0 +1,8 @@
+## CUSTOM-CONF: File automatically created/updated [custom-conf-nfs4]
+
+# NFS (client) configuration
+NEED_STATD=yes
+STATDOPTS=
+NEED_IDMAPD=yes
+NEED_GSSD=yes
+

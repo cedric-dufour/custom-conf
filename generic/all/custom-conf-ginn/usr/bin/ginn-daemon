@@ -1,0 +1,27 @@
+#!/bin/bash
+
+
+## Usage
+[ "${1##*-}" == 'help' ] && cat << EOF && exit 1
+USAGE: ${0##*/} [<configuration-file>]
+EOF
+
+
+## Daemon
+
+# Launch ginn and make sure it keeps running
+for pid in $(pgrep -x ginn-daemon); do
+  [ ${pid} == $$ ] && continue
+  kill ${pid}
+done
+pkill -x ginn
+[ "${1}" == 'stop' ] && exit 0
+while true; do
+  sleep 3
+  if [ -n "${1}" ]; then
+    ginn ${1}
+  else
+    ginn
+  fi
+done &
+

@@ -1,0 +1,6 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-packages-install-lib32
+
+This meta-package installs the base dependencies for 32-bit compatibility.
+

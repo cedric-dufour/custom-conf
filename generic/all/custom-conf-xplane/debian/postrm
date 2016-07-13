@@ -1,0 +1,10 @@
+#!/bin/bash
+[ "${1}" != 'remove' ] && exit 0
+PKGNAME='custom-conf-xplane'
+
+# Additional actions
+udevadm trigger
+
+# Exit
+exit 0
+

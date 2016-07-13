@@ -1,0 +1,7 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-util-ha
+
+This package contains various utilities to configure and manage the
+Corosync/Pacemaker High-Availability (HA) stack.
+

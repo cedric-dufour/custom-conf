@@ -1,0 +1,12 @@
+#!/bin/sh
+## CUSTOM-CONF: File automatically created/updated [custom-conf-docker]
+
+# (Please use 'dpkg-reconfigure custom-conf-docker' to change this setting)
+%{CUSTOM_CONF_DOCKER_IPTABLES_MANUAL_EXIT}
+
+# Stop Docker daemon
+pgrep -f 'docker daemon' >/dev/null || exit 0
+touch /var/run/iptables-control.hook.docker
+echo "WARNING: Docker daemon service is running; I MUST stop it now!" >&2
+service docker stop
+

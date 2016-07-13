@@ -1,0 +1,39 @@
+#!/bin/bash
+## File automatically created/updated [nagios-plugins-custom]
+# EXIT: 0 = OK; 1 = WARNING; 2 = CRITITCAL; 3 = UNKNOWN (ERROR)
+# ECHO: <human-friendly status message> |<performance_data>
+
+# Usage
+[ $# -lt 1 -o "${1##*-}" == 'help' ] && cat << EOF && exit 3
+USAGE: ${0##*/} <device> [<status_bitmask:warning> = 240] [<status_bitmask:critical> = 8]
+SYNOPSIS: Nagios-compliant command to check hard disk's SMART status
+REQUIRED: smartmontools (check: smartctl --all <device>)
+ARGUMENTS: See smartctl man page for return status bitmasks
+PERMISSIONS: smartctl MUST be executed by root (sudo) to succeed
+EOF
+
+# Parameters
+SMART_COMMAND='sudo /usr/sbin/smartctl'
+
+# Arguments
+SMART_DEVICE=$1
+[ $# -ge 2 ] && SMART_WARNING=$2 || SMART_WARNING=240
+[ $# -ge 3 ] && SMART_CRITICAL=$3 || SMART_CRITICAL=8
+# ... checks
+which "${SMART_COMMAND#* }" >/dev/null
+[ $? -ne 0 ] && echo 'ERROR: Missing SMART monitoring utility (smartctl)' && exit 3
+[ ! -e ${SMART_DEVICE} ] && echo "ERROR: Invalid device; Device: ${SMART_DEVICE}" && exit 3
+[ $(( ${SMART_WARNING} <= 0 )) -ne 0 ] && echo 'ERROR: Warning bitmask must be bigger than 0' && exit 3
+[ $(( ${SMART_CRITICAL} <= 0 )) -ne 0 ] && echo 'ERROR: Critical bitmask must be bigger than 0' && exit 3
+
+# Smart status
+SMART_OUTPUT=$(${SMART_COMMAND} -H -q errorsonly ${SMART_DEVICE})
+SMART_EXIT=$?
+[ ${SMART_EXIT} -eq 127 ] && echo 'ERROR: Failed to retrieve SMART status' && exit 3
+[ $(( ${SMART_EXIT} & 7 )) -ne 0 ] && echo "ERROR: Failed to retrieve SMART status; Exit code: ${SMART_EXIT}" && exit 3
+
+# Check
+[ $(( ${SMART_EXIT} & ${SMART_CRITICAL} )) -ne 0 ] && echo "CRITICAL: SMART status is '${SMART_OUTPUT}' |${SMART_EXIT},${SMART_WARNING},${SMART_CRITICAL},2" && exit 2
+[ $(( ${SMART_EXIT} & ${SMART_WARNING} )) -ne 0 ] && echo "WARNING: SMART status is '${SMART_OUTPUT}' |${SMART_EXIT},${SMART_WARNING},${SMART_CRITICAL},1" && exit 1
+echo "OK: SMART status is OK |${SMART_EXIT},${SMART_WARNING},${SMART_CRITICAL},0"
+

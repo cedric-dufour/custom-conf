@@ -1,0 +1,14 @@
+Source: custom-conf-grsec
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 3.9.7
+
+Package: custom-conf-grsec
+Architecture: all
+Depends: custom-conf
+Recommends: pax-utils, paxctl
+Conflicts: linux-grsec-base
+Description: Custom Configuration Framework - grsecurity
+

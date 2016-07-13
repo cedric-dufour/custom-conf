@@ -1,0 +1,12 @@
+Source: custom-conf-cups
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 3.9.7
+
+Package: custom-conf-cups
+Architecture: all
+Depends: custom-conf, custom-certificates (>= 2016.07.05a), cups, cups-browsed, cups-pdf, colord
+Description: Custom Configuration Framework - CUPS (client)
+

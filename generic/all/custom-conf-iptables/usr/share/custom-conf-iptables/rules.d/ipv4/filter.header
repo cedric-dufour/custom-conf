@@ -1,0 +1,112 @@
+## Default rules/definitions (header)
+
+# Default policies
+# WARNING: By default, hosts should NOT allow packet forwarding (routing)!
+[ -n "${VERBOSE}" ] && echo "INFO: Setting default policies [IPv4]"
+"${IPTABLES}" --table filter --policy INPUT ACCEPT; _exit $?
+"${IPTABLES}" --table filter --policy OUTPUT ACCEPT; _exit $?
+"${IPTABLES}" --table filter --policy FORWARD DROP; _exit $?
+
+# Connection-throttling chains
+# NOTE: This chains are also effective against SYN-Flood attacks
+# WARNING: --hashlimit-name MUST NOT be bigger than 15 characters!
+[ -n "${VERBOSE}" ] && echo "INFO: Creating connection-throttling chains [IPv4]"
+# ... LOG and DROP
+"${IPTABLES}" --table filter --new-chain THROTTLING_DROP; _exit $?
+"${IPTABLES}" --table filter --append THROTTLING_DROP --match recent --name THROTTLING_DROP --rcheck --seconds 300 --jump DROP; _exit $?
+"${IPTABLES}" --table filter --append THROTTLING_DROP --jump LOG --log-level warning --log-prefix '[IPTABLES:THROTTLING_DROP] '; _exit $?
+"${IPTABLES}" --table filter --append THROTTLING_DROP --match recent --name THROTTLING_DROP --set --jump DROP; _exit $?
+# ... TCP (generic)
+"${IPTABLES}" --table filter --new-chain THROTTLING_TCP; _exit $?
+"${IPTABLES}" --table filter --append THROTTLING_TCP --protocol tcp --syn --match hashlimit --hashlimit-name THROTTLING_TCP --hashlimit-mode srcip --hashlimit 12/minute --hashlimit-burst 10 --hashlimit-htable-expire 60000 --hashlimit-htable-gcinterval 6000 --jump ACCEPT; _exit $?
+"${IPTABLES}" --table filter --append THROTTLING_TCP --protocol tcp --syn --jump THROTTLING_DROP; _exit $?
+# ... TCP (high-sensibility; e.g. for SSH, to divert brute-force attacks)
+"${IPTABLES}" --table filter --new-chain THROTTLING_THI; _exit $?
+"${IPTABLES}" --table filter --append THROTTLING_THI --protocol tcp --syn --match hashlimit --hashlimit-name THROTTLING_THI --hashlimit-mode srcip --hashlimit 1/minute --hashlimit-burst 10 --hashlimit-htable-expire 300000 --hashlimit-htable-gcinterval 30000 --jump ACCEPT; _exit $?
+"${IPTABLES}" --table filter --append THROTTLING_THI --protocol tcp --syn --jump THROTTLING_DROP; _exit $?
+# ... TCP (low-sensibility; e.g. for HTTP and HTML IMG tags)
+"${IPTABLES}" --table filter --new-chain THROTTLING_TLO; _exit $?
+"${IPTABLES}" --table filter --append THROTTLING_TLO --protocol tcp --syn --match hashlimit --hashlimit-name THROTTLING_TLO --hashlimit-mode srcip --hashlimit 12/minute --hashlimit-burst 100 --hashlimit-htable-expire 10000 --hashlimit-htable-gcinterval 1000 --jump ACCEPT; _exit $?
+"${IPTABLES}" --table filter --append THROTTLING_TLO --protocol tcp --syn --jump THROTTLING_DROP; _exit $?
+# ... UDP (generic)
+"${IPTABLES}" --table filter --new-chain THROTTLING_UDP; _exit $?
+"${IPTABLES}" --table filter --append THROTTLING_UDP --protocol udp --match hashlimit --hashlimit-name THROTTLING_UDP --hashlimit-mode srcip --hashlimit 600/minute --hashlimit-burst 10 --hashlimit-htable-expire 60000 --hashlimit-htable-gcinterval 6000 --jump ACCEPT; _exit $?
+"${IPTABLES}" --table filter --append THROTTLING_UDP --protocol udp --jump THROTTLING_DROP; _exit $?
+# ... UDP (low-sensibility; e.g. for DNS queries)
+"${IPTABLES}" --table filter --new-chain THROTTLING_ULO; _exit $?
+"${IPTABLES}" --table filter --append THROTTLING_ULO --protocol udp --match hashlimit --hashlimit-name THROTTLING_ULO --hashlimit-mode srcip --hashlimit 600/minute --hashlimit-burst 100 --hashlimit-htable-expire 10000 --hashlimit-htable-gcinterval 1000 --jump ACCEPT; _exit $?
+"${IPTABLES}" --table filter --append THROTTLING_ULO --protocol udp --jump THROTTLING_DROP; _exit $?
+
+# Whitelist loopback interface
+[ -n "${VERBOSE}" ] && echo "INFO: Whitelisting loopback interface [IPv4]"
+"${IPTABLES}" --table filter --append INPUT --in-interface lo --jump ACCEPT
+
+# Drop stealh scan
+[ -n "${VERBOSE}" ] && echo "INFO: Dropping stealth scans [IPv4]"
+# ... LOG and DROP
+"${IPTABLES}" --table filter --new-chain STEALTHSCAN_DROP; _exit $?
+"${IPTABLES}" --table filter --append STEALTHSCAN_DROP --match recent --name STEALTHSCAN_DROP --rcheck --seconds 300 --jump DROP; _exit $?
+"${IPTABLES}" --table filter --append STEALTHSCAN_DROP --jump LOG --log-level warning --log-prefix '[IPTABLES:STEALTHSCAN_DROP] '; _exit $?
+"${IPTABLES}" --table filter --append STEALTHSCAN_DROP --match recent --name STEALTHSCAN_DROP --set --jump DROP; _exit $?
+# ... All of the bits are cleared
+"${IPTABLES}" --table filter --append INPUT --protocol tcp --tcp-flags ALL NONE --jump STEALTHSCAN_DROP; _exit $?
+# ... SYN and FIN are both set
+"${IPTABLES}" --table filter --append INPUT --protocol tcp --tcp-flags SYN,FIN SYN,FIN --jump STEALTHSCAN_DROP; _exit $?
+# ... SYN and RST are both set
+"${IPTABLES}" --table filter --append INPUT --protocol tcp --tcp-flags SYN,RST SYN,RST --jump STEALTHSCAN_DROP; _exit $?
+# ... FIN and RST are both set
+"${IPTABLES}" --table filter --append INPUT --protocol tcp --tcp-flags FIN,RST FIN,RST --jump STEALTHSCAN_DROP; _exit $?
+# ... FIN is the only bit set, without the expected accompanying ACK
+"${IPTABLES}" --table filter --append INPUT --protocol tcp --tcp-flags ACK,FIN FIN --jump STEALTHSCAN_DROP; _exit $?
+# ... PSH is the only bit set, without the expected accompanying ACK
+"${IPTABLES}" --table filter --append INPUT --protocol tcp --tcp-flags ACK,PSH PSH --jump STEALTHSCAN_DROP; _exit $?
+# ... URG is the only bit set, without the expected accompanying ACK
+"${IPTABLES}" --table filter --append INPUT --protocol tcp --tcp-flags ACK,URG URG --jump STEALTHSCAN_DROP; _exit $?
+
+# Whitelist established connections
+[ -n "${VERBOSE}" ] && echo "INFO: Whitelisting established connections [IPv4]"
+# ... INPUT
+"${IPTABLES}" --table filter --append INPUT --match state --state ESTABLISHED,RELATED --jump ACCEPT; _exit $?
+"${IPTABLES}" --table filter --append INPUT --match state --state INVALID --jump DROP; _exit $?
+# ... FORWARD (routing)
+"${IPTABLES}" --table filter --append FORWARD --match state --state ESTABLISHED,RELATED --jump ACCEPT; _exit $?
+"${IPTABLES}" --table filter --append FORWARD --match state --state INVALID --jump DROP; _exit $?
+# ... OUTPUT
+"${IPTABLES}" --table filter --append OUTPUT --match state --state ESTABLISHED,RELATED --jump ACCEPT; _exit $?
+"${IPTABLES}" --table filter --append OUTPUT --match state --state INVALID --jump DROP; _exit $?
+
+# Whitelist IP/ports
+[ -n "${VERBOSE}" ] && echo "INFO: Whitelisting IP/ports [IPv4]"
+# ... parse whitelist
+__list=/etc/iptables/rules.d/ipv4/filter.whitelist
+if [ -e "${__list}" ]; then
+  for __line in $(sed 's/#.*//g;s/ *//g' "${__list}" | grep -v '^$'); do
+    if [ "${__line/:/}" != "${__line}" ]; then __from=${__line%%:*}; __to=${__line##*:}; else __from=${__line}; __to=; fi
+    if [ "${__from/@/}" != "${__from}" ]; then __src=${__from%%@*}; __in=${__from##*@}; else __src=${__from}; __in=; fi
+    if [ "${__to/[0-9]-[0-9]/}" != "${__to}" ]; then __to=${__to/-/:}; fi
+    if [ "${__to##*/}" == 'icmp' ]; then
+      "${IPTABLES}" --table filter --append INPUT ${__in:+--in-interface ${__in}} ${__src:+--source ${__src//./:}} --protocol icmp --icmp-type ${__to%%/*} --jump ACCEPT; _exit $?
+    else
+      "${IPTABLES}" --table filter --append INPUT ${__in:+--in-interface ${__in}} ${__src:+--source ${__src}} ${__to:+--protocol ${__to##*/} --dport ${__to%%/*}} --jump ACCEPT; _exit $?
+    fi
+  done
+fi
+
+# Blacklist IP/ports
+[ -n "${VERBOSE}" ] && echo "INFO: Blacklisting IP/ports [IPv4]"
+# ... LOG and DROP
+"${IPTABLES}" --table filter --new-chain BLACKLIST_DROP; _exit $?
+"${IPTABLES}" --table filter --append BLACKLIST_DROP --match recent --name BLACKLIST_DROP --rcheck --seconds 3600 --jump DROP; _exit $?
+"${IPTABLES}" --table filter --append BLACKLIST_DROP --jump LOG --log-level warning --log-prefix '[IPTABLES:BLACKLIST_DROP] '; _exit $?
+"${IPTABLES}" --table filter --append BLACKLIST_DROP --match recent --name BLACKLIST_DROP --set --jump DROP; _exit $?
+# ... parse blacklist
+__list=/etc/iptables/rules.d/ipv4/filter.blacklist
+if [ -e "${__list}" ]; then
+  for __line in $(sed 's/#.*//g;s/ *//g' "${__list}" | grep -v '^$'); do
+    if [ "${__line/:/}" != "${__line}" ]; then __from=${__line%%:*}; __to=${__line##*:}; else __from=${__line}; __to=; fi
+    if [ "${__from/@/}" != "${__from}" ]; then __src=${__from%%@*}; __in=${__from##*@}; else __src=${__from}; __in=; fi
+    if [ "${__to/[0-9]-[0-9]/}" != "${__to}" ]; then __to=${__to/-/:}; fi
+    "${IPTABLES}" --table filter --append INPUT ${__in:+--in-interface ${__in}} ${__src:+--source ${__src}} ${__to:+--protocol ${__to##*/} --dport ${__to%%/*}} --jump BLACKLIST_DROP; _exit $?
+  done
+fi
+

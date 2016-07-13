@@ -1,0 +1,32 @@
+#!/bin/bash
+## File automatically created/updated [nagios-plugins-custom]
+# EXIT: 0 = OK; 1 = WARNING; 2 = CRITITCAL; 3 = UNKNOWN (ERROR)
+# ECHO: <human-friendly status message> |<performance_data>
+
+# Usage
+[ $# -lt 2 -o "${1##*-}" == 'help' ] && cat << EOF && exit 3
+USAGE: ${0##*/} <controller #> <set #>
+SYNOPSIS: Nagios-compliant command to check LSI (MPT) controller status
+REQUIRED: mpt-status (check: mpt-status --help)
+PERMISSIONS: mpt-status MUST be executed by root (sudo) to succeed
+EOF
+
+# Parameters
+MPT_CONTROLLER=$1
+MPT_SET=$2
+MPT_COMMAND='sudo /usr/sbin/mpt-status'
+
+# Check command
+which "${MPT_COMMAND#* }" >/dev/null
+[ $? -ne 0 ] && echo 'ERROR: Missing controller status monitoring utility (mpt-status)' && exit 3
+
+# Controller status
+MPT_OUTPUT="$(${MPT_COMMAND} -u ${MPT_CONTROLLER} -i ${MPT_SET} -s)"
+MPT_EXIT=$?
+MPT_DATA="$(echo "${MPT_OUTPUT}" | egrep '^(log|phys)_id' | tr ' \n' ',;' | sed 's/;$//')"
+[ ${MPT_EXIT} -eq 0 ] && echo "OK: Controller status is OK |${MPT_DATA}" && exit 0
+[ $(( ${MPT_EXIT} & 1 )) -ne 0 ] && echo "ERROR: Controller status is ABNORMAL |${MPT_DATA}" && exit 3
+[ $(( ${MPT_EXIT} & 22 )) -ne 0 ] && echo "CRITICAL: Controller status is CRITICAL |${MPT_DATA}" && exit 2
+[ $(( ${MPT_EXIT} & 40 )) -ne 0 ] && echo "CRITICAL: Controller status is WARNING |${MPT_DATA}" && exit 1
+echo "ERROR: Controller status is UNEXPECTED |${MPT_DATA}" && exit 3
+

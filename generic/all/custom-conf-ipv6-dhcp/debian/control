@@ -1,0 +1,13 @@
+Source: custom-conf-ipv6-dhcp
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 3.9.7
+
+Package: custom-conf-ipv6-dhcp
+Architecture: all
+Depends: custom-conf, isc-dhcp-client
+Conflicts: custom-conf-ipv6-static
+Description: Custom Configuration Framework - IPv6 <-> (stateful) DHCPv6
+

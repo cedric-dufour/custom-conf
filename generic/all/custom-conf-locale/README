@@ -1,0 +1,9 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-conf-locale
+
+This package provides standard configuration of the system locale settings.
+
+In particular, it addresses standard configuration of:
+ - keyboard, string format, paper size, etc. 
+

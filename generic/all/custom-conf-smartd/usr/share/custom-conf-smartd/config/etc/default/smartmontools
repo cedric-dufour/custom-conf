@@ -1,0 +1,6 @@
+## CUSTOM-CONF: File automatically created/updated [custom-conf-smartd]
+
+# Settings
+start_smartd=yes
+smartd_opts="--interval=86400"
+

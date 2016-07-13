@@ -1,0 +1,9 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-root-env
+
+This package provides standard configuration of the 'root' user environment.
+
+In particular, it addresses standard configuration of:
+ - Bourne-Again Shell (BASH) preferences
+

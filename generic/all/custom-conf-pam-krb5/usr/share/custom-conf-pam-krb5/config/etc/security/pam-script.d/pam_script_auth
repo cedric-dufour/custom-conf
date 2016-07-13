@@ -1,0 +1,8 @@
+#!/bin/sh
+## CUSTOM-CONF: File automatically created/updated [custom-conf-pam-krb5]
+
+
+## Rename misnamed Kerberos 5 credential cache (ticket)
+#  FIX: https://bugs.launchpad.net/ubuntu/+source/lightdm/+bug/1336663
+sh -c "sleep 3; PAM_USER=${PAM_USER} /etc/security/pam-script.d/krb5cc_rename >/dev/null" &
+

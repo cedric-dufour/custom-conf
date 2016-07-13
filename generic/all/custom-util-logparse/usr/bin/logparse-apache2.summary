@@ -1,0 +1,29 @@
+#!/bin/bash
+
+# Usage
+[ "${1##*-}" == 'help' ] && cat << EOF && exit 1
+USAGE: ${0##*/} [-H|--header] <file> ...
+
+SYNOPSIS:
+  Parse Apache2 logs and output traffic summary to stdout
+EOF
+
+# Options
+while [ "${1:0:1}" == '-' ]; do
+  case "${1}" in
+    '-H'|'--header') echo 'CODE|COUNT|SIZEtot[MB]|SIZEavg[kB]|SIZEmax[kB]|TIMEtot[s]|TIMEavg[ms]|TIMEmax[ms]';;
+    *) echo "ERROR: Unsupported option (${1})" >&2;;
+  esac
+  shift
+done
+
+# Parse logs
+[ -z "$*" ] && exit 0
+for code in ALL $(logparse-acat "$@" | fgrep '[access]' | awk -F'|' '{print $3}' | sort -u); do
+  logparse-acat "$@" | fgrep '[access]' | awk -F'|' "
+    BEGIN { OFS=\"|\"; N=0; Sn=0; S=0; Smax=0; Tn=0; T=0; Tmax=0 };
+    { if( \"${code}\"==\"ALL\" || \$3==${code} ) { N+=1; if(\$4>0){ Sn+=1; S+=\$4; if(\$4>Smax) Smax=\$4 }; if(\$5>0){ Tn+=1; T+=\$5; if(\$5>Tmax) Tmax=\$5 } } };
+    END { if(Sn==0){Sn=1}; if(Tn==0){Tn=1}; print \"${code}\", N, S/1000000, S/Sn/1000, Smax/1000, T/1000000, T/Tn/1000, Tmax/1000 }
+"
+done
+

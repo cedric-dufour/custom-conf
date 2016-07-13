@@ -1,0 +1,10 @@
+Template: custom-conf-nrpe/bind-address
+Type: string
+Default:
+Description: Bind to a specific address ?
+ Please specify which address to bind the service to:
+ .
+  - {empty}:   do not bind to any specific address (security risk)
+  - gateway:   bind to the address matching configured gateway/network
+  - <addr>:    actual IP address
+

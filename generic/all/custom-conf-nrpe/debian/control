@@ -1,0 +1,13 @@
+Source: custom-conf-nrpe
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 3.9.7
+
+Package: custom-conf-nrpe
+Architecture: all
+Depends: custom-conf, custom-conf-utils (>= 2016.06.10a), nagios-nrpe-server, nagios-plugins-basic | monitoring-plugins-basic, nagios-plugins-custom (>= 2016.06.10a)
+Suggests: nagios-plugins-standard
+Description: Custom Configuration Framework - NRPE
+

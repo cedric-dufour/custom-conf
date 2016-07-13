@@ -1,0 +1,13 @@
+Source: custom-conf-polkit-nopower
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 3.9.7
+
+Package: custom-conf-polkit-nopower
+Architecture: all
+Depends: custom-conf
+Conflicts: custom-conf-polkit-hibernate
+Description: Custom Configuration Framework - Policy Kit <-> Prevent power control
+

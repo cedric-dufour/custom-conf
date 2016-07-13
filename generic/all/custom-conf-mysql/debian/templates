@@ -1,0 +1,16 @@
+Template: custom-conf-mysql/bind-address
+Type: string
+Default: localhost
+Description: Bind to a specific address ?
+ Please specify which address to bind the service to:
+ .
+  - {empty}:   do not bind to any specific address (security risk)
+  - localhost: bind to the localhost address (private service)
+  - gateway:   bind to the address matching configured gateway/network
+  - <addr>:    actual IP address
+
+Template: custom-conf-mysql/ssl-enable
+Type: boolean
+Default: false
+Description: Enable SSL/TLS (requires valid certificate) ?
+

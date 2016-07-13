@@ -1,0 +1,12 @@
+Source: custom-conf-utils
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 3.9.7
+
+Package: custom-conf-utils
+Architecture: all
+Depends: gcfg (>= 2.0.20160621a)
+Description: Custom Configuration Framework - Utilities
+

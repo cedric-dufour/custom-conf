@@ -1,0 +1,12 @@
+Source: custom-util-pinggw
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 3.9.7
+
+Package: custom-util-pinggw
+Architecture: all
+Depends: coreutils, awk, grep, net-tools, iputils-ping | inetutils-ping
+Description: Custom Configuration Framework - Gateway ping utility
+

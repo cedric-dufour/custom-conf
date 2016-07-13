@@ -1,0 +1,13 @@
+Source: custom-conf-ssh
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 3.9.7
+
+Package: custom-conf-ssh
+Architecture: all
+Depends: custom-conf, custom-conf-utils (>= 2016.06.10a), openssh-server, openssh-client, libpam-systemd | upstart | sysvinit
+Suggests: custom-root-ssh
+Description: Custom Configuration Framework - SSH
+

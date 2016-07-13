@@ -1,0 +1,5 @@
+## CUSTOM-CONF: File automatically created/updated [custom-conf-iptables]
+
+# Include iptables snippets
+run-parts ${VERBOSE:+--verbose} /etc/iptables/rules.d/ipv4/mangle.d
+

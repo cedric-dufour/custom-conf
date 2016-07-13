@@ -1,0 +1,12 @@
+Source: custom-conf-lightdm
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 3.9.7
+
+Package: custom-conf-lightdm
+Architecture: all
+Depends: custom-conf, custom-artwork, lightdm
+Description: Custom Configuration Framework - LightDM
+

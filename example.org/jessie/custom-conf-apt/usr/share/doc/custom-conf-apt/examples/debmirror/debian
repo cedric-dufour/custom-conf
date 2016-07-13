@@ -1,0 +1,15 @@
+# Jessie
+#gpg --no-default-keyring --keyring trustedkeys.gpg --keyserver keys.gnupg.net --recv-keys 2B90D010
+#gpg --no-default-keyring --keyring trustedkeys.gpg --keyserver keys.gnupg.net --recv-keys 518E17E1
+/usr/bin/debmirror $@ \
+"$(dirname $0)/debian.jessie" \
+--method=http \
+--host=ftp.debian.org \
+--root=debian \
+--dist=jessie,jessie-updates \
+--arch=amd64 \
+--section=main,contrib,non-free \
+--diff=none \
+--rsync-extra=none \
+--nosource | /usr/bin/tee "$(dirname $0)/debian.jessie.debmirror.log"
+

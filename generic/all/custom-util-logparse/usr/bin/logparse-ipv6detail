@@ -1,0 +1,65 @@
+#!/usr/bin/perl
+
+use Net::DNS;
+use Geo::IP;
+
+my $oGeoIp = Geo::IP->open( '/usr/share/GeoIP/GeoIPv6.dat' );
+my $oDNSResolver = Net::DNS::Resolver->new;
+
+sub ip6canonical {
+  my $sIP;
+  foreach( split( ':', $_[0] ) ) {
+    $sIP = "$sIP".sprintf( '%.4x', hex( $_ ) );
+  }
+  return( substr( $sIP."00000000000000000000000000000000", 0, 32 ) );
+}
+
+sub ip2hostname {
+  my $sHostname;
+  my $oDNSQuery = $oDNSResolver->query( join( '.', reverse( split( '', ip6canonical( $_[0] ) ) ) ).'.ip6.arpa', 'PTR' );
+  if( $oDNSQuery ) {
+    foreach( $oDNSQuery->answer ) {
+      next unless $_->type eq 'PTR';
+      $sHostname = $_->rdatastr;
+      $sHostname =~ s/\.$//;
+      break;
+    }
+  }
+  return( $sHostname );
+}
+
+sub ip2country {
+  my $sCountry = $oGeoIp->country_code_by_addr_v6( $_[0] );
+  return( $sCountry );
+}
+
+while(<STDIN>) {
+  my $sIP;
+  my $sDetail;
+  if( /(^|\|)([0-9a-f]{4}(:[:0-9a-f]+){1,7})(\||$)/i ) {
+    $sIP = $2;
+    if( $sIP =~ /^f[cd]/i ) {
+      $sDetail = ip2hostname( $sIP );
+      if( !$sDetail ) { $sDetail = 'ULA'; }
+    }
+    elsif( $sIP =~ /^fe8/i ) {
+      $sDetail = 'link-local';
+    }
+    elsif( $sIP =~ /^ff/i ) {
+      $sDetail = 'multicast';
+    }
+    else {
+      foreach( @ARGV ) {
+        if( $sIP =~ /^$_/i ) {
+          $sDetail = ip2hostname( $sIP );
+          if( $sDetail ) { break; }
+        }
+      }
+      if( !$sDetail ) { $sDetail = ip2country( $sIP ); }
+      if( !$sDetail ) { $sDetail = 'unknown'; }
+    }
+    $_ =~ s/$sIP/$sIP ($sDetail)/;
+  }
+  print "$_";
+}
+

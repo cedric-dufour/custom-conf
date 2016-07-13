@@ -1,0 +1,51 @@
+## Default rules/definitions (logwatcherd)
+#
+#  This snippet creates LOGWATCHER chains that can be used along the Log Watcher
+#  Daemon (logwactherd) to implement a simple Intrusion Prevention System (IPS).
+#  Those chains can then be used where appropriate.
+#
+#  source "${IPTABLES_RULESD_DFLT}/filter.logwatcherd"
+#  "${IPTABLES}" --table filter [...] --jump LOGWATCHER
+#
+#  in Log Watcher Daemon configuration:
+#  consumer = Write?file=/proc/net/xt_recent/LOGWATCHER_${ID}&truncate&prefix=%2B
+#
+#  in LOGWATCHER iptables chain:
+#  "${IPTABLES}" --table filter [...] --jump LOGWATCHER
+#  "${IPTABLES}" --table filter \
+#    --insert LOGWATCHER_RULES \
+#    --match recent --name LOGWATCHER_${ID} --rcheck --seconds ${TTL} --hitcount ${HITS} --reap \
+#    --jump LOGWATCHER_{DROP|BL1H|BL24H}
+#
+
+# Log Watcher Daemon chains
+[ -n "${VERBOSE}" ] && echo "INFO: Creating Log Watcher Daemon chains [IPv6]"
+# ... LOG and DROP
+"${IPTABLES}" --table filter --new-chain LOGWATCHER_DROP
+"${IPTABLES}" --table filter --append LOGWATCHER_DROP --match recent --name LOGWATCHER_DROP --rcheck --seconds 3600 --jump DROP
+"${IPTABLES}" --table filter --append LOGWATCHER_DROP --jump LOG --log-level warning --log-prefix '[IPTABLES:LOGWATCHER_DROP] '
+"${IPTABLES}" --table filter --append LOGWATCHER_DROP --match recent --name LOGWATCHER_DROP --set --jump DROP
+
+# ... BLACKLIST
+# ... (24h)
+"${IPTABLES}" --table filter --new-chain LOGWATCHER_BL24H
+"${IPTABLES}" --table filter --append LOGWATCHER_BL24H --match recent --name LOGWATCHER_BL24H --set --jump LOGWATCHER_DROP
+# ... (1h)
+"${IPTABLES}" --table filter --new-chain LOGWATCHER_BL1H
+"${IPTABLES}" --table filter --append LOGWATCHER_BL1H --match recent --name LOGWATCHER_BL1H --set --jump LOGWATCHER_DROP
+
+# ... USER RULES
+"${IPTABLES}" --table filter --new-chain LOGWATCHER_RULES
+# ... (return)
+"${IPTABLES}" --table filter --append LOGWATCHER_RULES --jump RETURN
+
+# ... DETECT and DROP
+"${IPTABLES}" --table filter --new-chain LOGWATCHER
+# ... (blacklist)
+"${IPTABLES}" --table filter --append LOGWATCHER --match recent --name LOGWATCHER_BL24H --rcheck --seconds 86400 --reap --jump LOGWATCHER_DROP
+"${IPTABLES}" --table filter --append LOGWATCHER --match recent --name LOGWATCHER_BL1H --rcheck --seconds 3600 --reap --jump LOGWATCHER_DROP
+# ... (user rules)
+"${IPTABLES}" --table filter --append LOGWATCHER --jump LOGWATCHER_RULES
+# ... (return)
+"${IPTABLES}" --table filter --append LOGWATCHER --jump RETURN
+

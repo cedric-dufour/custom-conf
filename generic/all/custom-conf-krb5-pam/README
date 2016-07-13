@@ -1,0 +1,6 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-conf-krb5-pam
+
+TRANSITIONAL PACKAGE -> custom-conf-pam-krb5
+

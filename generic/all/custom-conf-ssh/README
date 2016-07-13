@@ -1,0 +1,12 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-conf-ssh
+
+This package provides standard configuration of the Secure Shell (SSH), both
+client and server.
+
+In particular, it addresses standard configuration of:
+ - password policy and X11 forwarding according to host type
+ - allowed users/hosts (<-> 'custom-defs-...' package)
+ - listening address/interface
+

@@ -1,0 +1,37 @@
+#!/bin/bash
+## File automatically created/updated [nagios-plugins-custom]
+# EXIT: 0 = OK; 1 = WARNING; 2 = CRITITCAL; 3 = UNKNOWN (ERROR)
+# ECHO: <human-friendly status message> |<performance_data>
+
+# Usage
+[ $# -lt 4  -o "${1##*-}" == 'help' ] && cat << EOF && exit 3
+USAGE: ${0##*/} <ipmi_host> <ipmi_config> <temp_celsius:warning> <temp_celsius:critical> [<dimm#>]
+SYNOPSIS: Nagios-compliant command to check DIMM temperature via IPMI
+REQUIRED: freeipmi-tools (check: ipmi-sensors)
+EOF
+
+# Arguments
+IPMI_HOST=$1
+IPMI_CONFIG="$2"
+TEMP_WARNING=$3
+TEMP_CRITICAL=$4
+TEMP_DIMM=$5
+# ... checks
+which ipmi-sensors >/dev/null
+[ $? -ne 0 ] && echo 'ERROR: Missing IPMI monitoring utility (ipmi-sensors)' && exit 3
+[ ! -r "${IPMI_CONFIG}" ] && echo 'ERROR: Missing/unreadable IPMI configuration' && exit 3
+[ $(( ${TEMP_WARNING} <= 0 )) -ne 0 ] && echo 'ERROR: Warning threshold must be bigger than 0' && exit 3
+[ $(( ${TEMP_CRITICAL} <= 0 )) -ne 0 ] && echo 'ERROR: Critical threshold must be bigger than 0' && exit 3
+[ $(( ${TEMP_WARNING} > ${TEMP_CRITICAL} )) -ne 0 ] && echo 'ERROR: Warning threshold must be lower than critical threshold' && exit 3
+
+# Sensor reading
+SENSOR_OUTPUT="$(ipmi-sensors --config-file="${IPMI_CONFIG}" -h ${IPMI_HOST} | fgrep -i temp | fgrep -i dimm${TEMP_DIMM})"
+[ -z "${SENSOR_OUTPUT}" ] && echo 'ERROR: Missing DIMM temperature' && exit 3
+SENSOR_TEMP=$(echo "${SENSOR_OUTPUT}" | cut -d'|' -f4 | sed 's/[^0-9]*\([0-9]*\).*/\1/g' | sort -nr | head -n 1)
+[ $(( ${SENSOR_TEMP} <= 0 )) -ne 0 ] && echo 'ERROR: Invalid DIMM temperature' && exit 3
+
+# Check
+[ $(( ${SENSOR_TEMP} / ${TEMP_CRITICAL} >= 1 )) -ne 0 ] && echo "CRITICAL: DIMM temperature (${SENSOR_TEMP}C) is bigger than ${TEMP_CRITICAL}C |${SENSOR_TEMP},${TEMP_WARNING},${TEMP_CRITICAL},2" && exit 2
+[ $(( ${SENSOR_TEMP} / ${TEMP_WARNING} >= 1 )) -ne 0 ] && echo "WARNING: DIMM temperature (${SENSOR_TEMP}C) is bigger than ${TEMP_WARNING}C |${SENSOR_TEMP},${TEMP_WARNING},${TEMP_CRITICAL},1" && exit 1
+echo "OK: DIMM temperature (${SENSOR_TEMP}C) is within tolerance |${SENSOR_TEMP},${TEMP_WARNING},${TEMP_CRITICAL},0"
+

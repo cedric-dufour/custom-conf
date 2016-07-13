@@ -1,0 +1,14 @@
+Source: custom-conf-docker
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 3.9.7
+
+Package: custom-conf-docker
+Architecture: all
+Depends: custom-conf, docker-engine
+Recommends: apt-transport-https, custom-conf-apparmor, custom-conf-grsec
+Suggests: custom-conf-apt-docker, bridge-utils, aufs-tools
+Description: Custom Configuration Framework - Docker (Engine)
+

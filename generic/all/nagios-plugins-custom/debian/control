@@ -1,0 +1,12 @@
+Source: nagios-plugins-custom
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 3.9.7
+
+Package: nagios-plugins-custom
+Architecture: all
+Suggests: nagios-plugins-basic, nagios-plugins-standard, lm-sensors, smartmontools, storman, mpt-status, wget, sudo
+Description: Custom Configuration Framework - Nagios plugins
+

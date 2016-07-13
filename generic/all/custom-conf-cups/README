@@ -1,0 +1,11 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-conf-cups
+
+This package provides standard configuration of the CUPS print client.
+
+In particular, it addresses standard configuration of:
+ - CUPS server browsing (<-> 'custom-defs-...' package)
+ - PDF printing
+ - a few AppArmor quirks
+

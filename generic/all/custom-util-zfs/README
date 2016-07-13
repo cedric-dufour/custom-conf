@@ -1,0 +1,6 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-util-zfs
+
+This package contains various utilities to manage the ZFS filesystem.
+

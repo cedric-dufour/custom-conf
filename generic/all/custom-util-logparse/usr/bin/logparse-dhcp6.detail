@@ -1,0 +1,33 @@
+#!/bin/bash
+
+# Usage
+[ "${1##*-}" == 'help' ] && cat << EOF && exit 1
+USAGE: ${0##*/} [-H|--header] <file> ...
+
+SYNOPSIS:
+  Parse DHCPv6 server logs and output attributed leases to stdout
+
+NOTE:
+  In order for the ISC DHCP server to log IPv6 lease information,
+  one MUST add the following stanza to its configuration:
+
+    option dhcp6.macaddr code 193 = string;
+    option dhcp6.leased-address code 194 = string;
+    option dhcp6.macaddr = binary-to-ascii( 16, 8, ":", suffix( option dhcp6.client-id, 6) );
+    option dhcp6.leased-address = binary-to-ascii( 16, 16, ":", substring( suffix( option dhcp6.ia-na, 24 ), 0, 16 ) );
+    log( info, concat( "DHCPV6 ", config-option dhcp6.leased-address, " leased to ", config-option dhcp6.macaddr ) );
+EOF
+
+# Options
+while [ "${1:0:1}" == '-' ]; do
+  case "${1}" in
+    '-H'|'--header') echo 'TIMESTAMP|IPADDR|MACADDR|HOSTNAME';;
+    *) echo "ERROR: Unsupported option (${1})" >&2;;
+  esac
+  shift
+done
+
+# Parse logs
+[ -z "$*" ] && exit 0
+logparse-acat "$@" | fgrep 'DHCPV6 ' | sed 's/^\([^ ]*\) .*DHCPV6 \(.*\) leased to \(.*\)/\1|\2|\3|/;s/ (\(.*\))|/|\1/'
+

@@ -1,0 +1,41 @@
+#!/bin/bash
+## File automatically created/updated [nagios-plugins-custom]
+# EXIT: 0 = OK; 1 = WARNING; 2 = CRITITCAL; 3 = UNKNOWN (ERROR)
+# ECHO: <human-friendly status message> |<performance_data>
+
+# Usage
+[ $# -lt 2  -o "${1##*-}" == 'help' ] && cat << EOF && exit 3
+USAGE: ${0##*/} <percent_load:warning> <percent_load:critical>
+SYNOPSIS: Nagios-compliant command to check (normalized) system load
+EOF
+
+# Arguments
+LOAD_WARNING=${1%\%}
+LOAD_CRITICAL=${2%\%}
+# ... checks
+[ $(( ${LOAD_WARNING} <= 0 )) -ne 0 ] && echo 'ERROR: Warning threshold must be bigger than 0' && exit 3
+[ $(( ${LOAD_CRITICAL} <= 0 )) -ne 0 ] && echo 'ERROR: Critical threshold must be bigger than 0' && exit 3
+[ $(( ${LOAD_WARNING} > ${LOAD_CRITICAL} )) -ne 0 ] && echo 'ERROR: Warning threshold must be lower than critical threshold' && exit 3
+
+# System load
+PROC_OUTPUT=$(awk '{print $1,$2,$3}' /proc/loadavg)
+[ -z "${PROC_OUTPUT}" ] && echo 'ERROR: Missing system load data' && exit 3
+load_short=${PROC_OUTPUT%% *}; PROC_OUTPUT=${PROC_OUTPUT#* }
+load_medium=${PROC_OUTPUT%% *}; PROC_OUTPUT=${PROC_OUTPUT#* }
+load_long=${PROC_OUTPUT%% *}
+[ -z "${load_short}" -o -z "${load_medium}" -o -z "${load_long}" ] && echo 'ERROR: Invalid system load data' && exit 3
+PROC_OUTPUT=$(grep '^processor[^a-z]*:' /proc/cpuinfo | wc -l)
+[ -z "${PROC_OUTPUT}" ] && echo 'ERROR: Missing processors data' && exit 3
+[ ${PROC_OUTPUT} -le 0 ] && echo 'ERROR: Invalid processors data' && exit 3
+load_normalize=${PROC_OUTPUT}
+load_short_n=${load_short%%.*}; load_short_d=${load_short##*.}00; load_short=$(( ( 100*${load_short_n} + 10#${load_short_d:0:2} ) / ${load_normalize} ))
+load_medium_n=${load_medium%%.*}; load_medium_d=${load_medium##*.}00; load_medium=$(( ( 100*${load_medium_n} + 10#${load_medium_d:0:2} ) / ${load_normalize} ))
+load_long_n=${load_long%%.*}; load_long_d=${load_long##*.}00; load_long=$(( ( 100*${load_long_n} + 10#${load_long_d:0:2} ) / ${load_normalize} ))
+LOAD_SYSTEM=${load_medium}
+[ $(( ${LOAD_SYSTEM} < 0 )) -ne 0 ] && echo "ERROR: Invalid system load percentage (${LOAD_SYSTEM})" && exit 3
+
+# Check
+[ $(( ${LOAD_SYSTEM} / ${LOAD_CRITICAL} >= 1 )) -ne 0 ] && echo "CRITICAL: System load (${LOAD_SYSTEM}%) is bigger than ${LOAD_CRITICAL}% |${LOAD_SYSTEM},${LOAD_WARNING},${LOAD_CRITICAL},2;${load_short},${load_medium},${load_long}" && exit 2
+[ $(( ${LOAD_SYSTEM} / ${LOAD_WARNING} >= 1 )) -ne 0 ] && echo "WARNING: System load (${LOAD_SYSTEM}%) is bigger than ${LOAD_WARNING}% |${LOAD_SYSTEM},${LOAD_WARNING},${LOAD_CRITICAL},1;${load_short},${load_medium},${load_long}" && exit 1
+echo "OK: System load (${LOAD_SYSTEM}%) is within tolerance |${LOAD_SYSTEM},${LOAD_WARNING},${LOAD_CRITICAL},0;${load_short},${load_medium},${load_long}"
+

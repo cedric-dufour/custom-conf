@@ -1,0 +1,12 @@
+Source: custom-conf-icedove
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 3.9.7
+
+Package: custom-conf-icedove
+Architecture: all
+Depends: custom-conf, icedove
+Description: Custom Configuration Framework - Icedove
+

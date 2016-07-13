@@ -1,0 +1,10 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-conf-postfix
+
+This package provides standard configuration of the Postfix Mail Transport
+Agent (MTA), as a local(-only) relay.
+
+In particular, it addresses standard configuration of:
+ - relay SMTP server (<-> 'custom-defs-...')
+

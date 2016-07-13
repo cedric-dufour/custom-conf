@@ -1,0 +1,17 @@
+## CUSTOM-CONF: File automatically created/updated [custom-conf-polkit-hibernate]
+
+# Allow users to suspend and hibernate
+[EnableSuspend]
+Identity=unix-user:*
+Action=org.freedesktop.upower.suspend;org.freedesktop.login1.suspend;org.freedesktop.login1.suspend-multiple-sessions
+ResultActive=yes
+ResultInactive=yes
+ResultAny=no
+
+[EnableHibernate]
+Identity=unix-user:*
+Action=org.freedesktop.upower.hibernate;org.freedesktop.login1.hibernate;org.freedesktop.login1.hibernate-multiple-sessions
+ResultActive=yes
+ResultInactive=yes
+ResultAny=no
+

@@ -1,0 +1,11 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-conf-nscd
+
+This package provides standard configuration of the Naming Services Caching
+Daemon (NSCD).
+
+In particular, it addresses standard configuration of:
+ - each name service (passwd, group, hosts, etc.)
+ - daemon quirks
+
