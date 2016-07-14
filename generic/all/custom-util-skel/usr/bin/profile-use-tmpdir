@@ -17,7 +17,7 @@ EOF
 echo "DEBUG: ${0##*/} BEGIN"
 
 # Define/check the parent (root) directory
-[ -e '/scratch' ] && TMPROOT='/scratch' || TMPROOT='/tmp'
+[ -e '/local/scratch' ] && TMPROOT='/local/scratch' || TMPROOT='/tmp'
 [ ! -d "${TMPROOT}" ] && echo "ERROR: Invalid path; not a directory (${TMPROOT})" >&2 && exit 1
 
 # Define/create/check the user directory
@@ -111,12 +111,13 @@ IFS=$'\n'
 # Easy ones
 for resource in \
   ".cache:dir" \
-  ".thumbnails:dir" \
-  ".thunderbird/custom.default/ImapMail:dir" \
-  ".thunderbird/custom.default/urlclassifier3.sqlite:file" \
-  ".thunderbird/custom.default/urlclassifier.pset:file" \
-  ".thunderbird/custom.default/XPC.mfasl:file" \
-  ".thunderbird/custom.default/XUL.mfasl:file" \
+  ".config/chromium/ShaderCache:dir" \
+  ".config/chromium/Temp:dir" \
+  ".config/google-chrome/ShaderCache:dir" \
+  ".config/google-chrome/Temp:dir" \
+  ".config/libreoffice/3/user/temp:dir" \
+  ".config/libreoffice/3/user/uno_packages/cache:dir" \
+  ".config/libreoffice/3/user/extensions/bundled:dir" \
   ".mozilla/firefox/custom.default/startupCache:dir" \
   ".mozilla/firefox/custom.default/thumbnails:dir" \
   ".mozilla/firefox/custom.default/netpredictions.sqlite:file" \
@@ -124,9 +125,6 @@ for resource in \
   ".mozilla/firefox/custom.default/urlclassifier.pset:file" \
   ".mozilla/firefox/custom.default/XPC.mfasl:file" \
   ".mozilla/firefox/custom.default/XUL.mfasl:file" \
-  ".config/libreoffice/3/user/temp:dir" \
-  ".config/libreoffice/3/user/uno_packages/cache:dir" \
-  ".config/libreoffice/3/user/extensions/bundled:dir" \
   ".openoffice.org/3/user/temp:dir" \
   ".openoffice.org/3/user/uno_packages/cache:dir" \
   ".openoffice.org/3/user/extensions/bundled:dir" \
@@ -135,6 +133,12 @@ for resource in \
   ".openoffice/4/user/uno_packages/cache:dir" \
   ".openoffice/4/user/extensions/bundled:dir" \
   ".openoffice/4/user/extensions/tmp:dir" \
+  ".thumbnails:dir" \
+  ".thunderbird/custom.default/ImapMail:dir" \
+  ".thunderbird/custom.default/urlclassifier3.sqlite:file" \
+  ".thunderbird/custom.default/urlclassifier.pset:file" \
+  ".thunderbird/custom.default/XPC.mfasl:file" \
+  ".thunderbird/custom.default/XUL.mfasl:file" \
 ; do
   _relocate_resource "${resource}"
 done

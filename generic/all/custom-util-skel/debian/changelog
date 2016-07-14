@@ -1,3 +1,11 @@
+custom-util-skel (2016.07.14a) UNRELEASED; urgency=low
+
+  * In '/usr/bin/profile-use-tmpdir':
+  - use '/local/scratch' rather than '/scratch'
+  - add relocating rules for Chromium and Google Chrome web browsers
+
+ -- Cedric Dufour <cedric.dufour@ced-network.net>  Thu, 14 Jul 2016 11:45:56 +0200
+
 custom-util-skel (2015.01.16a) UNRELEASED; urgency=low
 
   * Post Tenebras Lux
