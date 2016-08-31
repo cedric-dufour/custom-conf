@@ -1,3 +1,9 @@
+custom-conf-php5-fpm (2016.08.31a) UNRELEASED; urgency=low
+
+  * Pave the way for PHP > 5
+
+ -- Cedric Dufour <cedric.dufour@ced-network.net>  Wed, 31 Aug 2016 14:33:58 +0200
+
 custom-conf-php5-fpm (2016.02.16a) UNRELEASED; urgency=low
 
   * Post Tenebras Lux

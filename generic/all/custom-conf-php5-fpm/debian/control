@@ -7,6 +7,7 @@ Standards-Version: 3.9.7
 
 Package: custom-conf-php5-fpm
 Architecture: all
+Provides: custom-conf-php-fpm
 Depends: custom-conf, php5-fpm
 Recommends: custom-conf-php5-apache2, libapache2-mod-fastcgi
 Description: Custom Configuration Framework - PHP5 <-> FPM
