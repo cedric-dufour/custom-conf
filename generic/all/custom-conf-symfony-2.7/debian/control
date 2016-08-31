@@ -7,8 +7,8 @@ Standards-Version: 3.9.7
 
 Package: custom-conf-symfony-2.7
 Architecture: all
-Depends: custom-conf, custom-conf-php5-apache2 | custom-conf-php5-fpm, php5-json
-Suggests: php5-apcu, php5-mysql, php5-pgsql
+Depends: custom-conf, custom-conf-php-apache | custom-conf-php-fpm, php-json | php5-json
+Suggests: php5-apcu, php-mysql | php5-mysql, php-pgsql | php5-pgsql
 Breaks: custom-conf-symfony-lts (<< 2016.06.20a)
 Replaces: custom-conf-symfony-lts (<< 2016.06.20a)
 Description: Custom Configuration Framework - PHP/Symfony (version 2.7)

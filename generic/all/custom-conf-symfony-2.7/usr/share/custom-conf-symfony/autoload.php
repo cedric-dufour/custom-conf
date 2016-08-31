@@ -16,7 +16,7 @@ if (!defined('PHP_SYMFONY_CONFIG')) {
   } elseif(array_key_exists('PHP_SYMFONY_CONFIG', $_ENV)) {
     define('PHP_SYMFONY_CONFIG', $_ENV['PHP_SYMFONY_CONFIG']);
   } else {
-    define('PHP_SYMFONY_CONFIG', '/etc/php5/symfony');
+    define('PHP_SYMFONY_CONFIG', '/etc/php/symfony');
   }
 }
 if (!defined('PHP_SYMFONY_ENV')) {

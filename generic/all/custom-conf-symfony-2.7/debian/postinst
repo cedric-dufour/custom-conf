@@ -9,8 +9,8 @@ custom-conf-install "${PKGNAME}" "/usr/share/${PKGNAME}/config" || exit 1
 adduser --system --home /opt/symfony --no-create-home --shell /bin/false --gecos 'PHP/Symfony Framework' --disabled-login symfony
 
 # Fine-tune permissions
-chmod 0640 /etc/php5/symfony/parameters.yml
-chown root:www-data /etc/php5/symfony/parameters.yml
+chmod 0640 /etc/php/symfony/parameters.yml
+chown root:www-data /etc/php/symfony/parameters.yml
 chmod 2370 /var/log/php/symfony
 chown www-data:adm /var/log/php/symfony
 chmod 2350 /var/cache/php/symfony
@@ -19,10 +19,10 @@ chown www-data:www-data /var/cache/php/symfony
 [ "$(stat -c '%U' /opt/symfony-2.7)" != 'symfony' ] && chown -R symfony:nogroup /opt/symfony-2.7
 
 # Fine-tune configuration
-if fgrep -q '%{CUSTOM_CONF_SYMFONY_SECRET}' /etc/php5/symfony/parameters.yml; then
+if fgrep -q '%{CUSTOM_CONF_SYMFONY_SECRET}' /etc/php/symfony/parameters.yml; then
   echo "NOTICE[${PKGNAME}]: Generating secret token; this may take some time..."
   CUSTOM_CONF_SYMFONY_SECRET="$(dd if=/dev/random bs=512 count=1 2>/dev/null | sha1sum | awk '{print $1}')"
-  gsed "s|%{CUSTOM_CONF_SYMFONY_SECRET}|${CUSTOM_CONF_SYMFONY_SECRET}|" /etc/php5/symfony/parameters.yml
+  gsed "s|%{CUSTOM_CONF_SYMFONY_SECRET}|${CUSTOM_CONF_SYMFONY_SECRET}|" /etc/php/symfony/parameters.yml
 fi
 
 # Additional actions
