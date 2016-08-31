@@ -7,6 +7,7 @@ Standards-Version: 3.9.7
 
 Package: custom-conf-php5-apache2
 Architecture: all
+Provides: custom-conf-php-apache
 Depends: custom-conf, custom-conf-apache2, libapache2-mod-php5
 Breaks: custom-conf-php5 (<< 2016.07.05a)
 Replaces: custom-conf-php5 (<< 2016.07.05a)
