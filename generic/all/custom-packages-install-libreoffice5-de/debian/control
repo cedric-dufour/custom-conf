@@ -1,0 +1,12 @@
+Source: custom-packages-install-libreoffice5-de
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 3.9.7
+
+Package: custom-packages-install-libreoffice5-de
+Architecture: all
+Depends: libreoffice5.1-de, libreoffice5.1-dict-de, libobasis5.1-de-help
+Description: Custom Configuration Framework - LibreOffice 5.1, German language pack (original upstream packages)
+

@@ -1,0 +1,6 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-packages-install-libreoffice5-fr
+
+This meta-package installs LibreOffice French (fr) translation dependencies.
+
