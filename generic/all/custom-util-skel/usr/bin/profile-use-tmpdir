@@ -118,6 +118,9 @@ for resource in \
   ".config/libreoffice/3/user/temp:dir" \
   ".config/libreoffice/3/user/uno_packages/cache:dir" \
   ".config/libreoffice/3/user/extensions/bundled:dir" \
+  ".config/libreoffice/4/user/uno_packages/cache:dir" \
+  ".config/libreoffice/4/user/extensions/bundled:dir" \
+  ".config/libreoffice/4/user/extensions/tmp:dir" \
   ".mozilla/firefox/custom.default/startupCache:dir" \
   ".mozilla/firefox/custom.default/thumbnails:dir" \
   ".mozilla/firefox/custom.default/netpredictions.sqlite:file" \
