@@ -1,3 +1,10 @@
+custom-util-skel (2016.09.07a) UNRELEASED; urgency=low
+
+  * In '/usr/bin/profile-use-tmpdir':
+  - add missing relocating rule for LibreOffice >= 4
+
+ -- Cedric Dufour <cedric.dufour@ced-network.net>  Wed, 07 Sep 2016 16:17:21 +0200
+
 custom-util-skel (2016.09.02a) UNRELEASED; urgency=low
 
   * In '/usr/bin/profile-use-tmpdir':
