@@ -15,6 +15,7 @@
 #         - MEDIUM (<= 128-bit) ciphers: might be a bit too early to shoot them out
 
 # SSL servers
+# NOTE: There SHOULD be one "SSL" VirtualHost, which MUST be the first defined (to catch non-SNI clients)
 <Macro SSL>
 
   SSLEngine on
@@ -24,6 +25,24 @@
   SSLCertificateFile /etc/apache2/ssl/cert.pem
   SSLCertificateKeyFile /etc/apache2/ssl/key.pem
   SSLCertificateChainFile /etc/apache2/ssl/cachain.pem
+  SSLCACertificatePath /etc/ssl/certs/
+
+  # Clients quirks
+  BrowserMatch "MSIE [2-6]" nokeepalive ssl-unclean-shutdown downgrade-1.0 force-response-1.0
+  BrowserMatch "MSIE [17-9]" ssl-unclean-shutdown
+
+</Macro>
+
+# SSL along SNI (RFC 6066) servers
+# NOTE: There MAY be multiple "SSL_SNI" VirtualHost(s), which MUST come after their "SSL" sibling (see above)
+<Macro SSL_SNI>
+
+  # NOTE: VirtualHost MUST define its own SSLCertificate* material
+  SSLEngine on
+  SSLStrictSNIVHostCheck on
+  SSLProtocol ALL -SSLv2 -SSLv3
+  SSLCipherSuite "EECDH+aECDSA:EECDH+aRSA:EDH+aRSA:!aNULL:!MEDIUM:!LOW:!EXP:!eNULL:!PSK:!SRP:@STRENGTH"
+  SSLHonorCipherOrder on
   SSLCACertificatePath /etc/ssl/certs/
 
   # Clients quirks
@@ -46,16 +65,19 @@
 
 ## Virtual Host
 NameVirtualHost *:443
-<VirtualHost *:443>
-  ServerName https://lanhost
-  %{CUSTOM_CONF_APACHE2_ALIAS_IPV4}
-  ServerAdmin webmaster@%{CUSTOM_CONF_DOMAIN}
-  Use SSL
-</VirtualHost>
-<VirtualHost *:443>
-  ServerName https://ip6-lanhost
-  %{CUSTOM_CONF_APACHE2_ALIAS_IPV6}
-  ServerAdmin webmaster@%{CUSTOM_CONF_DOMAIN}
-  Use SSL
-</VirtualHost>
+
+# Sample VirtualHost
+# NOTE: Make sure to use the 'https://' prefix as ServerName !
+#<VirtualHost *:443>
+#  ServerName https://lanhost
+#  %{CUSTOM_CONF_APACHE2_ALIAS_IPV4}
+#  ServerAdmin webmaster@%{CUSTOM_CONF_DOMAIN}
+#  Use SSL
+#</VirtualHost>
+#<VirtualHost *:443>
+#  ServerName https://ip6-lanhost
+#  %{CUSTOM_CONF_APACHE2_ALIAS_IPV6}
+#  ServerAdmin webmaster@%{CUSTOM_CONF_DOMAIN}
+#  Use SSL
+#</VirtualHost>
 
