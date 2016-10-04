@@ -1,3 +1,9 @@
+custom-conf-logwatcherd (2016.10.04a) UNRELEASED; urgency=low
+
+  - Improve 'openvpn_tls' rule (and catch OpenVPN 'tls-auth' failures)
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Tue, 04 Oct 2016 12:51:08 +0200
+
 custom-conf-logwatcherd (2016.06.03a) UNRELEASED; urgency=low
 
   * Post Tenebras Lux
