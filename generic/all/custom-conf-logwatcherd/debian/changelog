@@ -1,3 +1,9 @@
+custom-conf-logwatcherd (2016.10.09a) UNRELEASED; urgency=low
+
+  - Added 'postfix_conn' rule (to catch connection failures)
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Sun, 09 Oct 2016 15:00:58 +0200
+
 custom-conf-logwatcherd (2016.10.04a) UNRELEASED; urgency=low
 
   - Improve 'openvpn_tls' rule (and catch OpenVPN 'tls-auth' failures)
