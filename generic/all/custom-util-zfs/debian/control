@@ -7,6 +7,6 @@ Standards-Version: 3.9.7
 
 Package: custom-util-zfs
 Architecture: all
-Depends: debian-zfs
+Depends: zfsutils
 Description: Custom Configuration Framework - ZFS utilities
 
