@@ -2,7 +2,7 @@
 [ "${1}" != 'remove' ] && exit 0
 
 # Cleanup GPU mask
-gsed '|^CUDA_VISIBLE_DEVICES=|d' /etc/environment
+gsed '/^CUDA_VISIBLE_DEVICES=/d' /etc/environment
 
 # Exit
 exit 0
