@@ -1,0 +1,6 @@
+custom-packages-install-flash (2016.11.08a) UNRELEASED; urgency=low
+
+  * Post Tenebras Lux
+  - Version: NPAPI 11.2.202.644 / PPAPI 23.0.0.207
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Tue, 08 Nov 2016 14:23:08 +0100
