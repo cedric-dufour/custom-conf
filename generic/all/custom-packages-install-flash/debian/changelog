@@ -1,3 +1,9 @@
+custom-packages-install-flash (2016.11.09a) UNRELEASED; urgency=low
+
+  * Fix plugin path for Chromium browser
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Wed, 09 Nov 2016 19:02:15 +0100
+
 custom-packages-install-flash (2016.11.08a) UNRELEASED; urgency=low
 
   * Post Tenebras Lux

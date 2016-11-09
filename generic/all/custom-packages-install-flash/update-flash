@@ -48,7 +48,7 @@ while [ -n "${1}" ]; do
 done
 
 # Validation
-[ -z "${NPAPI_TAR}" -a -z "${PPAPI_TAR}" ] && echo "ERROR: You must supply at least either one (NPAPI or PPAPI) tarball" >&2 && exit 1
+[ -z "${NPAPI_TAR}" -a -z "${PPAPI_TAR}" ] && echo "ERROR: You must supply at least one tarball (NPAPI or PPAPI)" >&2 && exit 1
 [ ! -d "${DPKG_DIR}/usr/lib/custom-packages-install-flash" ] && echo "ERROR: Invalid Debian packaging directory (${DPKG_DIR})" >&2 && exit 1
 
 
@@ -151,6 +151,7 @@ INFO: You can now edit the changelog and build the Debian package
   cd '${DPKG_DIR}'
   ${EDITOR:-vi} ./debian/changelog
   dpkg-buildpackage -us -uc -b
+WARNING: Do not forget to CLEAN-UP aftewards!
   dh_clean
   ./cleanup-flash
 EOF
