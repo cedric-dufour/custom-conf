@@ -1,0 +1,62 @@
+#!/bin/bash
+
+## Usage
+[ $# -lt 1 -o "${1##*-}" == 'help' ] && cat << EOF && exit 1
+USAGE: ${0##*/} [options] <domain>
+
+SYNOPSIS:
+  Display given LibVirt domain process statistics
+
+OPTIONS:
+  -i, --interval <interval>
+    Show rates on given interval period (in seconds)
+
+  -l, --level <level>
+    Information level (0=standard, 1=advanced, 2=expert)
+EOF
+
+# Arguments
+ARG_DOMAIN=
+OPT_INTERVAL=
+OPT_LEVEL=0
+while [ -n "${1}" ]; do
+  case "${1}" in
+
+    '-i'|'--interval')
+      shift
+      [ -z "${1}" ] && echo "ERROR: Missing option parameter (<interval>)" >&2 && exit 1
+      OPT_INTERVAL="${1}"
+      ;;
+
+    '-l'|'--level')
+      shift
+      [ -z "${1}" ] && echo "ERROR: Missing option parameter (<level>)" >&2 && exit 1
+      OPT_LEVEL="${1}"
+      ;;
+
+    -*)
+      echo "ERROR: Invalid option (${1})" >&2 && exit 1
+      ;;
+
+    *)
+      [ -n "${ARG_DOMAIN}" ] && echo "ERROR: Invalid argument (${1})" >&2 && exit 1
+      ARG_DOMAIN="${1}"
+      ;;
+
+  esac
+  shift
+done
+
+
+## LibVirt info
+VIRSH_PID="$(pgrep -f "kvm -name ${ARG_DOMAIN} ")"
+[ -z "${VIRSH_PID}" ] && echo "ERROR: Failed to retrieve domain process (${ARG_DOMAIN})" >&2 && exit 1
+
+
+## GUStat
+if [ -z "${OPT_INTERVAL}" ]; then
+  gustat -p 0 -j 120 -s -P ${VIRSH_PID} -Pu -Pul ${OPT_LEVEL}
+else
+  gustat -c -i ${OPT_INTERVAL} -o -p 0 -j 120 -s -P ${VIRSH_PID} -Pu -Pul ${OPT_LEVEL}
+fi
+

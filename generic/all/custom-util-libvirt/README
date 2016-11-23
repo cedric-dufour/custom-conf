@@ -1,0 +1,7 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-util-libvirt
+
+This package contains various utilities to deal with LibVirt/KVM virtualization
+stack.
+

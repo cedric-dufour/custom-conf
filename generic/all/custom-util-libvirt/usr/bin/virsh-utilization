@@ -1,0 +1,69 @@
+#!/bin/bash
+
+## Usage
+[ "${1##*-}" == 'help' ] && cat << EOF && exit 1
+USAGE: ${0##*/} [options]
+
+SYNOPSIS:
+  Display LibVirt hardware resources utilization:
+   - CPU, non-threaded
+   - RAM, in MiB
+
+OPTIONS:
+  -b, --batch
+    Machine friendly output
+EOF
+
+# Arguments
+OPT_BATCH=
+while [ -n "${1}" ]; do
+  case "${1}" in
+
+    '-b'|'--batch')
+      OPT_BATCH='yes'
+      ;;
+
+    -*)
+      echo "ERROR: Invalid option (${1})" >&2 && exit 1
+      ;;
+
+    *)
+      echo "ERROR: Invalid argument (${1})" >&2 && exit 1
+      ;;
+
+  esac
+  shift
+done
+
+
+## Query
+
+# Node
+VIRSH_NODEINFO="$(virsh nodeinfo)"
+VIRSH_NODE_CPU=$(echo "${VIRSH_NODEINFO}" | grep -i '^CPU(s):' | sed 's/^.*:\s*\([0-9]*\).*$/\1/')
+VIRSH_NODE_THREADS=$(echo "${VIRSH_NODEINFO}" | grep -i '^Thread(s) per core:' | sed 's/^.*:\s*\([0-9]*\).*$/\1/')
+VIRSH_NODE_CPU=$(( ${VIRSH_NODE_CPU} / ${VIRSH_NODE_THREADS} ))
+VIRSH_NODE_RAM=$(echo "${VIRSH_NODEINFO}" | grep -i '^Memory size:' | sed 's/^.*:\s*\([0-9]*\).*$/\1/')
+
+# VMs
+VIRSH_DOM_CPU=0
+VIRSH_DOM_RAM=0
+for virsh_dom in $(virsh list --name); do
+  [ -z "${virsh_dom}" ] && continue
+  VIRSH_DOMINFO="$(virsh dominfo ${virsh_dom})"
+  VIRSH_DOM_CPU=$(( ${VIRSH_DOM_CPU} + $(echo "${VIRSH_DOMINFO}" | grep -i '^CPU(s):' | sed 's/^.*:\s*\([0-9]*\).*$/\1/') ))
+  VIRSH_DOM_RAM=$(( ${VIRSH_DOM_RAM} + $(echo "${VIRSH_DOMINFO}" | grep -i '^Max memory:' | sed 's/^.*:\s*\([0-9]*\).*$/\1/') ))
+done
+
+
+## Display
+OUT_FORMAT='%d %d %d %d %d %d'
+[ -z "${OPT_BATCH}" ] && OUT_FORMAT='CPU: %d/%d (%d%%) - RAM: %d/%d (%d%%)'
+printf "${OUT_FORMAT}\n" \
+  ${VIRSH_DOM_CPU} \
+  ${VIRSH_NODE_CPU} \
+  $(( 100 * ${VIRSH_DOM_CPU} / ${VIRSH_NODE_CPU} )) \
+  $(( ${VIRSH_DOM_RAM} / 1024 )) \
+  $(( ${VIRSH_NODE_RAM} / 1024 )) \
+  $(( 100 * ${VIRSH_DOM_RAM} / ${VIRSH_NODE_RAM} ))
+
