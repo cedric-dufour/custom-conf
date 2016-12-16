@@ -4,8 +4,8 @@
 
 ## LightDM display setup script
 
-# Disable DPMS (prevent X86Wakeup bugs; bug #10915)
-#xset -dpms
+# Shorten DPMS timeout on login screen
+xset dpms 60 180 300
 
 # Disable system beep
 xset -b b off
