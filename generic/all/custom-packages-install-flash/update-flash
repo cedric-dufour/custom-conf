@@ -63,10 +63,10 @@ trap "rm -rf '${SRC_DIR}'" EXIT
 ## NPAPI
 if [ -n "${NPAPI_TAR}" ]; then
   [ ! -r "${NPAPI_TAR}" ] && echo "ERROR: Missing/unreadable NPAPI tarball (${NPAPI_TAR})" >&2 && exit 1
-  echo "INFO: Processing NPAPI Flash tarball (${PPAPI_TAR})"
+  echo "INFO: Processing NPAPI Flash tarball (${NPAPI_TAR})"
 
   # Clean-up
-  find "${DPKG_DIR}/usr" -not -type d -not -path "*/ppapi/*" -not -name '.gitplaceholder' -delete
+  find "${DPKG_DIR}/usr" -not -type d -not -path "*/npapi/*" -not -name '.gitplaceholder' -delete
 
   # Extract tarball content
   tar -C "${SRC_DIR}/npapi" -xzf "${NPAPI_TAR}"; e=$?
