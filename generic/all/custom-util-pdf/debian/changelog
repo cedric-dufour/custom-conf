@@ -1,3 +1,10 @@
+custom-util-pdf (2017.01.13a) UNRELEASED; urgency=low
+
+  * New 'scan-easy' replaces 'scan-dump2*' scripts, adds auto-contrast,
+    preview, send by e-mail and direct print
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Fri, 13 Jan 2017 17:20:25 +0100
+
 custom-util-pdf (2016.03.16a) UNRELEASED; urgency=low
 
   * Post Tenebras Lux
