@@ -1,3 +1,9 @@
+custom-util-pdf (2017.01.13b) UNRELEASED; urgency=low
+
+  * Improved 'scan-easy' to use sensible defaults and allow no-option/no-argument use
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Fri, 13 Jan 2017 19:45:16 +0100
+
 custom-util-pdf (2017.01.13a) UNRELEASED; urgency=low
 
   * New 'scan-easy' replaces 'scan-dump2*' scripts, adds auto-contrast,

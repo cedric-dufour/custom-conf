@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Usage
-[ $# -lt 1 -o "${1##*-}" == 'help' ] && cat << EOF && exit 1
+[ "${1##*-}" == 'help' ] && cat << EOF && exit 1
 USAGE:
   ${0##*/} [options] { <output.{tif|pdf|ps}> | <printer> | <email> }
 
@@ -9,6 +9,7 @@ SYNOPSIS:
   Scans (multiple) page(s) from scanner (optionally specified by device ID) to TIF file.
 
 OPTIONS:
+  -D   --name           Document name                  [<auto>]
   -N   --pages          Page quantity                  [1]
   -C   --color          Color mode {Color|Gray|BW}     [Color]
   -R   --resolution     Resolution (DPI)               [300]
@@ -23,7 +24,6 @@ OPTIONS:
   -Pn  --copies         Copies quantity                [1]
   -E   --email          Send output by e-mail
   -W   --preview        (Pre-)view document output
-  -Id  --id             Document ID (name)             [<auto>]
   -So  --options-scan   Scan (scanimage) options       []
   -Io  --options-image  Image (convert) options        []
   -Po  --options-print  Printer (lp) options           [-o sides=two-sided-long-edge]
@@ -31,6 +31,7 @@ EOF
 
 # Arguments
 MY_OUTPUT=
+MY_NAME=
 MY_PAGES='1'
 MY_COLOR='Color'
 MY_RESOLUTION='300'
@@ -44,13 +45,13 @@ MY_QUALITY='50'
 MY_DESTINATION='file'
 MY_COPIES='1'
 MY_PREVIEW=
-MY_ID="$(date +'%Y%m%dT%H%M%S')-$(whoami).${0##*/}"
 MY_OPTIONS_SCAN=
 MY_OPTIONS_IMAGE=
 MY_OPTIONS_PRINT='-o sides=two-sided-long-edge'
 EXT_OPTIONS=
 while [ -n "${1}" ]; do
   case "${1}" in
+    -D|--name) shift; MY_NAME="${1}" ;;
     -N|--pages) shift; MY_PAGES=$(( 0 + ${1} )) ;;
     -C|--color) shift; MY_COLOR=${1} ;;
     -R|--resolution) shift; MY_RESOLUTION=$(( 0 + ${1} )) ;;
@@ -65,7 +66,6 @@ while [ -n "${1}" ]; do
     -Pn|--copies) shift; MY_COPIES=$(( 0 + ${1} )) ;;
     -E|--email) MY_DESTINATION='email' ;;
     -W|--preview) MY_PREVIEW='yes' ;;
-    -Id|--id) shift; MY_ID="${1}" ;;
     -So|--options-scan) shift; MY_OPTIONS_SCAN="${1}" ;;
     -Io|--options-image) shift; MY_OPTIONS_IMAGE="${1}" ;;
     -Po|--options-print) shift; MY_OPTIONS_PRINT="${1}" ;;
@@ -77,7 +77,6 @@ while [ -n "${1}" ]; do
   shift
 done
 # ... check
-[ -z "${MY_OUTPUT}" ] && echo 'ERROR: Missing file/printer argument' >&2 && exit 1
 [ ${MY_PAGES} -lt 1 ] && echo "ERROR: Invalid pages quantity (${MY_PAGES})" >&2 && exit 1
 [ ${MY_RESOLUTION} -lt 25 ] && echo "ERROR: Invalid resolution (${MY_RESOLUTION})" >&2 && exit 1
 [ ${MY_WIDTH} -lt 10 ] && echo "ERROR: Invalid width (${MY_WIDTH})" >&2 && exit 1
@@ -87,10 +86,6 @@ done
 
 
 # Parameters
-# ... temporary files prefix
-MY_FILETMP="${TMP:-/tmp}/${MY_ID}"
-touch "${MY_FILETMP}.tif" && chmod 600 "${MY_FILETMP}.tif"
-touch "${MY_FILETMP}.pdf" && chmod 600 "${MY_FILETMP}.pdf"
 # ... images
 MY_COMPRESSION=
 MY_CONVERT=
@@ -107,6 +102,12 @@ MY_OUTPUT_PS=
 case "${MY_DESTINATION}" in
 
   'file')
+    if [ -z "${MY_OUTPUT}" ]; then
+      [ -z "${MY_NAME}" ] && MY_NAME="$(date +'%Y%m%d%H%M%S')-$(whoami).scan"
+      MY_OUTPUT="${MY_NAME}.pdf"
+    elif [ -z "${MY_NAME}" ]; then
+      MY_NAME="${MY_OUTPUT##*/}"; MY_NAME="${MY_NAME%.*}"
+    fi
     MY_FORMAT="${MY_OUTPUT##*.}"; MY_FORMAT="${MY_FORMAT,,}"
     case "${MY_FORMAT}" in
 
@@ -117,14 +118,12 @@ case "${MY_DESTINATION}" in
       'pdf')
         # NOTE: 'tiff2pdf' is plain buggy, so we MUST use 'convert' twice; let's not loose quality on Tiff file
         MY_COMPRESSION='zip:p9'
-        MY_OUTPUT_TIF="${MY_FILETMP}.tif"
         MY_OUTPUT_PDF="${MY_OUTPUT}"
         ;;
 
       'ps')
         # NOTE: 'tiff2ps -3' will allow 'zip:p9' to passthrough without transcoding
         MY_COMPRESSION='zip:p9'
-        MY_OUTPUT_TIF="${MY_FILETMP}.tif"
         MY_OUTPUT_PS="${MY_OUTPUT}"
         ;;
 
@@ -135,22 +134,31 @@ case "${MY_DESTINATION}" in
     ;;
 
   'print')
+    [ -z "${MY_OUTPUT}" ] && MY_OUTPUT="${PRINTER}"
+    [ -z "${MY_OUTPUT}" ] && echo 'ERROR: Missing printer name argument' >&2 && exit 1
     # NOTE: We'll pipe 'tiff2ps -3' directly to 'lp'
     MY_COMPRESSION='zip:p9'
     MY_FORMAT=
-    MY_OUTPUT_TIF="${MY_FILETMP}.tif"
-    [ -n "${MY_PREVIEW}" ] && MY_PREVIEW="${MY_OUTPUT_TIF}"
+    [ -n "${MY_PREVIEW}" ] && MY_PREVIEW="tif"
     ;;
 
   'email')
+    [ -z "${MY_OUTPUT}" ] && MY_OUTPUT="$(whoami)"
     # NOTE: Let's assume PDF is the most sensible format
     MY_FORMAT='pdf'
-    MY_OUTPUT_TIF="${MY_FILETMP}.tif"
-    MY_OUTPUT_PDF="${MY_FILETMP}.pdf"
-    [ -n "${MY_PREVIEW}" ] && MY_PREVIEW="${MY_OUTPUT_PDF}"
+    [ -n "${MY_PREVIEW}" ] && MY_PREVIEW="pdf"
     ;;
 
 esac
+# ... files
+[ -z "${MY_NAME}" ] && MY_NAME="$(date +'%Y%m%d%H%M%S')-$(whoami).scan"
+MY_FILETMP="${TMP:-/tmp}/${MY_NAME}"
+touch "${MY_FILETMP}.tif" && chmod 600 "${MY_FILETMP}.tif"
+touch "${MY_FILETMP}.pdf" && chmod 600 "${MY_FILETMP}.pdf"
+[ -z "${MY_OUTPUT_TIF}" ] && MY_OUTPUT_TIF="${MY_FILETMP}.tif"
+[ -z "${MY_OUTPUT_PDF}" ] && MY_OUTPUT_PDF="${MY_FILETMP}.pdf"
+[ "${MY_PREVIEW}" == 'tif' ] && MY_PREVIEW="${MY_OUTPUT_TIF}"
+[ "${MY_PREVIEW}" == 'pdf' ] && MY_PREVIEW="${MY_OUTPUT_PDF}"
 
 # Check dependencies
 [ -z "$(which scanimage)" ] && echo "ERROR: 'scanimage' was not found" >&2 && exit 1
@@ -193,7 +201,7 @@ case "${MY_FORMAT}" in
 
   'ps')
     [ -z "$(which tiff2ps)" ] && echo "ERROR: 'tiff2ps' was not found" >&2 && exit 1
-    tiff2ps -3 -t "${MY_ID}" "${MY_OUTPUT_TIF}" -O "${MY_OUTPUT_PS}"
+    tiff2ps -3 -t "${MY_NAME}" "${MY_OUTPUT_TIF}" -O "${MY_OUTPUT_PS}"
     ;;
 
 esac
@@ -203,8 +211,10 @@ if [ -n "${MY_PREVIEW}" ]; then
   echo '(Pre-)view output...'
   file "${MY_PREVIEW}"
   ls -lh "${MY_PREVIEW}"
-  ${VIEWER:-evince} "${MY_PREVIEW}" &
-  echo -n 'Please press <ENTER> to continue (or <CTRL-C> to abort)' && read
+  ${VIEWER:-evince} "${MY_PREVIEW}" >/dev/null 2>&1 &
+  if [ "${MY_DESTINATION}" != 'file' ]; then
+    echo -n 'Please press <ENTER> to continue (or <CTRL-C> to abort)' && read
+  fi
 fi
 
 # Handle destination
@@ -213,12 +223,12 @@ case "${MY_DESTINATION}" in
   'print')
     [ -z "$(which tiff2ps)" ] && echo "ERROR: 'tiff2ps' was not found" >&2 && exit 1
     [ -z "$(which lp)" ] && echo "ERROR: 'lp' was not found" >&2 && exit 1
-    tiff2ps -3 "${MY_OUTPUT_TIF}" | lp -i "${MY_ID}" -n ${MY_COPIES} -o media=${MY_MEDIA,,} ${MY_OPTIONS_PRINT} -d ${MY_OUTPUT}
+    tiff2ps -3 "${MY_OUTPUT_TIF}" | lp -i "${MY_NAME}" -n ${MY_COPIES} -o media=${MY_MEDIA,,} ${MY_OPTIONS_PRINT} -d ${MY_OUTPUT}
     ;;
 
   'email')
     [ -z "$(which mutt)" ] && echo "ERROR: 'mutt' was not found" >&2 && exit 1
-    echo "${MY_ID}" | mutt -a "${MY_OUTPUT_PDF}" -s "${MY_ID}" -- "${MY_OUTPUT}"
+    echo "Please find attached the following PDF file: ${MY_NAME}.${MY_FORMAT}" | mutt -a "${MY_OUTPUT_PDF}" -s "${MY_NAME}" -- "${MY_OUTPUT}"
     ;;
 
 esac

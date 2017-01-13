@@ -9,5 +9,6 @@ Package: custom-util-pdf
 Architecture: all
 Depends: imagemagick | graphicsmagick-imagemagick-compat, libgxps-utils, libtiff-tools, libxml2-utils, poppler-utils, unzip
 Recommends: mutt, sane-utils
+Suggests: evince
 Description: Custom Configuration Framework - PDF utilities
 
