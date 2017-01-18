@@ -8,7 +8,7 @@
 ## Docker-specific rules
 
 # Syslog traffic (to host syslog daemon)
-"${IPTABLES}" --table filter --append FORWARD --in-interface docker1 --out-interface docker0 --destination 192.168.213.1 --protocol udp --dport 514 --jump
+"${IPTABLES}" --table filter --append FORWARD --in-interface docker1 --out-interface docker0 --destination 192.168.213.1 --protocol udp --dport 514 --jump %{CUSTOM_CONF_DOCKER_IPTABLES_SYSLOG_TARGET}
 
 # Inbound traffic (to containers published ports)
 "${IPTABLES}" --table filter --new-chain DOCKER_INBOUND

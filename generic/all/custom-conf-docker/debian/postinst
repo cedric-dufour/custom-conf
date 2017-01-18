@@ -26,13 +26,15 @@ ipv6="$(ip -6 addr 2>/dev/null | fgrep 'scope global')"
 # ... iptables
 CUSTOM_CONF_DOCKER_OPTS='--bip 192.168.213.1/24 --userland-proxy=false'
 CUSTOM_CONF_DOCKER_IPTABLES_AUTO_EXIT='exit 0  # iptables are managed automatically by Docker'
-CUSTOM_CONF_DOCKER_IPTABLES_MANULA_EXIT='#no#exit 0  # iptables are managed automatically by Docker'
+CUSTOM_CONF_DOCKER_IPTABLES_MANUAL_EXIT='#no#exit 0  # iptables are managed automatically by Docker'
+CUSTOM_CONF_DOCKER_IPTABLES_SYSLOG_TARGET='DROP'
 if [ "${IPTABLES_AUTO}" != 'true' ]; then
   CUSTOM_CONF_DOCKER_OPTS="${CUSTOM_CONF_DOCKER_OPTS} --iptables=false"
   CUSTOM_CONF_DOCKER_IPTABLES_AUTO_EXIT='#no#exit 0  # Docker iptables are managed manually'
   CUSTOM_CONF_DOCKER_IPTABLES_MANUAL_EXIT='exit 0  # Docker iptables are managed manually'
 fi
-gsed "s|%{CUSTOM_CONF_DOCKER_IPTABLES_AUTO_EXIT}|${CUSTOM_CONF_DOCKER_IPTABLES_AUTO_EXIT}|g;s|%{CUSTOM_CONF_DOCKER_IPTABLES_MANUAL_EXIT}|${CUSTOM_CONF_DOCKER_IPTABLES_MANUAL_EXIT}|g" /etc/iptables/hooks.d/ipv{4,6}/{pre-stop,post-start}.d/50_custom-conf-docker /etc/iptables/rules.d/ipv{4,6}/{filter,nat}.d/50_custom-conf-docker
+[ "${SYSLOG_LISTEN}" == 'true' ] && CUSTOM_CONF_DOCKER_IPTABLES_SYSLOG_TARGET='ACCEPT'
+gsed "s|%{CUSTOM_CONF_DOCKER_IPTABLES_AUTO_EXIT}|${CUSTOM_CONF_DOCKER_IPTABLES_AUTO_EXIT}|g;s|%{CUSTOM_CONF_DOCKER_IPTABLES_MANUAL_EXIT}|${CUSTOM_CONF_DOCKER_IPTABLES_MANUAL_EXIT}|g;s|%{CUSTOM_CONF_DOCKER_IPTABLES_SYSLOG_TARGET}|${CUSTOM_CONF_DOCKER_IPTABLES_SYSLOG_TARGET}|g" /etc/iptables/hooks.d/ipv{4,6}/{pre-stop,post-start}.d/50_custom-conf-docker /etc/iptables/rules.d/ipv{4,6}/{filter,nat}.d/50_custom-conf-docker
 
 # ... userns
 [ -n "${USERNS_SHIFT}" ] && USERNS_SHIFT=$(( 1 * ${USERNS_SHIFT} )) || USERNS_SHIFT=0
