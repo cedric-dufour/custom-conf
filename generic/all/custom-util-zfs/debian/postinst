@@ -1,12 +1,16 @@
 #!/bin/bash
 [ "${1}" != 'configure' ] && exit 0
 
-# Install and start the service
-chmod 755 /etc/init.d/zfs-mount-late
-update-rc.d zfs-mount-late defaults
-if [ -d /run/systemd/system ] ; then
-  systemctl --system daemon-reload >/dev/null
+## dh[begin]
+#DEBHELPER#
+## dh[end]
+
+# Enable SysV if needs be
+if [ ! -d /run/systemd/system -a -e /etc/init.d/zfs-mount ]; then
+  update-rc.d zfs-mount-late defaults >/dev/null
 fi
+
+# Start service
 invoke-rc.d zfs-mount-late start
 
 # Exit

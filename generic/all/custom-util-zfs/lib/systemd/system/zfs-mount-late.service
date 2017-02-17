@@ -1,0 +1,15 @@
+[Unit]
+Description=Mount late ZFS resources
+DefaultDependencies=no
+After=zfs-mount.service
+Before=remote-fs.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/sbin/zfs-mount-late start
+ExecStop=/usr/sbin/zfs-mount-late stop
+
+[Install]
+WantedBy=zfs.target
+

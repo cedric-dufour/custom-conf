@@ -1,0 +1,149 @@
+#!/bin/bash
+
+
+## Usage
+[ $# -lt 1 -o "${1##*-}" == 'help' ] && cat << EOF && exit 1
+USAGE: ${0##*/} {start|stop|status}
+
+SYSNOPSIS:
+  Mount late ZFS resources.
+
+  This script will parse /etc/fstab for entries matching the user-configured
+  regular expression - see /etc/default/custom-util-zfs - and mount them 
+  "manually" (overriding their 'noauto' setting).
+
+  Though it can be executed by the user, this script is normally called at the
+  appropriate time during the boot (SysV or SystemD) init sequence, that is
+  after ZFS filesets are mounted but before remote filesystems - e.g. NFS -
+  are started.
+
+  This mechanism allows more flexibility than ZFS "shares" settings, in parti-
+  cular when complex /export directory hierarchies must be setup for NFSv4.
+
+EOF
+
+# Arguments
+ZFS_ACTION="${1}"
+
+
+## Parameters
+ZFS_DEFAULT=/etc/default/zfs-mount-late
+ZFS_LOCKFILE=/var/lock/zfs-mount-late
+
+
+## Configuration
+ZFS_MOUNT_FILTER=
+[ -e "${ZFS_DEFAULT}" ] && . "${ZFS_DEFAULT}"
+[ -z "${ZFS_MOUNT_FILTER}" ] && exit 0
+
+
+## Helper functions
+declare -A MTAB
+declare -A FSTAB
+
+read_mtab() {
+  for mntpnt in "${!MTAB[@]}" ; do unset MTAB["$mntpnt"] ; done
+  while read -r fs mntpnt fstype opts blah ; do
+    fs=`printf '%b\n' "$fs"`
+    MTAB["$mntpnt"]=$fs
+  done < <(grep -E "$1" /etc/mtab)
+}
+
+in_mtab() {
+  [ -n "${MTAB[$1]}" ]
+  return $?
+}
+
+read_fstab() {
+  for mntpnt in "${!FSTAB[@]}" ; do unset FSTAB["$mntpnt"] ; done
+  while read -r fs mntpnt fstype opts blah ; do
+    fs=`printf '%b\n' "$fs"`
+    FSTAB["$mntpnt"]=$fs
+  done < <(grep -E "$1" /etc/fstab)
+}
+
+# Mount datasets/filesystems
+zfs_mount()
+{
+  read_mtab  "${ZFS_MOUNT_FILTER}"
+  read_fstab "${ZFS_MOUNT_FILTER}"
+  echo "Mounting volumes registered in fstab:"
+  for mntpnt in "${!FSTAB[@]}" ; do
+    if in_mtab "$mntpnt" ; then continue ; fi
+    echo "> $mntpnt"
+    mount "$mntpnt" || return $?
+  done
+  return 0
+}
+
+# Unmount filesystems
+zfs_unmount()
+{
+  read_mtab  "${ZFS_MOUNT_FILTER}"
+  read_fstab "${ZFS_MOUNT_FILTER}"
+  echo "Unmounting volumes registered in fstab:"
+  for mntpnt in "${!FSTAB[@]}" ; do
+    if ! in_mtab "$mntpnt" ; then continue ; fi
+    echo "> $mntpnt"
+    umount "$mntpnt"
+  done
+}
+
+# Output the status and list of mounts
+# NOTE: Beware of LSB scripts exit codes
+#       https://refspecs.linuxbase.org/LSB_3.0.0/LSB-PDA/LSB-PDA/iniscrptact.html
+zfs_status()
+{
+  if [ ! -e "${ZFS_LOCKFILE}" ]; then
+    echo "ERROR: Not started" >&2
+    return 3
+  fi
+  grep -E "${ZFS_MOUNT_FILTER}" /etc/mtab
+  return 0
+}
+
+zfs_start()
+{
+  if [ -e "${ZFS_LOCKFILE}" ]; then
+    echo "WARNING: Already started; please stop beforehands!" >&2
+    return 0
+  fi
+  zfs_mount
+  if [ $? -ne 0 ]; then
+    zfs_unmount
+    return 1
+  fi
+  touch "${ZFS_LOCKFILE}"
+  return 0
+}
+
+zfs_stop()
+{
+  if [ ! -e "${ZFS_LOCKFILE}" ]; then
+    echo "WARNING: Already stopped; proceeding anyway..." >&2
+  fi
+  zfs_unmount
+  rm -f "${ZFS_LOCKFILE}"
+  return 0
+}
+
+
+## Main
+case "${ZFS_ACTION}" in
+  start)
+    zfs_start || exit $?
+    ;;
+  stop)
+    zfs_stop || exit $?
+    ;;
+  status)
+    zfs_status || exit $?
+    ;;
+  *)
+    echo "ERROR: Invalid action (${ZFS_ACTION})" >&2
+    exit 2
+    ;;
+esac
+
+exit 0
+

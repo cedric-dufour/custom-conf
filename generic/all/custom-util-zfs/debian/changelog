@@ -1,3 +1,9 @@
+custom-util-zfs (2017.02.17a) UNRELEASED; urgency=low
+
+  * Added systemd service (and handle Debian/Stretch ZFS-on-Linux elegantly)
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Fri, 17 Feb 2017 21:10:30 +0100
+
 custom-util-zfs (2016.11.06a) UNRELEASED; urgency=low
 
   * Fix dependency to allow official Debian-packaged ZFS-on-Linux

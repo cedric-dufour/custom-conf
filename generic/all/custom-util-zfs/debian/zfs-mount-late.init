@@ -1,0 +1,42 @@
+#!/bin/bash
+### BEGIN INIT INFO
+# Provides:       zfs-mount-late
+# Required-Start: zfs-mount
+# Required-Stop:  zfs-mount
+# X-Start-Before: $remote_fs
+# X-Stop-After:   $remote_fs
+# Default-Start:  2 3 4 5
+# Default-Stop:   0 1 6
+# Short-Description: Mount late ZFS resources.
+### END INIT INFO
+
+ZFS_MOUNT_LATE=/usr/sbin/zfs-mount-late
+
+. /lib/lsb/init-functions
+
+case "$1" in
+  start)
+    log_begin_msg "Mounting late ZFS resources..."
+    ${ZFS_MOUNT_LATE} start >/dev/null
+    log_end_msg $?
+    ;;
+  stop)
+    log_begin_msg "Unmounting late ZFS resources..."
+    ${ZFS_MOUNT_LATE} start >/dev/null
+    log_end_msg $?
+    ;;
+  status)
+    ${ZFS_MOUNT_LATE} status
+    exit $?
+    ;;
+  force-reload|condrestart|reload|restart)
+    exit 3
+    ;;
+    *)
+    ${ZFS_MOUNT_LATE} $1
+    exit 2
+    ;;
+esac
+
+exit 0
+

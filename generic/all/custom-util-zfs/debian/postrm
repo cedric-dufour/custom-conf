@@ -3,9 +3,13 @@
 
 # Uninstall the service
 update-rc.d zfs-mount-late remove >/dev/null
-if [ -d /run/systemd/system ] ; then
+if [ -d /run/systemd/system ]; then
   systemctl --system daemon-reload >/dev/null
 fi
+
+## dh[begin]
+#DEBHELPER#
+## dh[end]
 
 # Exit
 exit 0
