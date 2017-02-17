@@ -1,3 +1,10 @@
+custom-util-ha (2017.02.17a) UNRELEASED; urgency=low
+
+  * Added support (compatibility) for Lenovo branding in IBM/Lenovo FlexSystem
+    chassis management modules (CMM) STONITH device (ibmfx)
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Fri, 17 Feb 2017 17:04:55 +0100
+
 custom-util-ha (2015.07.13a) UNRELEASED; urgency=low
 
   * Post Tenebras Lux
