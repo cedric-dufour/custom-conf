@@ -7,7 +7,8 @@ Standards-Version: 3.9.7
 
 Package: custom-packages-install-base
 Architecture: all
-Depends: bzip2, gustat, less, openssh-client, rsync, screen, unzip, vim, xz-utils
+Depends: bzip2, less, man-db, openssh-client, rsync, screen, unzip, vim, xz-utils
 Recommends: bsd-mailx
+Suggests: gustat
 Description: Custom Configuration Framework - Base packages
 
