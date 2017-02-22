@@ -1,3 +1,10 @@
+custom-util-ha (2017.02.22a) UNRELEASED; urgency=low
+
+  * Fixed 'Recommends:' for new (Debian/Stretch) pacemaker packaging
+  * Added 'crmsh' to 'Suggests:'
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Wed, 22 Feb 2017 19:30:56 +0100
+
 custom-util-ha (2017.02.17a) UNRELEASED; urgency=low
 
   * Added support (compatibility) for Lenovo branding in IBM/Lenovo FlexSystem
