@@ -7,6 +7,6 @@ Standards-Version: 3.9.7
 
 Package: custom-packages-install-libreoffice5-fr
 Architecture: all
-Depends: libreoffice5.1-fr, libreoffice5.1-dict-fr, libobasis5.1-fr-help
-Description: Custom Configuration Framework - LibreOffice 5.1, French language pack (original upstream packages)
+Depends: libreoffice5.2-fr, libreoffice5.2-dict-fr, libobasis5.2-fr-help
+Description: Custom Configuration Framework - LibreOffice 5.2, French language pack (original upstream packages)
 

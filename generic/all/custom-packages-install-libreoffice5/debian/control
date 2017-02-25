@@ -7,7 +7,7 @@ Standards-Version: 3.9.7
 
 Package: custom-packages-install-libreoffice5
 Architecture: all
-Depends: custom-packages-install-libreoffice5-en-us, libreoffice5.1, libreoffice5.1-calc, libreoffice5.1-draw, libreoffice5.1-impress, libreoffice5.1-math, libreoffice5.1-writer, libreoffice5.1-debian-menus, libobasis5.1-gnome-integration, libobasis5.1-graphicfilter, libobasis5.1-ogltrans, libobasis5.1-ooofonts, libobasis5.1-ooolinguistic
+Depends: custom-packages-install-libreoffice5-en-us, libreoffice5.2, libreoffice5.2-calc, libreoffice5.2-draw, libreoffice5.2-impress, libreoffice5.2-math, libreoffice5.2-writer, libreoffice5.2-debian-menus, libobasis5.2-gnome-integration, libobasis5.2-graphicfilter, libobasis5.2-ogltrans, libobasis5.2-ooofonts, libobasis5.2-ooolinguistic
 Suggests: custom-packages-install-libreoffice5-en-gb, custom-packages-install-libreoffice5-de, custom-packages-install-libreoffice5-fr, custom-packages-install-libreoffice5-it
-Description: Custom Configuration Framework - LibreOffice 5.1 (original upstream packages)
+Description: Custom Configuration Framework - LibreOffice 5.2 (original upstream packages)
 
