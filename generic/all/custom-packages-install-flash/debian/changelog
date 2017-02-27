@@ -1,3 +1,9 @@
+custom-packages-install-flash (2017.02.27a) UNRELEASED; urgency=low
+
+  * New version: NPAPI/PPAPI 24.0.0.221
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Mon, 27 Feb 2017 09:14:17 +0100
+
 custom-packages-install-flash (2016.12.20a) UNRELEASED; urgency=low
 
   * New version: NPAPI/PPAPI 24.0.0.186
