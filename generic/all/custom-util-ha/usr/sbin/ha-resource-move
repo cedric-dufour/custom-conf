@@ -60,7 +60,7 @@ HA_STICKINESS_VALUE="$(crm_attribute -t rsc_defaults -n resource-stickiness -G 2
 [ ${HA_STICKINESS_VALUE} -le 0 ] && echo 'ERROR: Resource stickiness MUST be set to a positive value' >&2 && exit
 
 # ... destination node
-[ -z "$(cibadmin -Q -A "//node[@id='${HA_NODE_DST}']" 2>/dev/null)" ] && echo "ERROR: No HA/Pacemaker node matches the given destination node (${HA_NODE_DST})" >&2 && exit 1
+[ -z "$(cibadmin -Q -A "//node[@uname='${HA_NODE_DST}']" 2>/dev/null)" ] && echo "ERROR: No HA/Pacemaker node matches the given destination node (${HA_NODE_DST})" >&2 && exit 1
 
 
 ## Traps

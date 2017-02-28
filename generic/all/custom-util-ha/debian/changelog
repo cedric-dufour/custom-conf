@@ -1,3 +1,10 @@
+custom-util-ha (2017.02.28a) UNRELEASED; urgency=low
+
+  * Look for valid nodes by their 'uname' rather than their 'id'
+    (the latter potentially being a numerical value derived by Corosync)
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Tue, 28 Feb 2017 16:23:11 +0100
+
 custom-util-ha (2017.02.22a) UNRELEASED; urgency=low
 
   * Fixed 'Recommends:' for new (Debian/Stretch) pacemaker packaging
