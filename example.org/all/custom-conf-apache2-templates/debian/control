@@ -7,6 +7,6 @@ Standards-Version: 3.9.7
 
 Package: custom-conf-apache2-templates
 Architecture: all
-Depends: custom-conf, custom-certificates (>= 2016.07.05a), custom-conf-ldap, libapache2-mod-macro
+Depends: custom-conf, custom-certificates (>= 2016.07.05a), custom-conf-ldap, apache2-bin (>= 2.4) | libapache2-mod-macro
 Description: Custom Configuration Framework - Apache2 templates
 

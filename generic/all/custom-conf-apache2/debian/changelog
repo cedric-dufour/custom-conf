@@ -1,3 +1,10 @@
+custom-conf-apache2 (2017.03.02a) UNRELEASED; urgency=low
+
+  * Fixed 'Depends:' for 'libapache2-mod-macro' being merged into 'apache2-bin'
+    (transitional since Debian/Jessie; no longer available in Debian/Stretch)
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Thu, 02 Mar 2017 18:39:23 +0100
+
 custom-conf-apache2 (2016.09.28a) UNRELEASED; urgency=low
 
   * Make TLS Server Name Indication (SNI, RFC 6066) usage explicit
