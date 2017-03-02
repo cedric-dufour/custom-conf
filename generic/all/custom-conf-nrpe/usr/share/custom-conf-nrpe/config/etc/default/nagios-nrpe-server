@@ -1,0 +1,11 @@
+## CUSTOM-CONF: File automatically created/updated [custom-conf-nrpe]
+
+
+## Nagios Remote Monitoring daemon configuration
+
+# Disable SSL to circumvent version 2.x <-> 3.x incompatibility
+# ... version 2.x
+DAEMON_OPTS="--no-ssl"
+# ... version 3.x
+NRPE_OPTS="-n"
+
