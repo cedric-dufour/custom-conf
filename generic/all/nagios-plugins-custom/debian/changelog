@@ -1,3 +1,9 @@
+nagios-plugins-custom (2017.03.01a) UNRELEASED; urgency=low
+
+  * Fix handling of non-ASCII characters in checks which rely on them
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Wed, 01 Mar 2017 16:25:23 +0100
+
 nagios-plugins-custom (2016.06.14a) UNRELEASED; urgency=low
 
   * Post Tenebras Lux

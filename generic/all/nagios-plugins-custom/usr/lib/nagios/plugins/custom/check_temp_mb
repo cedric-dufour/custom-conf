@@ -21,7 +21,8 @@ which sensors >/dev/null
 [ $(( ${TEMP_WARNING} > ${TEMP_CRITICAL} )) -ne 0 ] && echo 'ERROR: Warning threshold must be lower than critical threshold' && exit 3
 
 # Sensor temperature
-SENSOR_OUTPUT=$(sensors | fgrep -i temp | egrep -i '(board|m/?b)')
+export LANG='en_US.UTF-8'  # Make sure non-ASCII characters (°) do not vanish from commands output
+SENSOR_OUTPUT=$(sensors | egrep -i '(temp|°c)' | egrep -i '(board|m/?b)')
 [ -z "${SENSOR_OUTPUT}" ] && echo 'ERROR: Missing motherboard temperature' && exit 3
 SENSOR_TEMP=$(echo ${SENSOR_OUTPUT} | cut -d':' -f2 | sed 's/[^0-9]*\([0-9]*\).*/\1/g')
 [ $(( ${SENSOR_TEMP} <= 0 )) -ne 0 ] && echo 'ERROR: Invalid motherboard temperature' && exit 3
