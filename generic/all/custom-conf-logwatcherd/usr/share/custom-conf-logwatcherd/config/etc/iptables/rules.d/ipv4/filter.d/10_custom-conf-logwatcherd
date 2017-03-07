@@ -1,0 +1,16 @@
+#!/bin/sh
+## CUSTOM-CONF: File automatically created/updated [custom-conf-logwatcherd]
+
+# (Please use 'dpkg-reconfigure custom-conf-logwatcherd' to change this setting)
+%{CUSTOM_CONF_LOGWATCHERD_IPTABLES_ENABLE_EXIT}
+
+
+## Log Watcher Daemon (logwatcherd) rules
+. "${IPTABLES_RULESD_DFLT}/filter.logwatcherd"
+"${IPTABLES}" --table filter --append INPUT %{CUSTOM_CONF_LOGWATCHERD_IPTABLES_IFACE_IPV4} --jump LOGWATCHER
+
+# Watcher-related rules
+"${IPTABLES}" --table filter --insert LOGWATCHER_RULES --match recent --name LOGWATCHER_TG10H --rcheck --seconds 3600 --hitcount 10 --reap --jump LOGWATCHER_BL24H
+"${IPTABLES}" --table filter --insert LOGWATCHER_RULES --match recent --name LOGWATCHER_TG5H --rcheck --seconds 3600 --hitcount 5 --reap --jump LOGWATCHER_BL24H
+"${IPTABLES}" --table filter --insert LOGWATCHER_RULES --match recent --name LOGWATCHER_TG10M --rcheck --seconds 60 --hitcount 10 --reap --jump LOGWATCHER_BL1H
+

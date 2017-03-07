@@ -2,8 +2,66 @@
 [ "${1}" != 'configure' ] && exit 0
 PKGNAME='custom-conf-logwatcherd'
 
+# Debconf
+. /usr/share/debconf/confmodule
+# ... preseed
+for var_priority in iptables-enable:high iptables-interface:high; do
+  var="${var_priority%:*}"
+  priority="${var_priority#*:}"
+  db_input ${priority} ${PKGNAME}/${var}
+  db_go
+done
+# ... get
+db_get ${PKGNAME}/iptables-enable && DEBCONF_IPTABLES_ENABLE="${RET}"
+db_get ${PKGNAME}/iptables-interface && DEBCONF_IPTABLES_INTERFACE="${RET}"
+db_stop
+
 # Install files
 custom-conf-install "${PKGNAME}" "/usr/share/${PKGNAME}/config" || exit 1
+
+# Fine-tune configuration
+source /usr/share/custom-conf/custom-conf.defs
+
+# ... iptables
+CUSTOM_CONF_LOGWATCHERD_IPTABLES_ENABLE_EXIT='#no#exit 0  # Enable default LogWatcher iptables rules'
+if [ "${DEBCONF_IPTABLES_ENABLE}" != 'true' ]; then
+  CUSTOM_CONF_LOGWATCHERD_IPTABLES_ENABLE_EXIT='exit 0  # LogWatcher iptables rules managed manually'
+fi
+
+# ... interface
+ipv4="$(ip -4 addr 2>/dev/null | fgrep 'scope global')"
+ipv6="$(ip -6 addr 2>/dev/null | fgrep 'scope global')"
+CUSTOM_CONF_LOGWATCHERD_IPTABLES_IFACE_IPV4=
+CUSTOM_CONF_LOGWATCHERD_IPTABLES_IFACE_IPV6=
+if [ "${DEBCONF_IPTABLES_INTERFACE}" == 'gateway' ]; then
+  if [ -n "${ipv4}" -a -n "${CUSTOM_CONF_NETWORK_GATEWAY_IPV4}" ]; then
+    CUSTOM_CONF_LOGWATCHERD_IPTABLES_IFACE_IPV4="$(custom-conf-getiface "${CUSTOM_CONF_NETWORK_GATEWAY_IPV4}" | head -n 1)"
+    [ -z "${CUSTOM_CONF_LOGWATCHERD_IPTABLES_IFACE_IPV4}" ] && echo "WARNING[${PKGNAME}]: Failed to retrieve interface matching configured IPv4 gateway" >&2
+  fi
+  if [ -n "${ipv6}" -a -n "${CUSTOM_CONF_NETWORK_GATEWAY_IPV6}" ]; then
+    CUSTOM_CONF_LOGWATCHERD_IPTABLES_IFACE_IPV6="$(custom-conf-getiface "${CUSTOM_CONF_NETWORK_GATEWAY_IPV6}" | head -n 1)"
+    [ -z "${CUSTOM_CONF_LOGWATCHERD_IPTABLES_IFACE_IPV6}" ] && echo "WARNING[${PKGNAME}]: Failed to retrieve interface matching configured IPv6 gateway" >&2
+  fi
+elif [ -n "${DEBCONF_IPTABLES_INTERFACE}" ]; then
+ CUSTOM_CONF_LOGWATCHERD_IPTABLES_IFACE_IPV4="${DEBCONF_IPTABLES_INTERFACE}"
+ CUSTOM_CONF_LOGWATCHERD_IPTABLES_IFACE_IPV6="${DEBCONF_IPTABLES_INTERFACE}"
+fi
+
+# ... apply
+gsed "s|%{CUSTOM_CONF_LOGWATCHERD_IPTABLES_ENABLE_EXIT}|${CUSTOM_CONF_LOGWATCHERD_IPTABLES_ENABLE_EXIT}|g;s|%{CUSTOM_CONF_LOGWATCHERD_IPTABLES_IFACE_IPV4}|${CUSTOM_CONF_LOGWATCHERD_IPTABLES_IFACE_IPV4:+--in-interface ${CUSTOM_CONF_LOGWATCHERD_IPTABLES_IFACE_IPV4}}|g" /etc/iptables/rules.d/ipv4/filter.d/10_custom-conf-logwatcherd
+gsed "s|%{CUSTOM_CONF_LOGWATCHERD_IPTABLES_ENABLE_EXIT}|${CUSTOM_CONF_LOGWATCHERD_IPTABLES_ENABLE_EXIT}|g;s|%{CUSTOM_CONF_LOGWATCHERD_IPTABLES_IFACE_IPV6}|${CUSTOM_CONF_LOGWATCHERD_IPTABLES_IFACE_IPV6:+--in-interface ${CUSTOM_CONF_LOGWATCHERD_IPTABLES_IFACE_IPV6}}|g" /etc/iptables/rules.d/ipv6/filter.d/10_custom-conf-logwatcherd
+
+# Warning
+cat << EOF
+!!! WARNING !!! WARNING !!! WARNING !!! WARNING !!! WARNING !!! WARNING !!!
+
+  You MUST restart iptables and logwatcherd manually to enforce changes!
+   > iptables-control restart
+   > ip6tables-control restart
+   > service logwatcherd restart
+
+!!! WARNING !!! WARNING !!! WARNING !!! WARNING !!! WARNING !!! WARNING !!!
+EOF
 
 # Exit
 exit 0

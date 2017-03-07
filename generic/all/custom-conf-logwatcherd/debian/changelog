@@ -1,3 +1,9 @@
+custom-conf-logwatcherd (2017.03.07b) UNRELEASED; urgency=low
+
+  * Include LOGWATCHER_* iptables rules automatically
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Tue, 07 Mar 2017 12:37:27 +0100
+
 custom-conf-logwatcherd (2016.10.09a) UNRELEASED; urgency=low
 
   - Added 'postfix_conn' rule (to catch connection failures)

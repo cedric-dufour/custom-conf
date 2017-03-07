@@ -1,0 +1,28 @@
+Template: custom-conf-logwatcherd/iptables-enable
+Type: boolean
+Default: true
+Description: Enable iptables rules to match configuration dependencies ?
+ * <Yes>
+ .
+   LOGWATCHER_* iptables rules will be automatically enabled, along matching
+   xt_recent buckets.
+ .
+ * <No>
+ .
+   You MUST create all iptables dependencies manually, matching your actual
+   logwatching configuration.
+ .
+ ? If unsure, say <Yes>.
+
+Template: custom-conf-logwatcherd/iptables-interface
+Type: string
+Default:
+Description: Enable the iptables rules only for a specific interface ?
+ Please specify the interface on which to enable the iptables rules:
+ .
+  - {empty}:   do not use any specific interface (catch all INPUT traffic)
+  - gateway:   bind to the interface matching configured gateway/network
+  - <eth>:     actual interface name
+ .
+ ? If unsure, leave {empty}.
+
