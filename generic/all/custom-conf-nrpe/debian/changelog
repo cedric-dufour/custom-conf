@@ -1,3 +1,10 @@
+custom-conf-nrpe (2017.03.07a) UNRELEASED; urgency=low
+
+  * Preferably include only local filesystem types (vfat, ext, etc.) for disks check
+    (prevent 'permission denied' errors for special filesystem types)
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Tue, 07 Mar 2017 10:02:00 +0100
+
 custom-conf-nrpe (2017.02.28a) UNRELEASED; urgency=low
 
   * Disable SSL to circumvent version 2.x <-> 3.x incompatibility

@@ -85,8 +85,15 @@ if [ -z "${CUSTOM_CONF_NRPE_LISTEN_IPADDR}" ]; then
   fi
 fi
 
+# ... disks check filesystem; prefer explicit filesystem type includes, if 'check_disk' is recent enough (>= Debian/Jessie)
+if [ -x /usr/lib/nagios/plugins/check_disk -a -n "$(/usr/lib/nagios/plugins/check_disk --help | grep '\--include-type')" ]; then
+  CUSTOM_CONF_NRPE_CHECK_DISKS_OPTIONS='-N vfat -N ext2 -N ext3 -N ext4 -N xfs'
+else
+  CUSTOM_CONF_NRPE_CHECK_DISKS_OPTIONS='-X tmpfs -X none -x /sys -x /dev -x /proc'
+fi
+
 # ... do it
-gsed "s|%{CUSTOM_CONF_NRPE_LISTEN_IPADDR}|${CUSTOM_CONF_NRPE_LISTEN_IPADDR}|g;s|%{CUSTOM_CONF_NRPE_ALLOWEDHOSTS}|${servers:+allowed_hosts=${servers}}|g" /etc/nagios/nrpe.cfg
+gsed "s|%{CUSTOM_CONF_NRPE_LISTEN_IPADDR}|${CUSTOM_CONF_NRPE_LISTEN_IPADDR}|g;s|%{CUSTOM_CONF_NRPE_ALLOWEDHOSTS}|${servers:+allowed_hosts=${servers}}|g;s|%{CUSTOM_CONF_NRPE_CHECK_DISKS_OPTIONS}|${CUSTOM_CONF_NRPE_CHECK_DISKS_OPTIONS}|g" /etc/nagios/nrpe.cfg
 
 # Additional actions
 invoke-rc.d nagios-nrpe-server stop
