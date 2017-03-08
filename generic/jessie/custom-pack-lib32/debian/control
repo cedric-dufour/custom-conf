@@ -1,0 +1,14 @@
+Source: custom-pack-lib32
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 3.9.7
+
+Package: custom-pack-lib32
+Architecture: all
+Breaks: custom-packages-install-lib32 (<< 2017.03.07a)
+Replaces: custom-packages-install-lib32 (<< 2017.03.07a)
+Depends: lib32gcc1, lib32ncurses5, lib32stdc++6, lib32z1, libc6-i386
+Description: Custom Configuration Framework - low-level 32-bit support libraries
+

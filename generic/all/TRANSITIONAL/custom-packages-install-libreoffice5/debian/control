@@ -1,0 +1,12 @@
+Source: custom-packages-install-libreoffice5
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 3.9.7
+
+Package: custom-packages-install-libreoffice5
+Architecture: all
+Depends: custom-pack-libreoffice5
+Description: Custom Configuration Framework - LibreOffice 5.2 (TRANSITIONAL)
+

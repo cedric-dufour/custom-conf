@@ -1,0 +1,6 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-pack-openoffice4
+
+This meta-package installs OpenOffice.org core (original Apache) packages. 
+

@@ -1,0 +1,12 @@
+custom-pack-alsa (2017.03.07a) UNRELEASED; urgency=low
+
+  * Transition from 'custom-packages-install-alsa'
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Tue, 07 Mar 2017 18:30:00 +0100
+
+custom-packages-install-alsa (2016.07.05a) UNRELEASED; urgency=low
+
+  * Post Tenebras Lux
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Tue, 05 Jul 2016 08:23:49 +0200
+

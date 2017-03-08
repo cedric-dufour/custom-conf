@@ -1,0 +1,12 @@
+Source: custom-packages-install-kvm
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 3.9.7
+
+Package: custom-packages-install-kvm
+Architecture: all
+Depends: custom-pack-kvm
+Description: Custom Configuration Framework - KVM/LibVirt stack (TRANSITIONAL)
+

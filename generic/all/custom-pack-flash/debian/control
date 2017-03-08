@@ -1,0 +1,15 @@
+Source: custom-pack-flash
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 3.9.7
+
+Package: custom-pack-flash
+Architecture: amd64
+Breaks: custom-packages-install-flash (<< 2017.03.07a)
+Replaces: custom-packages-install-flash (<< 2017.03.07a)
+Depends: custom-conf
+Conflicts: flashplugin-nonfree, pepperflashplugin-nonfree
+Description: Custom Configuration Framework - Flash plugins (original upstream packages)
+

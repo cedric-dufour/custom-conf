@@ -1,0 +1,14 @@
+Source: custom-pack-openoffice4-en-gb
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 3.9.7
+
+Package: custom-pack-openoffice4-en-gb
+Architecture: all
+Breaks: custom-packages-install-openoffice4-en-gb (<< 2017.03.07a)
+Replaces: custom-packages-install-openoffice4-en-gb (<< 2017.03.07a)
+Depends: openoffice-en-gb (>= 4.0.0), openoffice-en-gb-calc (>= 4.0.0), openoffice-en-gb-draw (>= 4.0.0), openoffice-en-gb-help (>= 4.0.0), openoffice-en-gb-impress (>= 4.0.0), openoffice-en-gb-math (>= 4.0.0), openoffice-en-gb-res (>= 4.0.0), openoffice-en-gb-writer (>= 4.0.0)
+Description: Custom Configuration Framework - OpenOffice.org 4, Engligh (GB) language pack (original Apache packages)
+

@@ -1,0 +1,16 @@
+Source: custom-pack-base
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 3.9.7
+
+Package: custom-pack-base
+Architecture: all
+Breaks: custom-packages-install-base (<< 2017.03.07a)
+Replaces: custom-packages-install-base (<< 2017.03.07a)
+Depends: bzip2, less, man-db, openssh-client, rsync, screen, unzip, vim, xz-utils
+Recommends: bsd-mailx
+Suggests: gustat
+Description: Custom Configuration Framework - Base packages
+

@@ -1,0 +1,15 @@
+Source: custom-pack-pulseaudio
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 3.9.7
+
+Package: custom-pack-pulseaudio
+Architecture: all
+Breaks: custom-packages-install-pulseaudio (<< 2017.03.07a)
+Replaces: custom-packages-install-pulseaudio (<< 2017.03.07a)
+Depends: alsa-base, alsa-utils, pulseaudio, pulseaudio-module-x11, pavumeter, pavucontrol, gstreamer0.10-pulseaudio, gstreamer0.10-plugins-base, gstreamer0.10-plugins-good, gstreamer0.10-plugins-bad, gstreamer0.10-plugins-ugly
+Recommends: paman, paprefs, rtkit
+Description: Custom Configuration Framework - PulseAudio stack
+

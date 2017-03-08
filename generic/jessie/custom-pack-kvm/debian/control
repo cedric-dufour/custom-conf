@@ -1,0 +1,15 @@
+Source: custom-pack-kvm
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 3.9.7
+
+Package: custom-pack-kvm
+Architecture: all
+Breaks: custom-packages-install-kvm (<< 2017.03.07a)
+Replaces: custom-packages-install-kvm (<< 2017.03.07a)
+Depends: bridge-utils, dnsmasq, ebtables, gvncviewer, libvirt-bin, qemu-kvm, qemu-system-x86, qemu-utils, virt-manager
+Suggests: custom-conf-polkit-libvirt
+Description: Custom Configuration Framework - KVM/LibVirt stack
+

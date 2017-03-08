@@ -1,0 +1,15 @@
+Source: custom-pack-libreoffice5
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 3.9.7
+
+Package: custom-pack-libreoffice5
+Architecture: all
+Breaks: custom-packages-install-libreoffice5 (<< 2017.03.07a)
+Replaces: custom-packages-install-libreoffice5 (<< 2017.03.07a)
+Depends: custom-pack-libreoffice5-en-us, libreoffice5.2, libreoffice5.2-calc, libreoffice5.2-draw, libreoffice5.2-impress, libreoffice5.2-math, libreoffice5.2-writer, libreoffice5.2-debian-menus, libobasis5.2-gnome-integration, libobasis5.2-graphicfilter, libobasis5.2-ogltrans, libobasis5.2-ooofonts, libobasis5.2-ooolinguistic
+Suggests: custom-pack-libreoffice5-en-gb, custom-pack-libreoffice5-de, custom-pack-libreoffice5-fr, custom-pack-libreoffice5-it
+Description: Custom Configuration Framework - LibreOffice 5.2 (original upstream packages)
+

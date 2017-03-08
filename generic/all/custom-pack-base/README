@@ -1,0 +1,6 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-pack-base
+
+This meta-package installs (very) base dependencies.
+

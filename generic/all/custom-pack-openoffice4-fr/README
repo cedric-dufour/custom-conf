@@ -1,0 +1,7 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-pack-openoffice4-fr
+
+This meta-package installs OpenOffice.org French (fr) translation 
+dependencies (and dictionary).
+

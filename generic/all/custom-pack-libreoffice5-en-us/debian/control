@@ -1,0 +1,14 @@
+Source: custom-pack-libreoffice5-en-us
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 3.9.7
+
+Package: custom-pack-libreoffice5-en-us
+Architecture: all
+Breaks: custom-packages-install-libreoffice5-en-us (<< 2017.03.07a)
+Replaces: custom-packages-install-libreoffice5-en-us (<< 2017.03.07a)
+Depends: libreoffice5.2-en-us, libreoffice5.2-dict-en, libobasis5.2-en-us-help
+Description: Custom Configuration Framework - LibreOffice 5.2, Engligh (US) language pack (original upstream packages)
+

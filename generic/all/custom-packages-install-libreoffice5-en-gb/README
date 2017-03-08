@@ -1,7 +1,0 @@
-Custom Configuration Framework (custom-conf)
-============================================
-Package: custom-packages-install-libreoffice5-en-us
-
-This meta-package installs LibreOffice GB English (en-gb) translation
-dependencies.
-

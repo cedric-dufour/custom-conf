@@ -1,0 +1,14 @@
+#!/bin/bash
+[ "${1}" != 'configure' ] && exit 0
+PKGNAME='custom-pack-flash'
+
+# Update alternatives
+update-alternatives --quiet --install \
+  /usr/lib/mozilla/plugins/flash-mozilla.so \
+  flash-mozilla.so \
+  /usr/lib/custom-pack-flash/npapi/libflashplayer.so \
+  50
+
+# Exit
+exit 0
+

@@ -1,0 +1,7 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-pack-openoffice4-it
+
+This meta-package installs OpenOffice.org Italian (it) translation
+dependencies (and dictionary).
+
