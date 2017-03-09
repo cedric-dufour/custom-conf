@@ -1,0 +1,9 @@
+custom-conf-hotfixes (2017.03.09a) UNRELEASED; urgency=low
+
+  * Added hotfixes (ref: https://www.debian.org/security/2017/dsa-3804)
+  - CVE-2017-2636
+  - CVE-2017-5986
+  - CVE-2017-6345
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Thu, 09 Mar 2017 11:57:55 +0100
+

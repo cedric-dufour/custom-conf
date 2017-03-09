@@ -1,0 +1,20 @@
+Source: custom-conf-hotfixes
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 3.9.7
+
+Package: custom-conf-hotfixes
+Architecture: all
+Description: Custom Configuration Framework - (TEMPORARY!) Security hotfixes
+ !!! WARNING !!!  WARNING !!! WARNING !!! WARNING !!! WARNING !!! WARNING !!!
+ .
+ .  This package is maintained to the best of its maintainer knowledge.
+ .
+ .  PLEASE DO NOT CONSIDER IT AS AN EXHAUSTIVE AND RELIABLE SOURCE TO
+ .  THWART YOUR SYSTEM VULNERABILITIES! KEEP UPDATING YOUR SYSTEM REGULARLY,
+ .  USING YOUR DISTRIBUTION OFFICIAL SOURCE OF SECURITY FIXES.
+ .
+ !!! WARNING !!!  WARNING !!! WARNING !!! WARNING !!! WARNING !!! WARNING !!!
+

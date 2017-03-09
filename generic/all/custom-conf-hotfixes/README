@@ -1,0 +1,18 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-conf-hotfixes
+
+This package provides configuration hotfixes to - TEMPORARILY! - leverage known
+vulnerabilities until the fully-fledge fix is available or can be applied (e.g.
+pending a kernel reboot).
+
+!!! WARNING !!!  WARNING !!! WARNING !!! WARNING !!! WARNING !!! WARNING !!!
+
+  This package is maintained to the best of its maintainer knowledge.
+
+  PLEASE DO NOT CONSIDER IT AS AN EXHAUSTIVE AND RELIABLE SOURCE TO
+  THWART YOUR SYSTEM VULNERABILITIES! KEEP UPDATING YOUR SYSTEM REGULARLY,
+  USING YOUR DISTRIBUTION OFFICIAL SOURCE OF SECURITY FIXES.
+
+!!! WARNING !!!  WARNING !!! WARNING !!! WARNING !!! WARNING !!! WARNING !!!
+
