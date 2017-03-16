@@ -1,0 +1,9 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-conf-hostname-static
+
+This package provides standard (static) configuration of the hostname.
+
+Currently, it consists only of making sure that the dynamic/DHCP counterpart
+package is not installed, such as to keep the hostname configuration untouched.
+

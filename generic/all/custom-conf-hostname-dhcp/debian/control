@@ -1,12 +1,15 @@
-Source: custom-conf-hostname
+Source: custom-conf-hostname-dhcp
 Section: admin
 Priority: optional
 Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
 Homepage: https://github.com/cedric-dufour/custom-conf
 Standards-Version: 3.9.7
 
-Package: custom-conf-hostname
+Package: custom-conf-hostname-dhcp
 Architecture: all
+Breaks: custom-conf-hostname (<< 2017.03.16a)
+Replaces: custom-conf-hostname (<< 2017.03.16a)
+Conflicts: custom-conf-hostname-static
 Depends: custom-conf, custom-conf-sysv
 Description: Custom Configuration Framework - (Dynamic) Hostname setting
 

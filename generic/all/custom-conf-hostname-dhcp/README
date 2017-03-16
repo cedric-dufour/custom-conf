@@ -1,0 +1,12 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-conf-hostname-dhcp
+
+This package provides standard (dynamic) configuration of the hostname.
+
+In particular, it addresses standard configuration of:
+ - the hostname, dynamically, based on the DHCP-assigned IP address
+   and the corresponding reverse DNS resolution
+ - re-configuring the 'custom-conf' packages that may depend of the
+   hostname
+

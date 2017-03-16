@@ -1,5 +1,5 @@
 #!/bin/bash
-## CUSTOM-CONF: File automatically created/updated [custom-conf-hostname]
+## CUSTOM-CONF: File automatically created/updated [custom-conf-hostname-dhcp]
 
 # Hostname (?)
 MY_HOSTNAME="${1}"
