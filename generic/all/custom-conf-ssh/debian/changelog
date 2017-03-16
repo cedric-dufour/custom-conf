@@ -1,3 +1,13 @@
+custom-conf-ssh (2017.03.16a) UNRELEASED; urgency=low
+
+  * Remove SSH v.1 specific configuration options
+    NOTE: SSH v.1 is deprecated as per OpenSSH version 7.4
+    REF:  https://www.openssh.com/releasenotes.html
+  * Remove DSA and add ECDSA host key
+    (but wait until Debian/Wheezy is out of the way to add ED25519)
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Thu, 16 Mar 2017 16:12:11 +0100
+
 custom-conf-ssh (2016.06.13a) UNRELEASED; urgency=low
 
   * Post Tenebras Lux
