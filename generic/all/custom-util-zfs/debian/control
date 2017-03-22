@@ -2,9 +2,9 @@ Source: custom-util-zfs
 Section: admin
 Priority: optional
 Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
-Build-Depends: dh-systemd
 Homepage: https://github.com/cedric-dufour/custom-conf
 Standards-Version: 3.9.7
+Build-Depends: dh-systemd
 
 Package: custom-util-zfs
 Architecture: all

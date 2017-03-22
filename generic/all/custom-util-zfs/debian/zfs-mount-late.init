@@ -22,7 +22,7 @@ case "$1" in
     ;;
   stop)
     log_begin_msg "Unmounting late ZFS resources..."
-    ${ZFS_MOUNT_LATE} start >/dev/null
+    ${ZFS_MOUNT_LATE} stop >/dev/null
     log_end_msg $?
     ;;
   status)

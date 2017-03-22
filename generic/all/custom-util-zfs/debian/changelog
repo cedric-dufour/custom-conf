@@ -1,3 +1,9 @@
+custom-util-zfs (2017.03.22a) UNRELEASED; urgency=low
+
+  * Fixed SysV init script that would never stop
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Wed, 22 Mar 2017 16:03:48 +0100
+
 custom-util-zfs (2017.02.17a) UNRELEASED; urgency=low
 
   * Added systemd service (and handle Debian/Stretch ZFS-on-Linux elegantly)
