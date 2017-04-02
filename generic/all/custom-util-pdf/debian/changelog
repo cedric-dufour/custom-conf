@@ -1,3 +1,10 @@
+custom-util-pdf (2017.04.02a) UNRELEASED; urgency=low
+
+  * Fixed characters encoding in non-ASCII PDF title (ImageMagick<6.9.2-9 bug)
+  * Replace (cumbersome) pages quantity option by 'per-page' prompt
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Sun,  2 Apr 2017 19:33:00 +0200
+
 custom-util-pdf (2017.01.13b) UNRELEASED; urgency=low
 
   * Improved 'scan-easy' to use sensible defaults and allow no-option/no-argument use

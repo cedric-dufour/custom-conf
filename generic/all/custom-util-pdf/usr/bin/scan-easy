@@ -10,7 +10,6 @@ SYNOPSIS:
 
 OPTIONS:
   -D   --name           Document name                  [<auto>]
-  -N   --pages          Page quantity                  [1]
   -C   --color          Color mode {Color|Gray|BW}     [Color]
   -R   --resolution     Resolution (DPI)               [300]
   -X   --width          Scan width (mm)                [210]
@@ -32,7 +31,6 @@ EOF
 # Arguments
 MY_OUTPUT=
 MY_NAME=
-MY_PAGES='1'
 MY_COLOR='Color'
 MY_RESOLUTION='300'
 MY_WIDTH='210'
@@ -52,7 +50,6 @@ EXT_OPTIONS=
 while [ -n "${1}" ]; do
   case "${1}" in
     -D|--name) shift; MY_NAME="${1}" ;;
-    -N|--pages) shift; MY_PAGES=$(( 0 + ${1} )) ;;
     -C|--color) shift; MY_COLOR=${1} ;;
     -R|--resolution) shift; MY_RESOLUTION=$(( 0 + ${1} )) ;;
     -X|--width) shift; MY_WIDTH=$(( 0 + ${1} )) ;;
@@ -77,7 +74,6 @@ while [ -n "${1}" ]; do
   shift
 done
 # ... check
-[ ${MY_PAGES} -lt 1 ] && echo "ERROR: Invalid pages quantity (${MY_PAGES})" >&2 && exit 1
 [ ${MY_RESOLUTION} -lt 25 ] && echo "ERROR: Invalid resolution (${MY_RESOLUTION})" >&2 && exit 1
 [ ${MY_WIDTH} -lt 10 ] && echo "ERROR: Invalid width (${MY_WIDTH})" >&2 && exit 1
 [ ${MY_HEIGHT} -lt 10 ] && echo "ERROR: Invalid height (${MY_HEIGHT})" >&2 && exit 1
@@ -169,16 +165,29 @@ touch "${MY_FILETMP}.pdf" && chmod 600 "${MY_FILETMP}.pdf"
 trap "rm -f '${MY_FILETMP}'.*" EXIT
 
 # Scan image
-for (( p=0; p<${MY_PAGES}; p=p+1 )); do
-  let d=p+1
+p=0
+while true; do
+  let p1=p+1
   P="000${p}"; P=${P:${#P}-3} # PS: ${parameter:-offset} doest not work...
-  echo -n "Place document/page N°${d} in scanner and press <ENTER> (or <CTRL-C> to abort)" && read
-  echo "Scanning document/page N°${d}..."
+  while true; do
+    echo -n "[S]can page N°${p1}, [D]one with scanning (or <CTRL-C> to abort) [S/d] ? " && read answer
+    case "${answer}" in
+      'D'|'d')
+        [ ${p} -eq 0 ] && echo 'Empty document (no page); bailing out.' && exit 0
+        echo "Done with scanning; generating output (${p} pages)..."
+        break 2;;
+      'S'|'s'|'')
+        break 1;;
+    esac
+  done
+  echo "Scanning page N°${p1}..."
   touch "${MY_FILETMP}.${P}.tif" && chmod 600 "${MY_FILETMP}.${P}.tif"
   scanimage --progress --mode Color -x ${MY_WIDTH} -y ${MY_HEIGHT} --resolution ${MY_RESOLUTION} --format tiff ${MY_OPTIONS_SCAN} \
   | convert - -contrast-stretch "${MY_BLACK}%x${MY_WHITE}%" ${MY_CONVERT} -compress zip ${MY_OPTIONS_IMAGE} "${MY_FILETMP}.${P}.tif"
   [ $? -ne 0 ] && echo 'ERROR: Failed to scan image' >&2 && exit 1
+  p=${p1}
 done
+unset p
 
 # Create TIF file
 # NOTE: make sure tiffcp uses single-strip compression, such as to avoid transcoding on tiff2pdf/tiff2ps
@@ -196,7 +205,18 @@ case "${MY_FORMAT}" in
       'bw'|'BW') MY_COMPRESSION='-compress group4' ;;
     esac
     # NOTE: Do NOT (re)set the PDF -page/-density; the source Tiff DOES have the proper resolution set
-    convert "${MY_OUTPUT_TIF}" ${MY_COMPRESSION} "${MY_OUTPUT_PDF}"
+    # BUG: PDF title non-ASCII characters encoding fixed as per ImageMagick 6.9.2-9
+    #      http://git.imagemagick.org/repos/ImageMagick/commit/ce4a355a916bf3c470be4503b70e8a029dd6f6ad
+    if [ "$(( echo 'Version: ImageMagick 6.9.2-9'; convert -version | fgrep 'Version:') | sort -V | head -n 1)" == 'Version: ImageMagick 6.9.2-9' ]; then
+        convert "${MY_OUTPUT_TIF}" ${MY_COMPRESSION} "${MY_OUTPUT_PDF}"
+    else
+        # NOTE: Default encoding for '/Title' is PDFDocEncoding, a superset of Windows code page 1252
+        #       https://www.adobe.com/content/dam/Adobe/en/devnet/pdf/pdfs/PDF32000_2008.pdf
+        my_output_pdf_cp1252="$(echo "${MY_OUTPUT_PDF}" | iconv -f utf8 -t cp1252)"
+        convert "${MY_OUTPUT_TIF}" ${MY_COMPRESSION} "${my_output_pdf_cp1252}"
+        mv "${my_output_pdf_cp1252}" "${MY_OUTPUT_PDF}"
+        unset my_output_pdf_cp1252
+    fi
     ;;
 
   'ps')
