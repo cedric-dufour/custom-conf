@@ -1,3 +1,9 @@
+custom-pack-flash (2017.04.20a) UNRELEASED; urgency=low
+
+  * New version: NPAPI/PPAPI 25.0.0.148
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Thu, 20 Apr 2017 23:32:36 +0200
+
 custom-pack-flash (2017.03.07a) UNRELEASED; urgency=low
 
   * Transition from 'custom-packages-install-flash'
