@@ -1,0 +1,12 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-conf-firefox
+
+This package provides standard configuration of the Mozilla Firefox
+web browser.
+
+In particular, it addresses standard configuration of:
+ - locking sensible caching preferences
+ - disabling unwanted features (milestone popups, network manager
+   integration, etc.) 
+
