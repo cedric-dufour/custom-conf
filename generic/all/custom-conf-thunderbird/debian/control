@@ -1,0 +1,14 @@
+Source: custom-conf-thunderbird
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 3.9.7
+
+Package: custom-conf-thunderbird
+Architecture: all
+Depends: custom-conf, thunderbird
+Breaks: custom-conf-icedove (<< 2017.04.21a)
+Replaces: custom-conf-icedove (<< 2017.04.21a)
+Description: Custom Configuration Framework - Mozilla Thunderbird
+
