@@ -18,7 +18,7 @@ the 'dpkg-buildpackage' command (part of the official 'dpkg-dev' package):
   $ ls -l ../*.deb
 
   # Clean-up
-  $ dh clean
+  $ dpkg-buildpackage -T clean
 
 
 The resulting package can then be installed on the target host using the usual
