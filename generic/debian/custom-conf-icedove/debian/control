@@ -7,6 +7,6 @@ Standards-Version: 3.9.7
 
 Package: custom-conf-icedove
 Architecture: all
-Depends: custom-conf, icedove
-Description: Custom Configuration Framework - Icedove
+Depends: custom-conf-thunderbird (>= 2017.04.21a)
+Description: Custom Configuration Framework - TRANSITIONAL PACKAGE
 

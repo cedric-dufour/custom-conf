@@ -2,8 +2,13 @@
 [ "${1}" != 'configure' ] && exit 0
 PKGNAME='custom-conf-icedove'
 
-# Install files
-custom-conf-install "${PKGNAME}" "/usr/share/${PKGNAME}/config" || exit 1
+# Transition files
+gcfg list ${PKGNAME} | while read file; do
+  gcfg unflag "${file}" ${PKGNAME}
+done
+
+# Purge the configuration directory
+rm -rf /etc/icedove
 
 # Exit
 exit 0

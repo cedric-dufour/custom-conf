@@ -2,10 +2,5 @@ Custom Configuration Framework (custom-conf)
 ============================================
 Package: custom-conf-icedove
 
-This package provides standard configuration of the Icedove (aka Thunderbird)
-Mail User Agent (MUA).
-
-In particular, it addresses standard configuration of:
- - locking sensible caching preferences
- - disabling unwanted features (milestone popups, telemetry reporting, etc.)
+TRANSITIONAL PACKAGE -> custom-conf-thunderbird
 
