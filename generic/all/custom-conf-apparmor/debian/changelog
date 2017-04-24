@@ -1,3 +1,10 @@
+custom-conf-apparmor (2017.04.24a) UNRELEASED; urgency=low
+
+  * Added /etc/apparmor.d/abstractions/custom-helpers
+    (fixing yet-to-be corrected ubuntu-helpers inconsistencies)
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Mon, 24 Apr 2017 16:04:34 +0200
+
 custom-conf-apparmor (2016.06.23a) UNRELEASED; urgency=low
 
   * Post Tenebras Lux
