@@ -1,3 +1,9 @@
+custom-conf-utils (2017.04.24a) UNRELEASED; urgency=low
+
+  * FIX: Filter-out secondary IP addresses from listing
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Mon, 24 Apr 2017 11:06:32 +0200
+
 custom-conf-utils (2016.06.21a) UNRELEASED; urgency=low
 
   * Post Tenebras Lux
