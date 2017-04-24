@@ -5,6 +5,9 @@ PKGNAME='custom-conf-thunderbird'
 # Install files
 custom-conf-install "${PKGNAME}" "/usr/share/${PKGNAME}/config" || exit 1
 
+# Additional actions
+invoke-rc.d apparmor reload >/dev/null
+
 # Exit
 exit 0
 

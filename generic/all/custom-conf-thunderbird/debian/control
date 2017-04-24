@@ -10,5 +10,6 @@ Architecture: all
 Depends: custom-conf, thunderbird
 Breaks: custom-conf-icedove (<< 2017.04.21a)
 Replaces: custom-conf-icedove (<< 2017.04.21a)
+Recommends: custom-conf-apparmor (>= 2017.04.24a)
 Description: Custom Configuration Framework - Mozilla Thunderbird
 
