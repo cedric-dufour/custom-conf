@@ -27,7 +27,10 @@ profile thunderbird /usr/lib/thunderbird/thunderbird {
   #include <abstractions/ubuntu-helpers>
 
   # [custom-conf-thunderbird] We'll need those too
+  # Debian quirks
   #include <abstractions/custom-helpers>
+  # Productivity tools (document readers)
+  #include <abstractions/ubuntu-browsers.d/productivity>
 
   # For Xubuntu to launch the browser
   /usr/bin/exo-open ixr,
@@ -122,7 +125,7 @@ profile thunderbird /usr/lib/thunderbird/thunderbird {
   owner @{HOME}/**/cert9.db rwk,
   owner @{HOME}/**/key4.db rwk,
 
-  # Allow 21st-century browsers to be launched (*handler.http*)
+  # Allow Debian browsers to be launched (*handler.http*)
   /usr/bin/firefox-esr Cx -> sanitized_helper,
   /usr/lib/firefox-esr/firefox-esr Cx -> sanitized_helper,
   /usr/bin/chromium Cx -> custom_sanitized_helper, 

@@ -1,3 +1,9 @@
+custom-conf-thunderbird (2017.04.27a) UNRELEASED; urgency=low
+
+  * Add productivity tools (document readers) to AppArmor profile
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Thu, 27 Apr 2017 09:26:24 +0200
+
 custom-conf-thunderbird (2017.04.24a) UNRELEASED; urgency=low
 
   * Fix default-provided AppArmor profile
