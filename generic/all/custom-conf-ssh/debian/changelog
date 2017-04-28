@@ -1,3 +1,9 @@
+custom-conf-ssh (2017.04.28a) UNRELEASED; urgency=low
+
+  * Regenerate all host keys (RSA and DSA) as needed
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Fri, 28 Apr 2017 09:23:28 +0200
+
 custom-conf-ssh (2017.03.16a) UNRELEASED; urgency=low
 
   * Remove SSH v.1 specific configuration options
