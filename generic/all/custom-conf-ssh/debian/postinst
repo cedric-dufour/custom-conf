@@ -159,11 +159,11 @@ if [ ! -e /etc/ssh/ssh_host_rsa_key.pub -o "$(ssh-keygen -lf /etc/ssh/ssh_host_r
   /usr/bin/ssh-keygen -q -b $[2049+$RANDOM%511] -t rsa -N '' -f /etc/ssh/ssh_host_rsa_key -C "${sshkey_comment}"
   /usr/bin/ssh-keygen -lf /etc/ssh/ssh_host_rsa_key.pub
 fi
-if [ ! -e /etc/ssh/ssh_host_dsa_key.pub ]; then
-  echo "WARNING[${PKGNAME}]: The DSA key does not exist"
-  echo ': creating new DSA key...'
-  /usr/bin/ssh-keygen -q -b 1024 -t dsa -N '' -f /etc/ssh/ssh_host_dsa_key -C "${sshkey_comment}"
-  /usr/bin/ssh-keygen -lf /etc/ssh/ssh_host_dsa_key.pub
+if [ ! -e /etc/ssh/ssh_host_ecdsa_key.pub ]; then
+  echo "WARNING[${PKGNAME}]: The ECDSA key does not exist"
+  echo ': creating new ECDSA key...'
+  /usr/bin/ssh-keygen -q -b 256 -t ecdsa -N '' -f /etc/ssh/ssh_host_ecdsa_key -C "${sshkey_comment}"
+  /usr/bin/ssh-keygen -lf /etc/ssh/ssh_host_ecdsa_key.pub
 fi
 invoke-rc.d ssh reload >/dev/null
 

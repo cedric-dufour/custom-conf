@@ -1,4 +1,10 @@
-custom-conf-ssh (2017.04.28a) UNRELEASED; urgency=low
+custom-conf-ssh (2017.04.28b) UNRELEASED; urgency=low
+
+  * Regenerate all host keys (RSA and *ECDSA*) as needed
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Fri, 28 Apr 2017 09:35:40 +0200
+
+ccustom-conf-ssh (2017.04.28a) UNRELEASED; urgency=low
 
   * Regenerate all host keys (RSA and DSA) as needed
 
