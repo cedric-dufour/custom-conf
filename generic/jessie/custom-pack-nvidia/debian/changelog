@@ -1,3 +1,9 @@
+custom-pack-nvidia (2017.05.04a) UNRELEASED; urgency=low
+
+  * Added 'linux-headers-<arch>' dependency
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Thu, 04 May 2017 15:26:57 +0200
+
 custom-pack-nvidia (2017.03.07a) UNRELEASED; urgency=low
 
   * Transition from 'custom-packages-install-nvidia'

@@ -9,7 +9,7 @@ Package: custom-pack-nvidia
 Architecture: all
 Breaks: custom-packages-install-nvidia (<< 2017.03.07a)
 Replaces: custom-packages-install-nvidia (<< 2017.03.07a)
-Depends: nvidia-driver, nvidia-settings, nvidia-smi, nvidia-vdpau-driver
+Depends: linux-headers-amd64 | linux-headers-i386, nvidia-driver, nvidia-settings, nvidia-smi, nvidia-vdpau-driver
 Recommends: custom-conf-xorg-nvidia
 Suggests: custom-pack-cuda
 Description: Custom Configuration Framework - nVidia proprietary driver stack
