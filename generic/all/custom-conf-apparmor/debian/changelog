@@ -1,3 +1,9 @@
+custom-conf-apparmor (2017.05.04a) UNRELEASED; urgency=low
+
+  * Make sure AppArmor is enabled in the kernel (security=apparmor)
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Thu, 04 May 2017 09:53:05 +0200
+
 custom-conf-apparmor (2017.04.24a) UNRELEASED; urgency=low
 
   * Added /etc/apparmor.d/abstractions/custom-helpers
