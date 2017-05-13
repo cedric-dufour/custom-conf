@@ -1,5 +1,5 @@
 ## CUSTOM-CONF: File automatically created/updated [custom-pack-flash]
 flashso='/usr/lib/custom-pack-flash/ppapi/libpepflashplayer.so'
-flashversion='25.0.0.148'
+flashversion='25.0.0.171'
 CHROMIUM_FLAGS="${CHROMIUM_FLAGS} --ppapi-flash-path=$flashso --ppapi-flash-version=$flashversion"
 

@@ -152,7 +152,7 @@ INFO: You can now edit the changelog and build the Debian package
   ${EDITOR:-vi} ./debian/changelog
   dpkg-buildpackage -us -uc -b
 WARNING: Do not forget to CLEAN-UP aftewards!
-  dh_clean
+  dpkg-buildpackage -T clean
   ./cleanup-flash
 EOF
 exit 0
