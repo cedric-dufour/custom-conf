@@ -92,3 +92,12 @@ if [ -e "${__list}" ]; then
   done
 fi
 
+# Blacklist IP/ports
+# ... LOG and DROP
+"${IPTABLES}" --table filter --new-chain BLACKLIST_DROP; _exit $?
+"${IPTABLES}" --table filter --append BLACKLIST_DROP --match recent --name BLACKLIST_DROP --rcheck --seconds 3600 --jump DROP; _exit $?
+"${IPTABLES}" --table filter --append BLACKLIST_DROP --jump LOG --log-level warning --log-prefix '[IPTABLES:BLACKLIST_DROP] '; _exit $?
+"${IPTABLES}" --table filter --append BLACKLIST_DROP --match recent --name BLACKLIST_DROP --set --jump DROP; _exit $?
+# ... parse blacklist
+# --> see 'filter.footer'
+

@@ -1,3 +1,10 @@
+custom-conf-iptables (2017.05.17b) UNRELEASED; urgency=low
+
+  * Moved 'BLACKLIST_DROP' chain creation back in 'footer' section
+    (allow '.../filter.d/*' to use the chain)
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Wed, 17 May 2017 17:23:07 +0200
+
 custom-conf-iptables (2017.05.17a) UNRELEASED; urgency=low
 
   * Moved blacklist rules from the 'header' to the 'footer' section

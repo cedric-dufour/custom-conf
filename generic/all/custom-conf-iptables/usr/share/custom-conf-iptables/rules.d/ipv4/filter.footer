@@ -2,11 +2,6 @@
 
 # Blacklist IP/ports
 [ -n "${VERBOSE}" ] && echo "INFO: Blacklisting IP/ports [IPv4]"
-# ... LOG and DROP
-"${IPTABLES}" --table filter --new-chain BLACKLIST_DROP; _exit $?
-"${IPTABLES}" --table filter --append BLACKLIST_DROP --match recent --name BLACKLIST_DROP --rcheck --seconds 3600 --jump DROP; _exit $?
-"${IPTABLES}" --table filter --append BLACKLIST_DROP --jump LOG --log-level warning --log-prefix '[IPTABLES:BLACKLIST_DROP] '; _exit $?
-"${IPTABLES}" --table filter --append BLACKLIST_DROP --match recent --name BLACKLIST_DROP --set --jump DROP; _exit $?
 # ... parse blacklist
 __list=/etc/iptables/rules.d/ipv4/filter.blacklist
 if [ -e "${__list}" ]; then
