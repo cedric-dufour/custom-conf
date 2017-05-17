@@ -1,5 +1,23 @@
 ## Default rules/definitions (footer)
 
+# Blacklist IP/ports
+[ -n "${VERBOSE}" ] && echo "INFO: Blacklisting IP/ports [IPv6]"
+# ... LOG and DROP
+"${IPTABLES}" --table filter --new-chain BLACKLIST_DROP; _exit $?
+"${IPTABLES}" --table filter --append BLACKLIST_DROP --match recent --name BLACKLIST_DROP --rcheck --seconds 3600 --jump DROP; _exit $?
+"${IPTABLES}" --table filter --append BLACKLIST_DROP --jump LOG --log-level warning --log-prefix '[IPTABLES:BLACKLIST_DROP] '; _exit $?
+"${IPTABLES}" --table filter --append BLACKLIST_DROP --match recent --name BLACKLIST_DROP --set --jump DROP; _exit $?
+# ... parse blacklist
+__list=/etc/iptables/rules.d/ipv6/filter.blacklist
+if [ -e "${__list}" ]; then
+  for __line in $(sed 's/#.*//g;s/ *//g' "${__list}" | grep -v '^$'); do
+    if [ "${__line/:/}" != "${__line}" ]; then __from=${__line%%:*}; __to=${__line##*:}; else __from=${__line}; __to=; fi
+    if [ "${__from/@/}" != "${__from}" ]; then __src=${__from%%@*}; __in=${__from##*@}; else __src=${__from}; __in=; fi
+    if [ "${__to/[0-9]-[0-9]/}" != "${__to}" ]; then __to=${__to/-/:}; fi
+    "${IPTABLES}" --table filter --append INPUT ${__in:+--in-interface ${__in}} ${__src:+--source ${__src//./:}} ${__to:+--protocol ${__to##*/} --dport ${__to%%/*}} --jump BLACKLIST_DROP; _exit $?
+  done
+fi
+
 # Connection-throttling (to prevent Brute-Force/DoS)
 [ -n "${VERBOSE}" ] && echo "INFO: Throttling connections [IPv6]"
 # ... TCP (high-sensibility) -> SSH
