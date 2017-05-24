@@ -30,7 +30,7 @@ EOF
 sysctl -q net.ipv6.conf.${IFACE}.autoconf=0
 sysctl -q net.ipv6.conf.${IFACE}.accept_dad=0
 sysctl -q net.ipv6.conf.${IFACE}.dad_transmits=0
-sysctl -q net.ipv6.conf.${IFACE}.accept_ra=1
+sysctl -q net.ipv6.conf.${IFACE}.accept_ra=2
 sysctl -q net.ipv6.conf.${IFACE}.accept_redirects=0
 sysctl -q net.ipv6.conf.${IFACE}.router_solicitations=3
 sysctl -q net.ipv6.conf.${IFACE}.use_tempaddr=0

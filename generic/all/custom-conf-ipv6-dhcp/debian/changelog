@@ -1,3 +1,9 @@
+custom-conf-ipv6-dhcp (2017.05.24a) UNRELEASED; urgency=low
+
+  * Accept Router Advertisement (RA) even when forwarding is enabled
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Wed, 24 May 2017 15:23:42 +0200
+
 custom-conf-ipv6-dhcp (2016.06.06a) UNRELEASED; urgency=low
 
   * Post Tenebras Lux
