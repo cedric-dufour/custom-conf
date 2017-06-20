@@ -10,14 +10,22 @@ SYNOPSIS:
    - RAM, in MiB
 
 OPTIONS:
+  -d, --detail
+    Detailed (per VM) output
+
   -b, --batch
     Machine friendly output
 EOF
 
 # Arguments
+OPT_DETAIL=
 OPT_BATCH=
 while [ -n "${1}" ]; do
   case "${1}" in
+
+    '-d'|'--detail')
+      OPT_DETAIL='yes'
+      ;;
 
     '-b'|'--batch')
       OPT_BATCH='yes'
@@ -35,6 +43,10 @@ while [ -n "${1}" ]; do
   shift
 done
 
+# Parameters
+OUT_FORMAT='%s %d %d %d %d %d %d'
+[ -z "${OPT_BATCH}" ] && OUT_FORMAT='[%s] CPU: %d/%d (%d%%) - RAM: %d/%d (%d%%)'
+
 
 ## Query
 
@@ -51,15 +63,25 @@ VIRSH_DOM_RAM=0
 for virsh_dom in $(virsh list --name); do
   [ -z "${virsh_dom}" ] && continue
   VIRSH_DOMINFO="$(virsh dominfo ${virsh_dom})"
-  VIRSH_DOM_CPU=$(( ${VIRSH_DOM_CPU} + $(echo "${VIRSH_DOMINFO}" | grep -i '^CPU(s):' | sed 's/^.*:\s*\([0-9]*\).*$/\1/') ))
-  VIRSH_DOM_RAM=$(( ${VIRSH_DOM_RAM} + $(echo "${VIRSH_DOMINFO}" | grep -i '^Max memory:' | sed 's/^.*:\s*\([0-9]*\).*$/\1/') ))
+  virsh_dom_cpu=$(echo "${VIRSH_DOMINFO}" | grep -i '^CPU(s):' | sed 's/^.*:\s*\([0-9]*\).*$/\1/')
+  virsh_dom_ram=$(echo "${VIRSH_DOMINFO}" | grep -i '^Max memory:' | sed 's/^.*:\s*\([0-9]*\).*$/\1/')
+  VIRSH_DOM_CPU=$(( ${VIRSH_DOM_CPU} + ${virsh_dom_cpu} ))
+  VIRSH_DOM_RAM=$(( ${VIRSH_DOM_RAM} + ${virsh_dom_ram} ))
+  if [ -n "${OPT_DETAIL}" ]; then
+    printf "${OUT_FORMAT}\n" \
+      ${virsh_dom} \
+      ${virsh_dom_cpu} \
+      ${VIRSH_NODE_CPU} \
+      $(( 100 * ${virsh_dom_cpu} / ${VIRSH_NODE_CPU} )) \
+      $(( ${virsh_dom_ram} / 1024 )) \
+      $(( ${VIRSH_NODE_RAM} / 1024 )) \
+      $(( 100 * ${virsh_dom_ram} / ${VIRSH_NODE_RAM} ))
+  fi
 done
 
-
-## Display
-OUT_FORMAT='%d %d %d %d %d %d'
-[ -z "${OPT_BATCH}" ] && OUT_FORMAT='CPU: %d/%d (%d%%) - RAM: %d/%d (%d%%)'
+# Total
 printf "${OUT_FORMAT}\n" \
+  'TOTAL' \
   ${VIRSH_DOM_CPU} \
   ${VIRSH_NODE_CPU} \
   $(( 100 * ${VIRSH_DOM_CPU} / ${VIRSH_NODE_CPU} )) \

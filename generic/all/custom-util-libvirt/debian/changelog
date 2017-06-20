@@ -1,3 +1,9 @@
+custom-util-libvirt (2017.06.20a) UNRELEASED; urgency=low
+
+  * Added '--detail' option to 'virsh-utilization' utility
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Tue, 20 Jun 2017 14:56:16 +0200
+
 custom-util-libvirt (2016.11.23a) UNRELEASED; urgency=low
 
   * Post Tenebras Lux
