@@ -279,10 +279,16 @@ profile thunderbird /usr/lib/thunderbird/thunderbird {
     # LDAP key servers
     /etc/ldap/ldap.conf r,
 
+    # GPG Agent
     /usr/bin/gpg-connect-agent mr,
     owner @{HOME}/.gnupg/S.gpg-agent rw,
     owner @{HOME}/.gnupg/S.dirmngr rw,
+    # [custom-conf-thunderbird] Allow the agent to be launched "on demand"
+    /usr/bin/gpg-agent ix,
+    # [custom-conf-thunderbird] Allow 'pinentry' to be launched and load all required resources (fonts, etc.)
+    /usr/bin/pinentry-gtk-2 Ux,
 
+    # User resources
     /usr/bin/gpg2 mr,
     owner @{HOME}/.gnupg/ rw,
     owner @{HOME}/.gnupg/gpg.conf r,
