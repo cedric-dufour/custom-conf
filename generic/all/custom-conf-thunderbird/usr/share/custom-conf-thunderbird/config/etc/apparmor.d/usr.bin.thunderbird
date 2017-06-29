@@ -207,45 +207,8 @@ profile thunderbird /usr/lib/thunderbird/thunderbird {
   /bin/uname Uxr,
   /usr/bin/locale Uxr,
 
-  /usr/bin/gpg Cx -> gpg,
-
-  profile gpg {
-    #include <abstractions/base>
-
-    # Required to import keys from keyservers
-    #include <abstractions/nameservice>
-    #include <abstractions/p11-kit>
-
-
-  /usr/share/xul-ext/enigmail/chrome/enigmail.jar r,
-
-    # For smartcards?
-    /dev/bus/usb/ r,
-    /dev/bus/usb/[0-9]*/ r,
-    /dev/bus/usb/[0-9]*/[0-9]* r,
-
-    # LDAP key servers
-    /etc/ldap/ldap.conf r,
-
-    /usr/bin/gpg mr,
-    /usr/lib/gnupg/gpgkeys_* ix,
-    owner @{HOME}/.gnupg r,
-    owner @{HOME}/.gnupg/gpg.conf r,
-    owner @{HOME}/.gnupg/random_seed rwk,
-    owner @{HOME}/.gnupg/pubring.gpg{,~} rw,
-    owner @{HOME}/.gnupg/secring.gpg rw,
-    owner @{HOME}/.gnupg/trustdb.gpg rw,
-    owner @{HOME}/.gnupg/*.gpg.{lock,tmp} rwl,
-    owner @{HOME}/.gnupg/.#*[0-9]  rw,
-    owner @{HOME}/.gnupg/.#*[0-9]x rwl,
-    owner @{HOME}/** r,
-
-    owner /run/user/[0-9]*/keyring-*/gpg rw,
-
-    # for inline pgp
-    owner /tmp/encfile rw,
-    owner /tmp/encfile-[0-9]* rw,
-  }
+  # [custom-conf-thunderbird] Suppress /usr/bin/gpg support/profile entirely
+  # (it is erroneous, incomplete and readily replaced by gpg2)
 
   /usr/bin/gpg2              Cx -> gpg2,
   /usr/bin/gpgconf           Cx -> gpg2,
@@ -315,6 +278,9 @@ profile thunderbird /usr/lib/thunderbird/thunderbird {
     # for signature verifications
     owner /tmp/data.sig r,
     owner /tmp/data-[0-9]*.sig r,
+
+    # [custom-conf-thunderbird] For key management
+    owner /tmp/enigmail_import/.#lk0x[0-9a-f]* rwl,
 
     owner /tmp/gpg-[a-zA-Z0-9]*/S.gpg-agent rw,
   }
