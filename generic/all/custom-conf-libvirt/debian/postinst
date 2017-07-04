@@ -1,0 +1,94 @@
+#!/bin/bash
+[ "${1}" != 'configure' ] && exit 0
+PKGNAME='custom-conf-libvirt'
+
+# Debconf
+. /usr/share/debconf/confmodule
+# ... preseed
+for var_priority in network-address:high network-authentication:high network-authorization:high; do
+  var="${var_priority%:*}"
+  priority="${var_priority#*:}"
+  db_input ${priority} ${PKGNAME}/${var}
+  db_go
+done
+# ... get
+db_get ${PKGNAME}/network-address && CUSTOM_CONF_LIBVIRT_NETWORK_ADDRESS="${RET}"
+db_get ${PKGNAME}/network-authentication && CUSTOM_CONF_LIBVIRT_NETWORK_AUTHENTICATION="${RET}"
+db_get ${PKGNAME}/network-authorization && CUSTOM_CONF_LIBVIRT_NETWORK_AUTHORIZATION="${RET}"
+db_stop
+
+# Install files
+custom-conf-install "${PKGNAME}" "/usr/share/${PKGNAME}/config" || exit 1
+
+
+## Fine-tuning
+
+# Handle authentication/authorization scheme
+CUSTOM_CONF_LIBVIRT_DAEMON_OPTIONS=
+CUSTOM_CONF_LIBVIRT_LISTEN_ADDR='127.0.0.1'
+CUSTOM_CONF_LIBVIRT_LISTEN_TCP=0
+CUSTOM_CONF_LIBVIRT_LISTEN_TLS=0
+CUSTOM_CONF_LIBVIRT_AUTH_TCP='sasl'
+CUSTOM_CONF_LIBVIRT_ALLOW_TLS=
+CUSTOM_CONF_LIBVIRT_ALLOW_SASL=
+CUSTOM_CONF_LIBVIRT_SASL_MECHANISM='digest-md5'
+if [ -n "${CUSTOM_CONF_LIBVIRT_NETWORK_ADDRESS}" ]; then
+  CUSTOM_CONF_LIBVIRT_DAEMON_OPTIONS='-l'
+  [ "${CUSTOM_CONF_LIBVIRT_NETWORK_ADDRESS}" == '*' ] && CUSTOM_CONF_LIBVIRT_LISTEN_ADDR='' || CUSTOM_CONF_LIBVIRT_LISTEN_ADDR="${CUSTOM_CONF_LIBVIRT_NETWORK_ADDRESS}"
+  case "${CUSTOM_CONF_LIBVIRT_NETWORK_AUTHENTICATION}" in
+
+    'none')
+      CUSTOM_CONF_LIBVIRT_LISTEN_TCP=1
+      CUSTOM_CONF_LIBVIRT_AUTH_TCP='none'
+      ;;
+
+    'tls')
+      CUSTOM_CONF_LIBVIRT_LISTEN_TLS=1
+      for dn in ${CUSTOM_CONF_LIBVIRT_NETWORK_AUTHORIZATION}; do
+        CUSTOM_CONF_LIBVIRT_ALLOW_TLS="${CUSTOM_CONF_LIBVIRT_ALLOW_TLS}${CUSTOM_CONF_LIBVIRT_ALLOW_TLS:+,}\"${dn}\""
+      done
+      ;;
+
+    'sasl-db')
+      CUSTOM_CONF_LIBVIRT_LISTEN_TCP=1
+      for username in ${CUSTOM_CONF_LIBVIRT_NETWORK_AUTHORIZATION}; do
+        CUSTOM_CONF_LIBVIRT_ALLOW_SASL="${CUSTOM_CONF_LIBVIRT_ALLOW_SASL}${CUSTOM_CONF_LIBVIRT_ALLOW_SASL:+,}\"${username}\""
+      done
+      ;;
+
+    'sasl-krb5')
+      CUSTOM_CONF_LIBVIRT_LISTEN_TCP=1
+      for principal in ${CUSTOM_CONF_LIBVIRT_NETWORK_AUTHORIZATION}; do
+        CUSTOM_CONF_LIBVIRT_ALLOW_SASL="${CUSTOM_CONF_LIBVIRT_ALLOW_SASL}${CUSTOM_CONF_LIBVIRT_ALLOW_SASL:+,}\"${principal}\""
+      done
+      CUSTOM_CONF_LIBVIRT_SASL_MECHANISM='gssapi'
+      ;;
+  esac
+fi
+# ... formatting
+[ -n "${CUSTOM_CONF_LIBVIRT_LISTEN_ADDR}" ] && CUSTOM_CONF_LIBVIRT_LISTEN_ADDR="\"${CUSTOM_CONF_LIBVIRT_LISTEN_ADDR}\""
+[ -n "${CUSTOM_CONF_LIBVIRT_AUTH_TCP}" ] && CUSTOM_CONF_LIBVIRT_AUTH_TCP="\"${CUSTOM_CONF_LIBVIRT_AUTH_TCP}\""
+[ -n "${CUSTOM_CONF_LIBVIRT_ALLOW_TLS}" ] && CUSTOM_CONF_LIBVIRT_ALLOW_TLS="[${CUSTOM_CONF_LIBVIRT_ALLOW_TLS}]"
+[ -n "${CUSTOM_CONF_LIBVIRT_ALLOW_SASL}" ] && CUSTOM_CONF_LIBVIRT_ALLOW_SASL="[${CUSTOM_CONF_LIBVIRT_ALLOW_SASL}]"
+
+# Daemon settings
+gsed "s|%{CUSTOM_CONF_LIBVIRT_DAEMON_OPTIONS}|${CUSTOM_CONF_LIBVIRT_DAEMON_OPTIONS}|g" /etc/default/libvirtd
+
+# Daemon configuration
+gsed "s|%{CUSTOM_CONF_LIBVIRT_LISTEN_ADDR}|${CUSTOM_CONF_LIBVIRT_LISTEN_ADDR}|g;s|%{CUSTOM_CONF_LIBVIRT_LISTEN_TCP}|${CUSTOM_CONF_LIBVIRT_LISTEN_TCP}|g;s|%{CUSTOM_CONF_LIBVIRT_LISTEN_TLS}|${CUSTOM_CONF_LIBVIRT_LISTEN_TLS}|g;s|%{CUSTOM_CONF_LIBVIRT_AUTH_TCP}|${CUSTOM_CONF_LIBVIRT_AUTH_TCP}|g;s|%{CUSTOM_CONF_LIBVIRT_ALLOW_TLS}|${CUSTOM_CONF_LIBVIRT_ALLOW_TLS}|g;s|%{CUSTOM_CONF_LIBVIRT_ALLOW_SASL}|${CUSTOM_CONF_LIBVIRT_ALLOW_SASL}|g" /etc/libvirt/libvirtd.conf
+[ -z "${CUSTOM_CONF_LIBVIRT_LISTEN_ADDR}" ] && gsed 's|^\s*listen_addr|#listen_addr|' /etc/libvirt/libvirtd.conf
+[ -z "${CUSTOM_CONF_LIBVIRT_ALLOW_TLS}" ] && gsed 's|^\s*tls_allowed_dn_list|#tls_allowed_dn_list|' /etc/libvirt/libvirtd.conf
+[ -z "${CUSTOM_CONF_LIBVIRT_ALLOW_SASL}" ] && gsed 's|^\s*sasl_allowed_username_list|#sasl_allowed_username_list|' /etc/libvirt/libvirtd.conf
+
+# SASL configuration
+gsed "s|%{CUSTOM_CONF_LIBVIRT_SASL_MECHANISM}|${CUSTOM_CONF_LIBVIRT_SASL_MECHANISM}|g" /etc/sasl2/libvirt.conf
+
+
+## Additional actions
+
+# LibVirt daemon restart
+invoke-rc.d libvirtd restart
+
+# Exit
+exit 0
+

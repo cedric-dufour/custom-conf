@@ -1,0 +1,17 @@
+## CUSTOM-CONF: File automatically created/updated [custom-conf-libvirt]
+
+
+## LibVirt daemon settings
+
+# Start daemon:
+start_libvirtd="yes"
+
+# Daemon options
+libvirtd_opts="%{CUSTOM_CONF_LIBVIRT_DAEMON_OPTIONS}"
+
+# Kerberos keytab
+KRB5_KTNAME=/etc/krb5.keytab
+
+# Control groups (cgroups)
+# (assume systemd is running and managing those)
+

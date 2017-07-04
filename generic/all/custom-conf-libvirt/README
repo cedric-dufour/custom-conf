@@ -1,0 +1,12 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-conf-libvirt
+
+This package provides standard configuration the LibVirt virtualization
+abstraction API and daemon.
+
+In particular, it addresses standard configuration of:
+ - network access, along
+ - network authentication and authorization, using TLS certificates,
+   locally-managed SASL database or MIT Kerberos V
+

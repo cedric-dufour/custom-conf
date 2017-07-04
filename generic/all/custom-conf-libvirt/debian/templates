@@ -1,0 +1,59 @@
+Template: custom-conf-libvirt/network-address
+Type: string
+Default: 
+Description: Network interface(s) to bind LibVirt to ?
+ Leave empty to disable LibVirt over the network.
+ .
+ Specify '0.0.0.0' (IPv4), '::' (IPv6) or '*' (IPv4+IPv6) to bind LibVirt to
+ all interfaces. In that case, you SHOULD setup proper network authentication
+ and authorization!
+ .
+ If in doubt: leave empty!
+
+Template: custom-conf-libvirt/network-authentication
+Type: select
+Choices: none, tls, sasl-db, sasl-krb5
+Default: sasl-db
+Description: Network authentication mechanism ?
+ (Ignore if LibVirt is disabled over the network)
+ .
+ Specify the network authentication mechanism, among:
+ .
+  - 'none':      ONLY if binding the LibVirt service to a private,
+                 dedicated management network
+ .
+  - 'tls':       to use TLS certificates (signed by a common CA)
+ .
+  - 'sasl-db':   to use a locally-managed database of users
+                 > saslpasswd2 -a libvirt -u DOMAIN ...
+ .
+  - 'sasl-krb5': to use GSSAPI/MIT Kerberos 5 authentication
+                 WARNING: you MUST create the corresponding principal
+                 and keytab for this host!
+                 > libvirt/$(hostname -f)@REALM <-> /etc/krb5.keytab
+ .
+ If in doubt: use 'sasl-db'!
+
+Template: custom-conf-libvirt/network-authorization
+Type: string
+Default: nobody
+Description: Network authorized clients/users ?
+ (Ignore if LibVirt is disabled over the network)
+ .
+ Space-separated list of authorized clients/users, depending on the configured
+ authentication mechanism:
+ .
+  - 'tls':       hosts' TLS certificate DNs
+                 ex: O=Organization,OU=Hosts,CN=hostname.example.org
+ .
+  - 'sasl-db':   locally-managed users
+                 ex: username@DOMAIN
+ .
+  - 'sasl-krb5': MIT Kerberos 5 principals
+                 ex: username username@NON-DEFAULT-REALM
+                 WARNING: do NOT specify the default REALM <-> /etc/krb5.conf
+ .
+ WARNING: If empty, EVERYONE will be granted access!
+ .
+ If in doubt: use 'nobody'!
+

@@ -1,0 +1,14 @@
+Source: custom-conf-libvirt
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 3.9.7
+
+Package: custom-conf-libvirt
+Architecture: all
+Depends: libvirt-daemon-system, libvirt-clients
+Recommends: custom-conf-qemu, custom-conf-network-bridge, custom-conf-krb5
+Suggests: dnsmasq, ebtables, sasl2-bin
+Description: Custom Configuration Framework - LibVirt (daemon)
+
