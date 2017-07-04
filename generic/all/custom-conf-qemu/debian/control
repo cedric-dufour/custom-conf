@@ -1,0 +1,12 @@
+Source: custom-conf-qemu
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 3.9.7
+
+Package: custom-conf-qemu
+Architecture: all
+Depends: qemu-system-x86, qemu-kvm, qemu-utils
+Description: Custom Configuration Framework - QEMU/KVM
+

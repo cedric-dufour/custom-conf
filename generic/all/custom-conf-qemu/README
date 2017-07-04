@@ -1,0 +1,10 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-conf-qemu
+
+This package provides standard configuration of QEMU/KVM virtualization stack.
+
+In particular, it addresses standard configuration of:
+ - kernel huge pages
+ - PCI passthrough (via Intel VT-d or AMD-Vi)
+

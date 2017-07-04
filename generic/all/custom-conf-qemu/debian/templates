@@ -1,0 +1,16 @@
+Template: custom-conf-qemu/nr-hugepages
+Type: string
+Default: 0
+Description: Quantity of kernel huge (2MiB) pages ?
+ Kernel huge pages significantly improves QEMU/KVM guests performances.
+ However, kernel huge pages are allocated at boot time and can NOT be used by
+ other/regular applications; thus:
+ WARNING: One MUST keep a portion of standard memory for the OS operations!
+
+Template: custom-conf-qemu/pci-passthru
+Type: string
+Default:
+Description: PCI devices to pass through (to QEMU/KVM) ?
+ Space-separated list of PCI device(s) ID(s) - as given by 'lspci' - that
+ ought to be passed through to QEMU/KVM (via Intel VT-d or AMD Vi).
+

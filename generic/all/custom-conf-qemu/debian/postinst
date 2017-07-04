@@ -1,0 +1,67 @@
+#!/bin/bash
+[ "${1}" != 'configure' ] && exit 0
+PKGNAME='custom-conf-qemu'
+
+# Debconf
+. /usr/share/debconf/confmodule
+# ... preseed
+for var_priority in nr-hugepages:high pci-passthru:high; do
+  var="${var_priority%:*}"
+  priority="${var_priority#*:}"
+  db_input ${priority} ${PKGNAME}/${var}
+  db_go
+done
+# ... get
+db_get ${PKGNAME}/nr-hugepages && CUSTOM_CONF_QEMU_NR_HUGEPAGES="${RET}"
+db_get ${PKGNAME}/pci-passthru && CUSTOM_CONF_QEMU_PCI_PASSTHRU="${RET}"
+db_stop
+
+# Track existing files (which will be modified)
+for file in /etc/default/grub /etc/initramfs-tools/modules; do
+  gcfg add --batch "${file}" "${file}"
+  gcfg flag "${file}" "${PKGNAME}"
+done
+
+# Install files
+custom-conf-install "${PKGNAME}" "/usr/share/${PKGNAME}/config" || exit 1
+
+
+## Fine-tuning
+
+# Kernel huge pages
+gsed "s|%{CUSTOM_CONF_QEMU_NR_HUGEPAGES}|${CUSTOM_CONF_QEMU_NR_HUGEPAGES}|g" /etc/sysctl.d/90-custom-conf-qemu.conf
+
+# Assign PCI passthru device(s) to PCI Stub driver
+CUSTOM_CONF_QEMU_PCI_STUB=
+for pci_id in ${CUSTOM_CONF_QEMU_PCI_PASSTHRU}; do
+  [ ! -e "/sys/bus/pci/devices/0000:${pci_id}" ] && echo "WARNING[${PKGNAME}]: Failed to retrieve device details for given PCI ID (${pci_id})" && continue
+  pci_vendor="$(sed 's|^0x||' /sys/bus/pci/devices/0000:${pci_id}/vendor)"
+  pci_device="$(sed 's|^0x||' /sys/bus/pci/devices/0000:${pci_id}/device)"
+  [ "${CUSTOM_CONF_QEMU_PCI_STUB//${pci_vendor}:${pci_device}/}" != "${CUSTOM_CONF_QEMU_PCI_STUB}" ] && continue  # vendor:device already listed
+  CUSTOM_CONF_QEMU_PCI_STUB="${CUSTOM_CONF_QEMU_PCI_STUB}${CUSTOM_CONF_QEMU_PCI_STUB:+,}${pci_vendor}:${pci_device}"
+done
+
+# Kernel+initramfs PCI Stub and IOMMU configuration
+gsed '/^\s*pci-stub\s*$/d' /etc/initramfs-tools/modules
+gsed 's|[^\s"]*_iommu=\S*||g;s|pci-stub.ids=\S*||g' /etc/default/grub
+if [ -n "${CUSTOM_CONF_QEMU_PCI_STUB}" ]; then
+  modinfo pci-stub &>/dev/null && echo 'pci-stub' >> /etc/initramfs-tools/modules
+  gsed "s|GRUB_CMDLINE_LINUX_DEFAULT\\s*=\\s*\"|GRUB_CMDLINE_LINUX_DEFAULT=\"pci-stub.ids=${CUSTOM_CONF_QEMU_PCI_STUB} |" /etc/default/grub
+  if fgrep -q Intel /proc/cpuinfo; then
+    gsed 's|GRUB_CMDLINE_LINUX_DEFAULT\s*=\s*"|GRUB_CMDLINE_LINUX_DEFAULT="intel_iommu=on |' /etc/default/grub
+  elif fgrep -q AMD /proc/cpuinfo; then
+    gsed 's|GRUB_CMDLINE_LINUX_DEFAULT\s*=\s*"|GRUB_CMDLINE_LINUX_DEFAULT="amd_iommu=on |' /etc/default/grub
+  else
+    echo "WARNING[${PKGNAME}]: CPU brand/model does NOT support IOMMU"
+  fi
+fi
+gsed 's|\s*"\s*|"|g' /etc/default/grub
+modinfo pci-stub &>/dev/null && update-initramfs -u
+update-grub
+
+# Warning
+echo "WARNING[${PKGNAME}]: You MUST reboot to enforce configuration changes!"
+
+# Exit
+exit 0
+
