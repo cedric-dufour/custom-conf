@@ -116,6 +116,7 @@ export EDITOR=vim
 
 # Additonal local settings
 [ -e ~/.bashrc_local ] && source ~/.bashrc_local
+[ -d ~/.bashrc.d ] && for file in ~/.bashrc.d/*; do source ${file}; done
 
 # Switch to home directory
 cd

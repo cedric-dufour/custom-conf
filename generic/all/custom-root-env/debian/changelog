@@ -1,3 +1,9 @@
+custom-root-env (2017.07.04a) UNRELEASED; urgency=low
+
+  * Added ~/.bashrc.d and ~/.bash_logout.d hooks directory
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Tue, 04 Jul 2017 13:58:47 +0200
+
 custom-root-env (2016.02.02a) UNRELEASED; urgency=low
 
   * Post Tenebras Lux
