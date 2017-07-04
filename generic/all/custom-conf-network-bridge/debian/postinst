@@ -1,0 +1,59 @@
+#!/bin/bash
+[ "${1}" != 'configure' ] && exit 0
+PKGNAME='custom-conf-network-bridge'
+
+# Debconf
+. /usr/share/debconf/confmodule
+# ... preseed
+for var_priority in bridge-name:high; do
+  var="${var_priority%:*}"
+  priority="${var_priority#*:}"
+  db_input ${priority} ${PKGNAME}/${var}
+  db_go
+done
+# ... get
+db_get ${PKGNAME}/bridge-name && CUSTOM_CONF_NETWORK_BRIDGE="${RET}"
+db_stop
+
+# Install files
+custom-conf-install "${PKGNAME}" "/usr/share/${PKGNAME}/config" || exit 1
+
+
+## Fine-tuning
+
+# Retrieve network settings
+# ... retrieve default gateway
+CUSTOM_CONF_NETWORK_DFLTGW="$(ip -6 route | grep '^default')"
+[ -z "${CUSTOM_CONF_NETWORK_DFLTGW}" ] && CUSTOM_CONF_NETWORK_DFLTGW="$(ip -4 route | grep '^default')"
+[ -z "${CUSTOM_CONF_NETWORK_DFLTGW}" ] && echo 'ERROR: Failed to retrieve the default gateway' >&2 && exit 1
+# ... retrieve default gateway interface
+CUSTOM_CONF_NETWORK_DEVICE="$(echo "${CUSTOM_CONF_NETWORK_DFLTGW}" | fgrep ' dev ' | sed 's|^.* dev \([^ ]*\)\( .*\)*$|\1|')"
+[ -z "${CUSTOM_CONF_NETWORK_DEVICE}" ] && echo 'ERROR: Failed to retrieve the main interface' >&2 && exit 1
+# ... retrieve default gateway IP addresses
+CUSTOM_CONF_NETWORK_IP4GATEWAY="$(ip -4 route | grep '^default' | sed 's|^.* via \([^ ]*\) dev .*$|\1|')"
+[ -z "${CUSTOM_CONF_NETWORK_IP4GATEWAY}" ] && echo 'ERROR: Failed to retrieve the gateway IPv4 address' >&2 && exit 1
+CUSTOM_CONF_NETWORK_IP6GATEWAY="$(ip -6 route | grep '^default' | sed 's|^.* via \([^ ]*\) dev .*$|\1|')"
+[ -z "${CUSTOM_CONF_NETWORK_IP6GATEWAY}" ] && echo 'ERROR: Failed to retrieve the gateway IPv6 address' >&2 && exit 1
+# ... retrieve IP addresses
+CUSTOM_CONF_NETWORK_IP4ADDRESS="$(ip -4 addr show ${CUSTOM_CONF_NETWORK_DEVICE} | fgrep ' scope global ' | sed 's|^.*inet \([^ /]*\)\(/[^ ]*\)*\( .*\)*$|\1|')"
+CUSTOM_CONF_NETWORK_IP6ADDRESS="$(ip -6 addr show ${CUSTOM_CONF_NETWORK_DEVICE} | fgrep ' scope global ' | sed 's|^.*inet6 \([^ /]*\)\(/[^ ]*\)*\( .*\)*$|\1|')"
+# ... retrieve network masks
+CUSTOM_CONF_NETWORK_IP4MASK="$(ip -4 addr show ${CUSTOM_CONF_NETWORK_DEVICE} | fgrep ' scope global ' | sed 's|^.*inet \([^ /]*\)/\([^ ]*\)\( .*\)*$|\2|')"
+CUSTOM_CONF_NETWORK_IP6MASK="$(ip -6 addr show ${CUSTOM_CONF_NETWORK_DEVICE} | fgrep ' scope global ' | sed 's|^.*inet6 \([^ /]*\)/\([^ ]*\)\( .*\)*$|\2|')"
+# ... retrieve the primary interface
+CUSTOM_CONF_NETWORK_INTERFACE="${CUSTOM_CONF_NETWORK_DEVICE}"
+[ "${CUSTOM_CONF_NETWORK_INTERFACE:0:2}" == 'br' ] && CUSTOM_CONF_NETWORK_INTERFACE="$(brctl show "${CUSTOM_CONF_NETWORK_INTERFACE}" | grep '\seth' | sed 's|^.*\seth|eth|')"
+[ "${CUSTOM_CONF_NETWORK_INTERFACE:0:3}" != 'eth' ] && echo 'ERROR: Failed to retrieve the primary interface' >&2 && exit 1
+
+# MAC address
+CUSTOM_CONF_NETWORK_MACADDRESS="$(cat /sys/class/net/${CUSTOM_CONF_NETWORK_INTERFACE}/address)"
+
+# Configure network interface
+gsed "s|%{CUSTOM_CONF_NETWORK_INTERFACE}|${CUSTOM_CONF_NETWORK_INTERFACE}|g;s|%{CUSTOM_CONF_NETWORK_BRIDGE}|${CUSTOM_CONF_NETWORK_BRIDGE}|g;s|%{CUSTOM_CONF_NETWORK_MACADDRESS}|${CUSTOM_CONF_NETWORK_MACADDRESS}|g;s|%{CUSTOM_CONF_NETWORK_IP4ADDRESS}|${CUSTOM_CONF_NETWORK_IP4ADDRESS}|g;s|%{CUSTOM_CONF_NETWORK_IP4MASK}|${CUSTOM_CONF_NETWORK_IP4MASK}|g;s|%{CUSTOM_CONF_NETWORK_IP4GATEWAY}|${CUSTOM_CONF_NETWORK_IP4GATEWAY}|g;s|%{CUSTOM_CONF_NETWORK_IP6ADDRESS}|${CUSTOM_CONF_NETWORK_IP6ADDRESS}|g;s|%{CUSTOM_CONF_NETWORK_IP6MASK}|${CUSTOM_CONF_NETWORK_IP6MASK}|g;s|%{CUSTOM_CONF_NETWORK_IP6GATEWAY}|${CUSTOM_CONF_NETWORK_IP6GATEWAY}|g" /etc/network/interfaces
+
+# Warning
+echo "WARNING[${PKGNAME}]: You MUST reboot to enforce configuration changes!"
+
+# Exit
+exit 0
+

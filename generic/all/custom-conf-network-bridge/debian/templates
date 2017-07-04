@@ -1,0 +1,5 @@
+Template: custom-conf-network-bridge/bridge-name
+Type: string
+Default: br0
+Description: Bridge name ?
+

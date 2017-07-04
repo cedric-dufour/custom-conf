@@ -1,0 +1,11 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-conf-network-bridge
+
+This package provides standard configuration of the primary network interface
+as part of a network bridge interface.
+
+In particular, it addresses standard configuration of:
+ - bridge MAC address match that of the primary interface
+ - bridge STP and forwarding
+
