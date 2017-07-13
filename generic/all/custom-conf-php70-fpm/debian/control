@@ -1,0 +1,14 @@
+Source: custom-conf-php70-fpm
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 3.9.7
+
+Package: custom-conf-php70-fpm
+Architecture: all
+Provides: custom-conf-php-fpm
+Depends: custom-conf, php7.0-fpm
+Recommends: custom-conf-php70-apache2, libapache2-mod-fastcgi
+Description: Custom Configuration Framework - PHP 7.0 <-> FPM
+

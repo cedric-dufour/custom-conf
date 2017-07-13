@@ -1,0 +1,17 @@
+custom-conf-php70-fpm (2017.05.19a) UNRELEASED; urgency=low
+
+  * Hail PHP 7.0 !
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Fri, 19 May 2017 16:37:44 +0200
+
+custom-conf-php5-fpm (2016.08.31a) UNRELEASED; urgency=low
+
+  * Pave the way for PHP > 5
+
+ -- Cedric Dufour <cedric.dufour@ced-network.net>  Wed, 31 Aug 2016 14:33:58 +0200
+
+custom-conf-php5-fpm (2016.02.16a) UNRELEASED; urgency=low
+
+  * Post Tenebras Lux
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Tue, 05 Jul 2016 08:23:49 +0200
