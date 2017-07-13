@@ -1,3 +1,9 @@
+custom-conf-apache2 (2017.07.13a) UNRELEASED; urgency=low
+
+  * Added "maintenance mode" configuration and HTTP 503 error document
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Thu, 13 Jul 2017 15:11:44 +0200
+
 custom-conf-apache2 (2017.03.02a) UNRELEASED; urgency=low
 
   * Fixed 'Depends:' for 'libapache2-mod-macro' being merged into 'apache2-bin'
