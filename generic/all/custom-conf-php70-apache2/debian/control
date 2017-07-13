@@ -1,0 +1,13 @@
+Source: custom-conf-php70-apache2
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 3.9.7
+
+Package: custom-conf-php70-apache2
+Architecture: all
+Provides: custom-conf-php-apache
+Depends: custom-conf, custom-conf-apache2, libapache2-mod-php7.0
+Description: Custom Configuration Framework - PHP 7.0 <-> Apache2
+
