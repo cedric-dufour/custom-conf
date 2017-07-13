@@ -1,0 +1,10 @@
+## CUSTOM-CONF: File automatically created/updated [custom-conf-mariadb]
+
+## MariaDB Configuration
+
+# Backup (dump)
+[mysqldump]
+quick
+quote-names
+max_allowed_packet = 16M
+

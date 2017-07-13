@@ -1,0 +1,92 @@
+#!/bin/bash
+[ "${1}" != 'configure' ] && exit 0
+PKGNAME='custom-conf-mariadb'
+
+# Debconf
+. /usr/share/debconf/confmodule
+# ... preseed
+for var_priority in bind-address:high ssl-enable:high; do
+  var="${var_priority%:*}"
+  priority="${var_priority#*:}"
+  db_input ${priority} ${PKGNAME}/${var}
+  db_go
+done
+# ... get
+db_get ${PKGNAME}/bind-address && BIND_ADDR="${RET}"
+db_get ${PKGNAME}/ssl-enable && SSL_ENABLE="${RET}"
+db_stop
+
+# Install files
+custom-conf-install "${PKGNAME}" "/usr/share/${PKGNAME}/config" || exit 1
+
+# Fine-tune configuration
+source /usr/share/custom-conf/custom-conf.defs
+
+# ... bind address (start)
+CUSTOM_CONF_MARIADB_LISTEN_IPADDR=
+ipv4="$(ip -4 addr 2>/dev/null | fgrep 'scope global')"
+ipv6="$(ip -6 addr 2>/dev/null | fgrep 'scope global')"
+[ -n "${ipv6}" -a "${BIND_ADDR}" != 'localhost' ] && bind_family='ipv6' || bind_family='ipv4'
+
+# ... bind address (IPv4)
+if [ "${bind_family}" == 'ipv4' -a -n "${ipv4}" ]; then
+  if [ "${BIND_ADDR}" == 'localhost' ]; then
+    CUSTOM_CONF_MARIADB_LISTEN_IPADDR="bind-address = 127.0.0.1"
+  elif [ "${BIND_ADDR}" == 'gateway' -a -n "${CUSTOM_CONF_NETWORK_GATEWAY_IPV4}" ]; then
+    LISTEN_ADDR="$(custom-conf-getifaceip -I "${CUSTOM_CONF_NETWORK_GATEWAY_IPV4}")"
+    [ -n "${LISTEN_ADDR}" ] \
+      && CUSTOM_CONF_MARIADB_LISTEN_IPADDR="bind-address = ${LISTEN_ADDR}" \
+      || echo "ERROR[${PKGNAME}]: Failed to retrieve IPv4 address matching configured gateway" >&2
+  elif [ -n "${BIND_ADDR}" ]; then
+    for bind_addr in ${BIND_ADDR}; do
+      [ -n "${CUSTOM_CONF_MARIADB_LISTEN_IPADDR}" ] && break
+      [[ ${bind_addr} != *'.'* ]] && continue
+      CUSTOM_CONF_MARIADB_LISTEN_IPADDR="bind-address = ${bind_addr}"
+    done
+  fi
+fi
+
+# ... bind address (IPv6)
+if [ "${bind_family}" == 'ipv6' -a -n "${ipv6}" ]; then
+  if [ "${BIND_ADDR}" == 'localhost' ]; then
+    CUSTOM_CONF_MARIADB_LISTEN_IPADDR="bind-address = ::1"
+  elif [ "${BIND_ADDR}" == 'gateway' -a -n "${CUSTOM_CONF_NETWORK_GATEWAY_IPV6}" ]; then
+    LISTEN_ADDR="$(custom-conf-getifaceip -I "${CUSTOM_CONF_NETWORK_GATEWAY_IPV6}")"
+    [ -n "${LISTEN_ADDR}" ] \
+      && CUSTOM_CONF_MARIADB_LISTEN_IPADDR="bind-address = ${LISTEN_ADDR}" \
+      || echo "ERROR[${PKGNAME}]: Failed to retrieve IPv6 address matching configured gateway" >&2
+  elif [ -n "${BIND_ADDR}" ]; then
+    for bind_addr in ${BIND_ADDR}; do
+      [ -n "${CUSTOM_CONF_MARIADB_LISTEN_IPADDR}" ] && break
+      [[ ${bind_addr} != *':'* ]] && continue
+      CUSTOM_CONF_MARIADB_LISTEN_IPADDR="bind-address = ${bind_addr}"
+    done
+  fi
+fi
+
+# ... bind address (finalize)
+if [ -z "${CUSTOM_CONF_MARIADB_LISTEN_IPADDR}" ]; then
+  if [ -n "${BIND_ADDR}" ]; then
+    if [ "${bind_family}" == 'ipv4' ]; then
+      echo "WARNING[${PKGNAME}]: Failed to retrieve a valid IPv4 address to bind to (using 127.0.0.1)"
+      CUSTOM_CONF_MARIADB_LISTEN_IPADDR='bind-address = 127.0.0.1'
+    else
+      echo "WARNING[${PKGNAME}]: Failed to retrieve a valid IPv6 address to bind to (using ::1)"
+      CUSTOM_CONF_MARIADB_LISTEN_IPADDR='bind-address = ::1'
+    fi
+  fi
+fi
+if [ -z "${CUSTOM_CONF_MARIADB_LISTEN_IPADDR}" ]; then
+  [ -n "${ipv6}" ] && CUSTOM_CONF_MARIADB_LISTEN_IPADDR='bind-address = ::' || CUSTOM_CONF_MARIADB_LISTEN_IPADDR='bind-address = 0.0.0.0'
+fi
+
+# ... do it
+gsed "s|%{CUSTOM_CONF_MARIADB_LISTEN_IPADDR}|${CUSTOM_CONF_MARIADB_LISTEN_IPADDR}|g" /etc/mysql/mariadb.conf.d/50-server.cnf
+[ "${SSL_ENABLE}" == 'true' ] && gsed "s|^#ssl|ssl|" /etc/mysql/mariadb.conf.d/50-server.cnf
+
+# Additional actions
+invoke-rc.d mariadb restart
+
+# Exit
+exit 0
+

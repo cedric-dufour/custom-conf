@@ -1,0 +1,11 @@
+## CUSTOM-CONF: File automatically created/updated [custom-conf-mariadb]
+
+## MySQL Configuration
+
+# Client
+[client]
+default-character-set = utf8mb4
+
+# MariaDB (vs MySQL) client specifics
+[client-mariadb]
+

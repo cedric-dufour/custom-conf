@@ -1,0 +1,12 @@
+Source: custom-conf-mariadb
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 3.9.7
+
+Package: custom-conf-mariadb
+Architecture: all
+Depends: custom-conf, custom-certificates, custom-conf-utils, mariadb-server
+Description: Custom Configuration Framework - MariaDB (server)
+
