@@ -1,3 +1,9 @@
+custom-conf-qemu (2017.07.17a) UNRELEASED; urgency=low
+
+  * Be explicit about which settings must be changed with 'dpkg-reconfigure'
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Mon, 17 Jul 2017 09:30:11 +0200
+
 custom-conf-qemu (2017.07.04a) UNRELEASED; urgency=low
 
   * Post Tenebras Lux

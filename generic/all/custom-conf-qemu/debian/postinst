@@ -46,11 +46,11 @@ gsed '/^\s*pci-stub\s*$/d' /etc/initramfs-tools/modules
 gsed 's|[^\s"]*_iommu=\S*||g;s|pci-stub.ids=\S*||g' /etc/default/grub
 if [ -n "${CUSTOM_CONF_QEMU_PCI_STUB}" ]; then
   modinfo pci-stub &>/dev/null && echo 'pci-stub' >> /etc/initramfs-tools/modules
-  gsed "s|GRUB_CMDLINE_LINUX_DEFAULT\\s*=\\s*\"|GRUB_CMDLINE_LINUX_DEFAULT=\"pci-stub.ids=${CUSTOM_CONF_QEMU_PCI_STUB} |" /etc/default/grub
+  gsed "s|GRUB_CMDLINE_LINUX_DEFAULT\\s*=\\s*\"\\s*|GRUB_CMDLINE_LINUX_DEFAULT=\"pci-stub.ids=${CUSTOM_CONF_QEMU_PCI_STUB} |" /etc/default/grub
   if fgrep -q Intel /proc/cpuinfo; then
-    gsed 's|GRUB_CMDLINE_LINUX_DEFAULT\s*=\s*"|GRUB_CMDLINE_LINUX_DEFAULT="intel_iommu=on |' /etc/default/grub
+    gsed 's|GRUB_CMDLINE_LINUX_DEFAULT\s*=\s*"\s*|GRUB_CMDLINE_LINUX_DEFAULT="intel_iommu=on |' /etc/default/grub
   elif fgrep -q AMD /proc/cpuinfo; then
-    gsed 's|GRUB_CMDLINE_LINUX_DEFAULT\s*=\s*"|GRUB_CMDLINE_LINUX_DEFAULT="amd_iommu=on |' /etc/default/grub
+    gsed 's|GRUB_CMDLINE_LINUX_DEFAULT\s*=\s*"\s*|GRUB_CMDLINE_LINUX_DEFAULT="amd_iommu=on |' /etc/default/grub
   else
     echo "WARNING[${PKGNAME}]: CPU brand/model does NOT support IOMMU"
   fi
