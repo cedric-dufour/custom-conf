@@ -5,6 +5,7 @@ auto lo
 iface lo inet loopback
 
 # Primary interface
+# (Please use 'dpkg-reconfigure custom-conf-network-bridge' to change these settings)
 # ... to be manually enable by bridge interface
 iface %{CUSTOM_CONF_NETWORK_INTERFACE} inet manual
 
