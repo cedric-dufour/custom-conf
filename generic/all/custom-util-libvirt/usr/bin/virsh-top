@@ -59,7 +59,7 @@ done
 
 
 ## LibVirt info
-VIRSH_PID="$(pgrep -f "kvm -name ${ARG_DOMAIN} ")"
+VIRSH_PID="$(pgrep -f "kvm -name (guest=)*${ARG_DOMAIN}[ ,]")"
 [ -z "${VIRSH_PID}" ] && echo "ERROR: Failed to retrieve domain process (${ARG_DOMAIN})" >&2 && exit 1
 VIRSH_IFNAME="$(virsh domiflist ${ARG_DOMAIN} | grep '^vnet' | awk '{print $1}' | head -n ${OPT_DEVICE} | tail -n 1)"
 [ -z "${VIRSH_IFNAME}" ] && echo "ERROR: Failed to retrieve domain interface (${ARG_DOMAIN})" >&2 && exit 1
