@@ -7,6 +7,7 @@
 start_libvirtd="yes"
 
 # Daemon options
+# (Please use 'dpkg-reconfigure custom-conf-libvirt' to change this setting)
 libvirtd_opts="%{CUSTOM_CONF_LIBVIRT_DAEMON_OPTIONS}"
 
 # Kerberos keytab
