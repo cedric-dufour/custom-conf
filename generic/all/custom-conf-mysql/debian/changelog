@@ -1,3 +1,9 @@
+custom-conf-mysql (2017.07.24a) UNRELEASED; urgency=low
+
+  * Alias 'mysql' to automatically use admin credentials (/etc/mysql/my.inc)
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Mon, 24 Jul 2017 16:49:33 +0200
+
 custom-conf-mysql (2016.07.05a) UNRELEASED; urgency=low
 
   * Post Tenebras Lux

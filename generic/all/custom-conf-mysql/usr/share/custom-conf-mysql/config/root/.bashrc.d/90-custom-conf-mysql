@@ -1,0 +1,5 @@
+## CUSTOM-CONF: File automatically created/updated [custom-conf-mysql]
+
+# Additional Aliases
+alias mysql='mysql --defaults-extra-file=/etc/mysql/my.inc'
+
