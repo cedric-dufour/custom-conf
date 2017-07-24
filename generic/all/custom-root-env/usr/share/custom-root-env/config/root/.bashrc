@@ -81,7 +81,7 @@ alias _ac='apt-get clean'
 alias _dl='dpkg -L'
 alias _dp='dpkg -P'
 # ... ps
-alias _psl='ps waxf -o user,tty,pid,%cpu,%mem,ni,vsz,rss,start,time,state,command | less -S'
+alias _psl='ps wwaxf -o user,tty,pid,state,start,time,%cpu,nlwp,ni,pri,%mem,vsz,rsz,command | less -S'
 # ... icfg
 alias _ge='gcfg edit'
 alias _gl='gcfg list @FLAGS'
