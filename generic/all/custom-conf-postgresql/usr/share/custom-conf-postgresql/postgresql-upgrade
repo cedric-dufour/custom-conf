@@ -1,0 +1,113 @@
+#!/bin/bash
+PKGNAME='custom-conf-postgresql'
+
+
+## Usage
+[ $# -lt 1 -o "${1##*-}" == 'help' ] && cat << EOF && exit 1
+USAGE: ${0##*/} {detect|upgrade}
+
+SYNOPSIS:
+  Detect and upgrade former PostgreSQL configuration to its latest counterpart.
+EOF
+
+# Arguments
+ACTION="${1}"
+
+
+## Detect versions
+VERSIONS="$(ls -1d /etc/postgresql/9.[0-9] 2>/dev/null | sed 's|^.*/||' | sort -rn)"
+[ -z "${VERSIONS}" ] && echo "ERROR: No PostreSQL version detected" && exit 1
+VERSIONS_COUNT=$(echo "${VERSIONS}" | wc -l)
+[ ${VERSIONS_COUNT} -eq 1 ] && exit 1  # Nothing to upgrade (let's be silent about it)
+[ ${VERSIONS_COUNT} -gt 2 ] && echo "ERROR: Too many PostreSQL versions detected (${VERSIONS_COUNT})" && exit 1
+VERSION_DST="$(echo "${VERSIONS}" | head -n 1)"
+VERSION_SRC="$(echo "${VERSIONS}" | tail -n 1)"
+
+
+## Functions
+
+# Upgrade
+function _upgrade {
+  # Warning
+  cat << EOF
+
+!!! WARNING !!! WARNING !!! WARNING !!! WARNING !!! WARNING !!! WARNING !!!
+
+  You're about to IRREVERSIBLY DROP the PostgreSQL ${VERSION_DST} cluster.
+
+  Also, make sure there is AT LEAST 50% FREE DISK SPACE for the PostgreSQL
+  data (/var/lib/postgresql/...) before proceeding.
+
+!!! WARNING !!! WARNING !!! WARNING !!! WARNING !!! WARNING !!! WARNING !!!
+
+EOF
+  echo 'PRESS <RETURN> TO CONTINUE, <CTRL+C> TO ABORT...'
+  read
+
+  # Drop current cluster
+  echo "INFO: Dropping PostgreSQL database: ${VERSION_DST}"
+  pg_dropcluster ${VERSION_DST} main --stop
+
+  # Upgrade previous cluster
+  echo "INFO: Upgrading PostgreSQL database: ${VERSION_SRC} -> ${VERSION_DST}"
+  echo "      (this may take a lot of time, depending on the size of the cluster)"
+  invoke-rc.d postgresql stop
+  iptables -I INPUT --protocol tcp --dport 5432 -j DROP
+  invoke-rc.d postgresql start
+  pg_upgradecluster ${${VERSION_SRC}} main
+
+  # Drop previous cluster
+  cp -rp /etc/postgresql/${VERSION_SRC}/main{,.upgrade}
+  echo "INFO: Dropping PostgreSQL database: ${VERSION_SRC}"
+  pg_dropcluster ${VERSION_SRC} main --stop
+  mv /etc/postgresql/${VERSION_SRC}/main{.upgrade,}
+
+  # Move configuration files
+  source gcfg.config "${PKGNAME}"
+  for file in \
+    /etc/postgresql/${VERSION_SRC}/main/postgresql.conf:/etc/postgresql/${VERSION_DST}/main/postgresql.conf \
+    /etc/postgresql/${VERSION_SRC}/main/pg_hba.conf:/etc/postgresql/${VERSION_DST}/main/pg_hba.conf \
+    /etc/postgresql/${VERSION_SRC}/main/pg.inc:/etc/postgresql/${VERSION_DST}/main/pg.inc \
+  ; do
+    file_src="${file%:*}"
+    [ ! -e "${file_src}" ] && continue
+    file_dst="${file#*:}"
+    echo "INFO: Migrating configuration file: ${file_src} -> ${file_dst}"
+    gcfg mv "${file_src}" "${file_dst}"
+  done
+
+  # Purge previous packages
+  echo "INFO: Purging PostgreSQL packages: ${VERSION_SRC}"
+  apt-get --purge remove postgresql-${VERSION_SRC} postgresql-client-${VERSION_SRC}
+  rm -rf /etc/postgresql/${VERSION_SRC}
+
+  # Enable new cluster
+  echo "INFO: Enabling PostgreSQL database: ${VERSION_DST}"
+  invoke-rc.d postgresql stop
+  iptables -D INPUT --protocol tcp --dport 5432 -j DROP
+  invoke-rc.d postgresql start
+}
+
+
+## Actions
+case "${ACTION}" in
+
+  detect)
+    echo "WARNING: Installed PostgreSQL database needs upgrading: ${VERSION_SRC} -> ${VERSION_DST}"
+    ;;
+
+  upgrade)
+    _upgrade
+    ;;
+
+  *)
+    echo "ERROR: Invalid action (${ACTION})" >&2
+    exit 1
+    ;;
+
+esac
+
+
+## Done
+exit 0
+

@@ -22,7 +22,7 @@ for version in 9.{9..0}; do
   [ -e /usr/lib/postgresql/${version}/bin/initdb ] && CUSTOM_CONF_POSTGRESQL_VERSION=${version} && break
 done
 case "${CUSTOM_CONF_POSTGRESQL_VERSION}" in
-  '9.1'|'9.4')
+  '9.1'|'9.4'|'9.6')
     echo "INFO[${PKGNAME}]: Detected supported PostgreSQL version (${CUSTOM_CONF_POSTGRESQL_VERSION})"
     ;;
   *)
@@ -32,13 +32,11 @@ case "${CUSTOM_CONF_POSTGRESQL_VERSION}" in
 esac
 
 # Configuration upgrade
-if [ -e /usr/share/${PKGNAME}/upgrade-config.postgresql-${CUSTOM_CONF_POSTGRESQL_VERSION} ]; then
-  /usr/share/${PKGNAME}/upgrade-config.postgresql-${CUSTOM_CONF_POSTGRESQL_VERSION} detect && cat << EOF && exit 0
+/usr/share/${PKGNAME}/postgresql-upgrade detect && cat << EOF && exit 0
 WARNING[${PKGNAME}]: Old PostgreSQL configuration detected! Please upgrade and re-configure.
-: /usr/share/${PKGNAME}/upgrade-config.postgresql-${CUSTOM_CONF_POSTGRESQL_VERSION}
+: /usr/share/${PKGNAME}/upgrade-config.postgresql
 : dpkg-reconfigure ${PKGNAME}
 EOF
-fi
 
 # Install files
 custom-conf-install "${PKGNAME}" "/usr/share/${PKGNAME}/config/postgresql-${CUSTOM_CONF_POSTGRESQL_VERSION}" || exit 1

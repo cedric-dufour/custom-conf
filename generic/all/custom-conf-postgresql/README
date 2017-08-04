@@ -3,7 +3,7 @@ Custom Configuration Framework (custom-conf)
 Package: custom-conf-postgresql
 
 This package provides standard configuration of PostgreSQL database server,
-version 9.1 and 9.4 (automatically detected).
+version 9.1, 9.4 and 9.6 (automatically detected).
 
 In particular, it addresses standard configuration of:
  - Monitoring integration (<-> 'custom-defs-...' package)
