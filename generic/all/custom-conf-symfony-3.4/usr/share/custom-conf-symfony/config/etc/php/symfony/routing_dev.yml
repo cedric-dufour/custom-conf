@@ -1,0 +1,13 @@
+## CUSTOM-CONF: File automatically created/updated [custom-conf-symfony]
+
+_wdt:
+  resource: '@WebProfilerBundle/Resources/config/routing/wdt.xml'
+  prefix: '/_wdt'
+
+_profiler:
+  resource: '@WebProfilerBundle/Resources/config/routing/profiler.xml'
+  prefix: '/_profiler'
+
+_main:
+  resource: 'routing.yml'
+

@@ -1,0 +1,11 @@
+#!/bin/bash
+[ "${1}" != 'purge' ] && exit 0
+PKGNAME='custom-conf-symfony'
+
+# Uninstall files
+custom-conf-uninstall "${PKGNAME}" "/usr/share/${PKGNAME}/config" || exit 1
+rm -rf /opt/symfony-3.4/* /etc/php/symfony /var/log/php/symfony /var/cache/php/symfony
+
+# Exit
+exit 0
+
