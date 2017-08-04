@@ -1,3 +1,9 @@
+custom-conf-symfony-2.7 (2017.08.04a) UNRELEASED; urgency=low
+
+  * Pave the way for Symfony 3.4
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Fri, 04 Aug 2017 09:44:14 +0200
+
 custom-conf-symfony-2.7 (2017.07.21a) UNRELEASED; urgency=low
 
   * Updated Composer utility (-> 1.4.2) and Symfony 2.7 dependencies version

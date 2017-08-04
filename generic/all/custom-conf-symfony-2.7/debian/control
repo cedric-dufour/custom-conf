@@ -3,13 +3,13 @@ Section: admin
 Priority: optional
 Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
 Homepage: https://github.com/cedric-dufour/custom-conf
-Standards-Version: 3.9.7
+Standards-Version: 3.9.8
 
 Package: custom-conf-symfony-2.7
 Architecture: all
+Provides: custom-conf-symfony
 Depends: custom-conf, custom-conf-php-apache | custom-conf-php-fpm, php-json | php5-json
 Suggests: php5-apcu, php-mysql | php5-mysql, php-pgsql | php5-pgsql
-Breaks: custom-conf-symfony-lts (<< 2016.06.20a)
-Replaces: custom-conf-symfony-lts (<< 2016.06.20a)
+Conflicts: custom-conf-symfony-3.4
 Description: Custom Configuration Framework - PHP/Symfony (version 2.7)
 

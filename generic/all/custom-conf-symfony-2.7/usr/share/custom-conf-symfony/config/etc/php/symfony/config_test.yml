@@ -1,12 +1,12 @@
 ## CUSTOM-CONF: File automatically created/updated [custom-conf-symfony]
 
 imports:
-  - { resource: config_dev.yml }
+  - { resource: 'config_dev.yml' }
 
 framework:
   test: ~
   session:
-    storage_id: session.storage.mock_file
+    storage_id: 'session.storage.mock_file'
   profiler:
     collect: false
 
