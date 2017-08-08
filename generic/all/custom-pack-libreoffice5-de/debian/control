@@ -9,6 +9,6 @@ Package: custom-pack-libreoffice5-de
 Architecture: all
 Breaks: custom-packages-install-libreoffice5-de (<< 2017.03.07a)
 Replaces: custom-packages-install-libreoffice5-de (<< 2017.03.07a)
-Depends: libreoffice5.2-de, libreoffice5.2-dict-de, libobasis5.2-de-help
-Description: Custom Configuration Framework - LibreOffice 5.2, German language pack (original upstream packages)
+Depends: libreoffice5.3-de, libreoffice5.3-dict-de, libobasis5.3-de-help
+Description: Custom Configuration Framework - LibreOffice 5.3, German language pack (original upstream packages)
 

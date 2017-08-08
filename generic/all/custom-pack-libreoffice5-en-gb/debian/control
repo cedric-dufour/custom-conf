@@ -9,6 +9,6 @@ Package: custom-pack-libreoffice5-en-gb
 Architecture: all
 Breaks: custom-packages-install-libreoffice5-en-gb (<< 2017.03.07a)
 Replaces: custom-packages-install-libreoffice5-en-gb (<< 2017.03.07a)
-Depends: libreoffice5.2-en-gb, libreoffice5.2-dict-en, libobasis5.2-en-gb-help
-Description: Custom Configuration Framework - LibreOffice 5.2, Engligh (GB) language pack (original upstream packages)
+Depends: libreoffice5.3-en-gb, libreoffice5.3-dict-en, libobasis5.3-en-gb-help
+Description: Custom Configuration Framework - LibreOffice 5.3, Engligh (GB) language pack (original upstream packages)
 
