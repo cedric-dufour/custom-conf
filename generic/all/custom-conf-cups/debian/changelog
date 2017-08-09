@@ -1,3 +1,10 @@
+custom-conf-cups (2017.08.09a) UNRELEASED; urgency=low
+
+  * Update AppArmor profile (based on Debian/Strech udpates)
+  * Add CUPS Browse daemon HTTP timeouts configuration (and patch)
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Wed, 09 Aug 2017 17:35:17 +0200
+
 custom-conf-cups (2016.07.05a) UNRELEASED; urgency=low
 
   * Post Tenebras Lux
