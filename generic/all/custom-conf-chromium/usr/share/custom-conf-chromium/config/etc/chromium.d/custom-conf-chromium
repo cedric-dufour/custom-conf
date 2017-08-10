@@ -1,0 +1,7 @@
+## CUSTOM-CONF: File automatically created/updated [custom-conf-chromium]
+
+# Make sure to use the Gnome Keyring by default
+# WARNING: if anything goes awry when accessing the keyring, Chromium will
+#          SILENTLY revert to its own cleartext (!!!) SQLite database!
+CHROMIUM_FLAGS="${CHROMIUM_FLAGS} --password-store=gnome"
+

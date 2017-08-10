@@ -1,0 +1,9 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-conf-chromium
+
+This package provides standard configuration of the Chromium web broswer.
+
+In particular, it addresses standard configuration of:
+ - use the (password-protected!) Gnome Keyring to store passwords
+
