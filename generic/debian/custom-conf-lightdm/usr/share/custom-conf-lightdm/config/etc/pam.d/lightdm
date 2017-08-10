@@ -1,0 +1,24 @@
+#%PAM-1.0
+## CUSTOM-CONF: File automatically created/updated [custom-conf-lightdm]
+
+# auth
+auth requisite pam_nologin.so
+@include common-auth
+-auth optional pam_gnome_keyring.so
+
+# account
+@include common-account
+
+# session
+session [success=ok ignore=ignore module_unknown=ignore default=bad] pam_selinux.so close
+session required pam_limits.so
+session required pam_loginuid.so
+session required pam_env.so
+session required pam_env.so envfile=/etc/default/locale
+@include common-session
+session [success=ok ignore=ignore module_unknown=ignore default=bad] pam_selinux.so open
+-session optional pam_gnome_keyring.so auto_start
+
+# password
+@include common-password
+
