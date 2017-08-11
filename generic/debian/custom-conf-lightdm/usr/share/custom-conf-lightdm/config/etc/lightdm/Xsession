@@ -11,7 +11,7 @@ exec 2>&1
 echo 'Running X session wrapper'
 
 # Load profile
-for file in '/etc/xprofile' '/etc/lightdm/Xsession.d'/* "$HOME/.xprofile"; do
+for file in '/etc/lightdm/Xsession.d'/* '/etc/xprofile' "$HOME/.xprofile"; do
     if [ -f "$file" ]; then
         echo "Loading profile from $file";
         . "$file"
