@@ -1,3 +1,9 @@
+custom-conf-lightdm (2017.08.11c) UNRELEASED; urgency=low
+
+  * Fix indicators (Debian/Stretch)
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Fri, 11 Aug 2017 20:25:59 +0200
+
 custom-conf-lightdm (2017.08.11b) UNRELEASED; urgency=low
 
   * REVERT: Load system wide X profile before LightDM specific X session snippets
