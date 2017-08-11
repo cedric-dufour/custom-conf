@@ -1,3 +1,10 @@
+custom-util-skel (2017.08.11a) UNRELEASED; urgency=low
+
+  * Removed no-longer-used resources from 'profile-use-tmpdir'
+  * Added 'profile-fix-permissions' utility
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Fri, 11 Aug 2017 16:54:49 +0200
+
 custom-util-skel (2016.09.07a) UNRELEASED; urgency=low
 
   * In '/usr/bin/profile-use-tmpdir':

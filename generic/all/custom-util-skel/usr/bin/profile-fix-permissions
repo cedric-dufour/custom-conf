@@ -1,0 +1,124 @@
+#!/bin/bash
+## CUSTOM-UTIL: File automatically created/updated [custom-util-skel]
+
+
+## Usage
+[ "${1##*-}" == 'help' ] && cat << EOF && exit 1
+USAGE: ${0##*/} [options]
+
+SYNOPSIS:
+  Check and fix well-known sensitive files and directories permissions.
+
+OPTIONS:
+  --home <absolute-directory-path>
+    Specify home directory absolute path
+    (default: ${HOME})
+
+  --resources <file-path>
+    Specify additional resources file, formatted as:
+      home-relative-path:permission
+    or
+      absolute-path:permission
+
+  --dry-run
+    Only show potentially mis-permissioned (existing) files
+EOF
+
+# Arguments
+MY_HOME="${HOME}"
+MY_RESOURCES=
+MY_DRYRUN=
+while [ -n "${1}" ]; do
+  case "${1}" in
+    '--home')
+      [ -z "${2}" ] && echo "ERROR: Missing option argument (${1})" >&2 && exit 1
+      shift; MY_HOME="${1}"
+      ;;
+    '--resources')
+      [ -z "${2}" ] && echo "ERROR: Missing option argument (${1})" >&2 && exit 1
+      shift; MY_RESOURCES="${1}"
+      ;;
+    '--dry-run')
+      MY_DRYRUN='yes'
+      ;;
+    *)
+      echo "ERROR: Invalid option (${1})" >&2 && exit 1
+  esac
+  shift
+done
+
+
+## Create the local temporary directory
+echo "DEBUG: ${0##*/} BEGIN"
+
+
+## Generic permission check/fix function (handle widlcards)
+function _fix_permission {  # <home-relative-path|absolute-path>:<perm>
+  # Arguments
+  resource="${1%%:*}"
+  resource_perm="${1#*:}"
+  [ "${resource}" == "${resource_perm}" ] && echo "ERROR: Invalid resource syntax (${resource})" >&2 && return 1
+  [ "${resource:0:1}" == '/' ] && resource_path="${resource}" || resource_path="${MY_HOME}/${resource}"
+
+  # Check existence
+  [ -z "$(ls -1d ${resource_path// /\\ } 2>/dev/null)" ] && return 0
+
+  # Change permissions
+  if [ -n "${MY_DRYRUN}" ]; then
+    ls -ald ${resource_path// /\\ }
+  else
+    chmod --changes ${resource_perm} ${resource_path// /\\ }
+  fi
+
+  # Done
+  return 0
+}
+
+
+## Check/fix permissions
+[ -z "$(ls -1d ${MY_HOME// /\\ } 2>/dev/null)" ] && echo "ERROR: Invalid home directory (${MY_HOME})" >&2 && exit 1
+IFS=$'\n'
+
+# Well-known ones
+for resource in \
+  '.bash_history*:600' \
+  '.config/chromium/*/Login Data*:600' \
+  '.curlrc*:600' \
+  '.docker/config.json*:600' \
+  '.filezilla:700' \
+  '.filezilla/*.xml*:600' \
+  '.gnupg:700' \
+  '.gnupg/secring.*:600' \
+  '.hgrc*:600' \
+  '.history*:600' \
+  '.local/share/keyrings:700' \
+  '.local/share/keyrings/*.keyring*:600' \
+  '.local/share/keyrings/*.keystore*:600' \
+  '.[Mm]box*:700' \
+  '.[Mm]aildir*:700' \
+  '.mozilla/firefox/*/key*.db*:600' \
+  '.mozilla/firefox/*/signons.txt*:600' \
+  '.muttrc*:600' \
+  '.pinerc*:600' \
+  '.pinepwd*:600' \
+  '.pypirc*:600' \
+  '.ssh:700' \
+  '.ssh/*_[dr]sa:600' \
+  '.ssh/*_ecdsa:600' \
+  '.subversion/auth:700' \
+  '.subversion/auth/*/*:600' \
+  '.thunderbird/*/key*.db*:600' \
+  '.thunderbird/*/signons.txt*:600' \
+  '.wgetrc*:600' \
+  '[Cc]onfidential*:700' \
+  '[Pp]rivate*:700' \
+  $(cat "${MY_RESOURCES:-/dev/null}" | sed "s|%{USER}|$(whoami)|g") \
+; do
+  _fix_permission "${resource}"
+done
+
+
+## Done
+echo "DEBUG: ${0##*/} END"
+exit 0
+
