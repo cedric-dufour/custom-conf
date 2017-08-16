@@ -22,12 +22,16 @@ OPTIONS:
 
   --dry-run
     Only show potentially mis-permissioned (existing) files
+
+  --verbose
+    Output additonal debug/informational messages.
 EOF
 
 # Arguments
 MY_HOME="${HOME}"
-MY_RESOURCES=
-MY_DRYRUN=
+RESOURCES=
+DRYRUN=
+VERBOSE=
 while [ -n "${1}" ]; do
   case "${1}" in
     '--home')
@@ -36,20 +40,19 @@ while [ -n "${1}" ]; do
       ;;
     '--resources')
       [ -z "${2}" ] && echo "ERROR: Missing option argument (${1})" >&2 && exit 1
-      shift; MY_RESOURCES="${1}"
+      shift; RESOURCES="${1}"
       ;;
     '--dry-run')
-      MY_DRYRUN='yes'
+      DRYRUN='yes'
+      ;;
+    '--verbose')
+      VERBOSE='yes'
       ;;
     *)
       echo "ERROR: Invalid option (${1})" >&2 && exit 1
   esac
   shift
 done
-
-
-## Create the local temporary directory
-echo "DEBUG: ${0##*/} BEGIN"
 
 
 ## Generic permission check/fix function (handle widlcards)
@@ -59,12 +62,14 @@ function _fix_permission {  # <home-relative-path|absolute-path>:<perm>
   resource_perm="${1#*:}"
   [ "${resource}" == "${resource_perm}" ] && echo "ERROR: Invalid resource syntax (${resource})" >&2 && return 1
   [ "${resource:0:1}" == '/' ] && resource_path="${resource}" || resource_path="${MY_HOME}/${resource}"
+  [ -n "${VERBOSE}" ] && echo "DEBUG: Checking permissions (${resource_path}:${resource_perm})"
 
   # Check existence
   [ -z "$(ls -1d ${resource_path// /\\ } 2>/dev/null)" ] && return 0
 
   # Change permissions
-  if [ -n "${MY_DRYRUN}" ]; then
+  if [ -n "${DRYRUN}" ]; then
+    echo "DRY-RUN: NOT fixing permissions (${resource_path}:${resource_perm})"
     ls -ald ${resource_path// /\\ }
   else
     chmod --changes ${resource_perm} ${resource_path// /\\ }
@@ -76,6 +81,7 @@ function _fix_permission {  # <home-relative-path|absolute-path>:<perm>
 
 
 ## Check/fix permissions
+[ -n "${VERBOSE}" ] && echo "DEBUG: ${0##*/} BEGIN"
 [ -z "$(ls -1d ${MY_HOME// /\\ } 2>/dev/null)" ] && echo "ERROR: Invalid home directory (${MY_HOME})" >&2 && exit 1
 IFS=$'\n'
 
@@ -112,13 +118,13 @@ for resource in \
   '.wgetrc*:600' \
   '[Cc]onfidential*:700' \
   '[Pp]rivate*:700' \
-  $(egrep -v '^\s*(#.*|$)' "${MY_RESOURCES:-/dev/null}" | sed "s|%{USER}|$(whoami)|g") \
+  $(egrep -v '^\s*(#.*|$)' "${RESOURCES:-/dev/null}" | sed "s|%{USER}|$(whoami)|g") \
 ; do
   _fix_permission "${resource}"
 done
 
 
 ## Done
-echo "DEBUG: ${0##*/} END"
+[ -n "${VERBOSE}" ] && echo "DEBUG: ${0##*/} END"
 exit 0
 

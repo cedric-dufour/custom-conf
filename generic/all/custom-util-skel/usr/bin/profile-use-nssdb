@@ -11,13 +11,50 @@ SYNOPSIS:
   certificate(s) and point relevant applications to it.
   <certificate> must be specified as:
     <name>:<path>:<trust> (as used by 'certutil' -n ... -i ... -t ...)
+
+OPTIONS:
+  --home <absolute-directory-path>
+    Specify home directory absolute path
+    (default: ${HOME})
+
+  --dry-run
+    Only show potentially mis-permissioned (existing) files
+
+  --verbose
+    Output additonal debug/informational messages.
 EOF
+
+# Arguments
+MY_HOME="${HOME}"
+DRYRUN=
+VERBOSE=
+while [ -n "${1}" ]; do
+  case "${1}" in
+    '--home')
+      [ -z "${2}" ] && echo "ERROR: Missing option argument (${1})" >&2 && exit 1
+      shift; MY_HOME="${1}"
+      ;;
+    '--dry-run')
+      DRYRUN='yes'
+      ;;
+    '--verbose')
+      VERBOSE='yes'
+      ;;
+    -*)
+      echo "ERROR: Invalid option (${1})" >&2 && exit 1
+      ;;
+    *)
+      break
+  esac
+  shift
+done
 
 
 ## Create/update the shared NSS database
-echo "DEBUG: ${0##*/} BEGIN"
-NSSDBDIR="${HOME}/.pki/nssdb"
+[ -n "${VERBOSE}" ] && echo "DEBUG: ${0##*/} BEGIN"
+NSSDBDIR="${MY_HOME}/.pki/nssdb"
 CERTUTIL="certutil -d sql:${NSSDBDIR}"
+[ -n "${VERBOSE}" ] && echo "DEBUG: Checking NSS database directory (${NSSDBDIR})"
 
 # Check the NSS database directory
 if [ ! -d "${NSSDBDIR}" -o ! -e "${NSSDBDIR}/cert9.db" -o ! -e "${NSSDBDIR}/key4.db" -o ! -e "${NSSDBDIR}/pkcs11.txt" ]; then
@@ -34,30 +71,46 @@ while [ -n "${1}" ]; do
   cert_name="${cert%%:*}"; cert="${cert#*:}"
   cert_file="${cert%%:*}"; cert="${cert#*:}"
   cert_trust="${cert%%:*}"
+  [ -n "${VERBOSE}" ] && echo "DEBUG: Adding certificate to NSS database (${cert_name}:${cert_file}:${cert_trust})"
+  [ -n "${DRYRUN}" ] && echo "DRY-RUN: NOT adding certificate to NSS database (${cert_name}:${cert_file}:${cert_trust})" && continue
   ${CERTUTIL} -L -n ${cert_name} >/dev/null 2>&1 || ${CERTUTIL} -A -n "${cert_name}" -i "${cert_file}" -t "${cert_trust}"
   [ $? -ne 0 ] && echo "WARNING: Failed to add certificate (${cert})" >&2
 done
 
 # Update/check application profiles
 for profile in \
-  $(find '.thunderbird/' -maxdepth 2 -type f -name 'prefs.js') \
-  $(find '.mozilla/firefox/' -maxdepth 3 -type f -name 'prefs.js')
+  $(find "${MY_HOME}/.thunderbird/" -maxdepth 2 -type f -name 'prefs.js') \
+  $(find "${MY_HOME}/.mozilla/firefox/" -maxdepth 3 -type f -name 'prefs.js')
 do
   profile="$(dirname "${profile}")"
+  [ -n "${VERBOSE}" ] && echo "DEBUG: Checking NSS database in user profile (${profile})"
   if [ -e "${profile}/cert8.db" -o -e "${profile}/key3.db" ]; then
-    echo "INFO: Cleaning deprecated NSS database from profile (${profile})"
-    rm -f "${profile}/cert8.db" "${profile}/key3.db"
+    if [ -n "${DRYRUN}" ]; then
+      echo "DRY-RUN: NOT cleaning deprecated NSS database from user profile (${profile})"
+    else
+      echo "INFO: Cleaning deprecated NSS database from user profile (${profile})"
+      rm -f "${profile}/cert8.db" "${profile}/key3.db"
+    fi
   fi
   if [ ! -h "${profile}/cert9.db" -o ! -h "${profile}/key4.db" ]; then
-    echo "INFO: Symlinking NSS database (${profile})"
-    [ -e "${profile}/cert9.db" -a "${profile}/key4.db" ] && ${CERTUTIL} --merge --source-dir "${profile}"
-    rm -f "${profile}/cert9.db" "${profile}/key4.db"
-    ln -s "${NSSDBDIR}/cert9.db" "${profile}/cert9.db"
-    ln -s "${NSSDBDIR}/key4.db" "${profile}/key4.db"
+    if [ -n "${DRYRUN}" ]; then
+      echo "DRY-RUN: NOT symlinking NSS database in user profile (${profile})"
+    else
+      echo "INFO: Symlinking NSS database in user profile (${profile})"
+      [ -e "${profile}/cert9.db" -a "${profile}/key4.db" ] && ${CERTUTIL} --merge --source-dir "${profile}"
+      rm -f "${profile}/cert9.db" "${profile}/key4.db"
+      ln -s "${NSSDBDIR}/cert9.db" "${profile}/cert9.db"
+      ln -s "${NSSDBDIR}/key4.db" "${profile}/key4.db"
+    fi
   fi
   if [ ! -h "${profile}/pkcs11.txt" ]; then
-    rm -f "${profile}/pkcs11.txt"
-    ln -s "${NSSDBDIR}/pkcs11.txt" "${profile}/pkcs11.txt"
+    if [ -n "${DRYRUN}" ]; then
+      echo "DRY-RUN: NOT symlinking PKCS#11 configuration in user profile (${profile})"
+    else
+      echo "INFO: Symlinking PKCS#11 configuration in user profile (${profile})"
+      rm -f "${profile}/pkcs11.txt"
+      ln -s "${NSSDBDIR}/pkcs11.txt" "${profile}/pkcs11.txt"
+    fi
   fi
 done
 
@@ -66,6 +119,6 @@ export NSS_DEFAULT_DB_TYPE='sql'
 
 
 ## Done
-echo "DEBUG: ${0##*/} END"
+[ -n "${VERBOSE}" ] && echo "DEBUG: ${0##*/} END"
 exit 0
 

@@ -4,24 +4,77 @@
 
 ## Usage
 [ "${1##*-}" == 'help' ] && cat << EOF && exit 1
-USAGE: ${0##*/}
+USAGE: ${0##*/} [options]
 
 SYNOPSIS:
   Create local user-dedicated temporary directory and relocate all
   non-critical resources (web cache, thumbnails cache, etc.) to
   that directory.
+
+OPTIONS:
+  --home <absolute-directory-path>
+    Specify home directory absolute path
+    (default: ${HOME})
+
+  --user <username>
+    Specify alternate username (for permissions setting)
+    (default: ${USER})
+
+  --tmp <absolute-directory-path>
+    Specify temporary (local) directory absolute path
+    (default: /local/scratch or /tmp)
+
+  --dry-run
+    Only show potentially mis-permissioned (existing) files
+
+  --verbose
+    Output additonal debug/informational messages.
 EOF
+
+# Arguments
+MY_HOME="${HOME}"
+MY_USER="${USER}"
+TMPROOT=
+DRYRUN=
+VERBOSE=
+while [ -n "${1}" ]; do
+  case "${1}" in
+    '--home')
+      [ -z "${2}" ] && echo "ERROR: Missing option argument (${1})" >&2 && exit 1
+      shift; MY_HOME="${1}"
+      ;;
+    '--user')
+      [ -z "${2}" ] && echo "ERROR: Missing option argument (${1})" >&2 && exit 1
+      shift; MY_USER="${1}"
+      ;;
+    '--tmp')
+      [ -z "${2}" ] && echo "ERROR: Missing option argument (${1})" >&2 && exit 1
+      shift; TMPROOT="${1}"
+      ;;
+    '--dry-run')
+      DRYRUN='yes'
+      ;;
+    '--verbose')
+      VERBOSE='yes'
+      ;;
+    *)
+      echo "ERROR: Invalid option (${1})" >&2 && exit 1
+  esac
+  shift
+done
 
 
 ## Create the local temporary directory
-echo "DEBUG: ${0##*/} BEGIN"
+[ -n "${VERBOSE}" ] && echo "DEBUG: ${0##*/} BEGIN"
 
 # Define/check the parent (root) directory
-[ -e '/local/scratch' ] && TMPROOT='/local/scratch' || TMPROOT='/tmp'
+if [ -z "${TMPROOT}" ]; then
+  [ -e '/local/scratch' ] && TMPROOT='/local/scratch' || TMPROOT='/tmp'
+fi
 [ ! -d "${TMPROOT}" ] && echo "ERROR: Invalid path; not a directory (${TMPROOT})" >&2 && exit 1
 
 # Define/create/check the user directory
-TMPDIR="${TMPROOT}/${USER}"
+TMPDIR="${TMPROOT}/${MY_USER}"
 [ ! -e "${TMPDIR}" ] && mkdir "${TMPDIR}"
 [ ! -d "${TMPDIR}" ] && echo "ERROR: Failed to create directory (${TMPDIR})" >&2 && exit 1
 [ ! -w "${TMPDIR}" ] && echo "ERROR: Non-writable directory (${TMPDIR})" >&2 && exit 1
@@ -31,7 +84,7 @@ export TMPROOT
 export TMPDIR
 
 # Set proper ownership and permissions
-chown "${USER}" "${TMPDIR}"
+chown "${MY_USER}" "${TMPDIR}"
 chmod go= "${TMPDIR}"
 
 
@@ -41,14 +94,16 @@ function _relocate_resource {  # <home-relative-directory>:<type=dir|file>
   resource="${1%:*}"
   resource_type="${1#*:}"
   [ "${resource}" == "${resource_type}" ] && echo "ERROR: Invalid resource syntax (${resource})" >&2 && return 1
-  resource_home_path="${HOME}/${resource}"
+  resource_home_path="${MY_HOME}/${resource}"
   resource_home_dir="$(dirname "${resource_home_path}")"
   resource_tmp_path="${TMPDIR}/${resource}"
   resource_tmp_dir="$(dirname "${resource_tmp_path}")"
+  [ -n "${VERBOSE}" ] && echo "DEBUG: Checking resource (${resource_home_path})"
 
   # Initial check
   [ -h "${resource_home_path}" -a -e "${resource_home_path}" ] && return 0
-  echo "INFO: Relocating resource... (${resource_home_path})"
+  [ -n "${DRYRUN}" ] && echo "DRY-RUN: NOT relocating resource (${resource_home_path})" && return 0
+  echo "INFO: Relocating resource (${resource_home_path})"
   
   # Check (parent) directory
   # ... home
@@ -104,8 +159,8 @@ function _relocate_resource {  # <home-relative-directory>:<type=dir|file>
 
 
 ## Relocate resources
-cd "${HOME}"
-[ $? -ne 0 ] && echo "ERROR: Failed to swicth to home directory (${HOME})" >&2 && exit 1
+cd "${MY_HOME}"
+[ $? -ne 0 ] && echo "ERROR: Failed to swicth to home directory (${MY_HOME})" >&2 && exit 1
 IFS=$'\n'
 
 # Easy ones
@@ -183,6 +238,6 @@ done
 
 
 ## Done
-echo "DEBUG: ${0##*/} END"
+[ -n "${VERBOSE}" ] && echo "DEBUG: ${0##*/} END"
 exit 0
 
