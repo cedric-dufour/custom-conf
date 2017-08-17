@@ -1,3 +1,9 @@
+custom-conf-krb5 (2017.08.17a) UNRELEASED; urgency=low
+
+  * Disable weak crypto (now that well-known vendors DO support strong crypto)
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Thu, 17 Aug 2017 11:54:44 +0200
+
 custom-conf-krb5 (2014.12.26a) UNRELEASED; urgency=low
 
   * Post Tenebras Lux
