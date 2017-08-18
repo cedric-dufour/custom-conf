@@ -40,6 +40,7 @@ s/^tape:\\([^:]*\\):\\([^:]*\\):.*/tape:\\1:\\2:${LOCAL_USERS}/;
 s/^users:\\([^:]*\\):\\([^:]*\\):.*/users:\\1:\\2:${LOCAL_USERS}/;
 s/^vboxusers:\\([^:]*\\):\\([^:]*\\):.*/vboxusers:\\1:\\2:${LOCAL_USERS}/;
 s/^video:\\([^:]*\\):\\([^:]*\\):.*/video:\\1:\\2:lightdm${LOCAL_USERS:+,}${LOCAL_USERS}/
+s/^voice:\\([^:]*\\):\\([^:]*\\):.*/voice:\\1:\\2:${LOCAL_USERS}/
 " /etc/group
 
 # Create local scratch space

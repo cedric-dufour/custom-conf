@@ -43,7 +43,7 @@ fi
 _do "invoke-rc.d nscd stop"
 
 # List of potential groups
-g_list='audio camera cdrom dialout dip disk fax floppy fuse kvm lpadmin plugdev scanner tape users vboxusers video'
+g_list='audio camera cdrom dialout dip disk fax floppy fuse games kvm lpadmin plugdev scanner staff sudo tape users vboxusers video voice'
 
 # Retrieve mountpoints where to fix GIDs
 m_list="$(mount | egrep 'type ext.? ' | sed 's/.* on \([^ ]*\) type .*/\1/' )"

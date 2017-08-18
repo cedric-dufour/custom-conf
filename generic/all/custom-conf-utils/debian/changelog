@@ -1,3 +1,10 @@
+custom-conf-utils (2017.08.18a) UNRELEASED; urgency=low
+
+  * Add authorized local users to the 'voice' group (custom-conf-setuser)
+  * Add additional (potential) user groups when fixing group GIDs (custom-conf-fixgroups)
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Fri, 18 Aug 2017 15:27:55 +0200
+
 custom-conf-utils (2017.04.24a) UNRELEASED; urgency=low
 
   * FIX: Filter-out secondary IP addresses from listing
