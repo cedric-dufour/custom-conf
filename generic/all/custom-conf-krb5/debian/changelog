@@ -1,3 +1,10 @@
+custom-conf-krb5 (2017.08.18a) UNRELEASED; urgency=low
+
+  * Add default DNS domain to Kerberos realm mapping
+    (fix 'kinit: Cannot determine realm for host')
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Fri, 18 Aug 2017 11:47:22 +0200
+
 custom-conf-krb5 (2017.08.17a) UNRELEASED; urgency=low
 
   * Disable weak crypto (now that well-known vendors DO support strong crypto)
