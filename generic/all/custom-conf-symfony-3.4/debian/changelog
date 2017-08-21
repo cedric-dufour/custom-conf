@@ -1,3 +1,10 @@
+custom-conf-symfony-3.4 (2017.08.21a) UNRELEASED; urgency=low
+
+  * Link to "warmup" cache directory (app/cache) to the actual cache directory (var/cache)
+    REF: https://github.com/symfony/symfony/commit/19e6f0ce6cce87c167f6d865ecd60da2c3b86f95
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Mon, 21 Aug 2017 11:12:48 +0200
+
 custom-conf-symfony-3.4 (2017.08.04a) UNRELEASED; urgency=low
 
   * Hail Symfony 3.4 !
