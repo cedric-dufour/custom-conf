@@ -5,16 +5,22 @@ PKGNAME='custom-conf-nfs4'
 # Install files
 custom-conf-install "${PKGNAME}" "/usr/share/${PKGNAME}/config" || exit 1
 
+# Use Kerberos/RPCSEC-GSS ?
+CUSTOM_CONF_NFS4_GSSD=
+[ -e /etc/krb5.keytab ] && CUSTOM_CONF_NFS4_GSSD='yes'
+
 # Fine-tune configuration
 source /usr/share/custom-conf/custom-conf.defs
 gsed "s|%{CUSTOM_CONF_DOMAIN}|${CUSTOM_CONF_DOMAIN}|g" /etc/idmapd.conf
+gsed "s|%{CUSTOM_CONF_NFS4_GSSD}|${CUSTOM_CONF_NFS4_GSSD}|g" /etc/default/nfs-common
 
 # Additional actions
-[ ! -e /var/lib/nfs/rpc_pipefs -a -e /run/rpc_pipefs ] && ln -s /run/rpc_pipefs /var/lib/nfs/rpc_pipefs
+[ -h /var/lib/nfs/rpc_pipefs ] && rm /var/lib/nfs/rpc_pipefs  # clean-up legacy mess
+sysctl --system
 invoke-rc.d nfs-common restart
 invoke-rc.d statd stop; invoke-rc.d statd start
 invoke-rc.d idmapd stop; invoke-rc.d idmapd start
-invoke-rc.d gssd stop; invoke-rc.d gssd start
+invoke-rc.d gssd stop; [ -n "${CUSTOM_CONF_NFS4_GSSD}" ] && invoke-rc.d gssd start
 
 # Exit
 exit 0

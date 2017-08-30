@@ -1,3 +1,12 @@
+custom-conf-nfs4 (2017.08.30c) UNRELEASED; urgency=low
+
+  * Fix too-small kernel (root) keyring for kernel < 3.17-rc4
+    (fix NFSv4 UIDs/GIDs partially "resolving" to 4294967294)
+    REF: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=758870#118
+  * Do not enabled RPCSEC-GSS if host has no Kerberos keytab
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Wed, 30 Aug 2017 10:05:03 +0200
+
 custom-conf-nfs4 (2014.12.26a) UNRELEASED; urgency=low
 
   * Post Tenebras Lux
