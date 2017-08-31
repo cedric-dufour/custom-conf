@@ -18,9 +18,7 @@ gsed "s|%{CUSTOM_CONF_NFS4_GSSD}|${CUSTOM_CONF_NFS4_GSSD}|g" /etc/default/nfs-co
 [ -h /var/lib/nfs/rpc_pipefs ] && rm /var/lib/nfs/rpc_pipefs  # clean-up legacy mess
 sysctl --system
 invoke-rc.d nfs-common restart
-invoke-rc.d statd stop; invoke-rc.d statd start
-invoke-rc.d idmapd stop; invoke-rc.d idmapd start
-invoke-rc.d gssd stop; [ -n "${CUSTOM_CONF_NFS4_GSSD}" ] && invoke-rc.d gssd start
+[ -z "${CUSTOM_CONF_NFS4_GSSD}" ] && pkill -x rpc.gssd
 
 # Exit
 exit 0
