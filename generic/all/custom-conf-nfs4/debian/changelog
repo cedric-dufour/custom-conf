@@ -1,3 +1,9 @@
+custom-conf-nfs4 (2017.09.06a) UNRELEASED; urgency=low
+
+  * Do specify idmapd Pipefs-Directory
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Wed, 06 Sep 2017 17:02:37 +0200
+
 custom-conf-nfs4 (2017.08.31a) UNRELEASED; urgency=low
 
   * Remove calls to unexisting (RPC) services (now managed through 'nfs-common')
