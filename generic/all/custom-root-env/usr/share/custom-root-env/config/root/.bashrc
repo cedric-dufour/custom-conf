@@ -82,13 +82,14 @@ alias _dl='dpkg -L'
 alias _dp='dpkg -P'
 # ... ps
 alias _psl='ps wwaxf -o user,tty,pid,state,start,time,%cpu,nlwp,ni,pri,%mem,vsz,rsz,command | less -S'
-# ... icfg
+# ... gcfg
 alias _ge='gcfg edit'
 alias _gl='gcfg list @FLAGS'
 alias _go='gcfg original'
 alias _gd='gcfg delta'
 # ... misc
 alias _dm='dmesg | tail -n 25'
+alias _sl='tail -n 25 /var/log/syslog'
 
 # ... completion
 function _mycomp_apt_available_packages {

@@ -1,3 +1,9 @@
+custom-root-env (2017.09.21a) UNRELEASED; urgency=low
+
+  * Added '_sl' (alias) for viewing last syslog entries
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Thu, 21 Sep 2017 12:55:05 +0200
+
 custom-root-env (2017.07.24a) UNRELEASED; urgency=low
 
   * Improved '_psl' (alias) reporting
