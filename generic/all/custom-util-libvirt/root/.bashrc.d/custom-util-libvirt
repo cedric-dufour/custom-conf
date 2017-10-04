@@ -1,0 +1,22 @@
+## CUSTOM-UTIL: File automatically created/updated [custom-util-libvirt]
+
+# Additional Aliases
+alias _vl='virsh --quiet list'
+alias _vla='virsh --quiet list --all'
+alias _vs='virsh start'
+alias _vc='virsh create'
+alias _vo='virsh console'
+alias _vn='virsh shutdown'
+alias _vy='virsh destroy'
+
+# Additional Completion
+function _mycomp_virsh_guests {
+ local cur
+ cur=`_get_cword`
+ COMPREPLY=( $( virsh --quiet list --all 2>/dev/null | awk '{print $2}' | grep "^$cur" ) )
+}
+complete -F _mycomp_virsh_guests _vs
+complete -F _mycomp_virsh_guests _vo
+complete -F _mycomp_virsh_guests _vn
+complete -F _mycomp_virsh_guests _vy
+
