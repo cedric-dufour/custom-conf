@@ -1,0 +1,13 @@
+## CUSTOM-UTIL: File automatically created/updated [custom-util-ha]
+
+# Additional Aliases
+alias _hs='ha-status'
+
+# Additional Completion
+function _mycomp_crm_resources {
+ local cur
+ cur=`_get_cword`
+ COMPREPLY=( $( crm_resource -Q -l 2>/dev/null | grep "^$cur" ) )
+}
+complete -F _mycomp_crm_resources _hs
+

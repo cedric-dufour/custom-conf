@@ -1,3 +1,15 @@
+custom-util-ha (2017.10.04a) UNRELEASED; urgency=low
+
+  * Added root's bash aliases (_hs)
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Wed, 04 Oct 2017 11:43:23 +0200
+
+custom-util-ha (2017.10.02a) UNRELEASED; urgency=low
+
+  * Fixed 'ha-node-utilization' erroneously resetting node name
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Mon, 02 Oct 2017 16:21:01 +0200
+
 custom-util-ha (2017.02.28a) UNRELEASED; urgency=low
 
   * Look for valid nodes by their 'uname' rather than their 'id'

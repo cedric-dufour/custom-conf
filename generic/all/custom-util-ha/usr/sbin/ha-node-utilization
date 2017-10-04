@@ -1,23 +1,29 @@
 #!/bin/bash
 ## CUSTOM-UTIL: File automatically created/updated [custom-util-ha]
 
-# Usage
+
+## Usage
 [ $# -lt 3 -o "${1##*-}" == 'help' ] && cat << EOF >&2 && exit 1
-USAGE: ${0##*/} <node> <RAM-megabytes> <CPU-cores>
+USAGE: ${0##*/} <node-id> <RAM-megabytes> <CPU-cores>
 
 SYNOPSIS:
   Define the node hardware utilization capabilities.
 EOF
 
-# Command
-HA_NODE="$1"
+# Arguments
+HA_NODE_ID="$1"
 HA_NODE_RAM="${2}"
 HA_NODE_CPU="${3}"
+
+
+## Command
+HA_NODE_NAME="$(crm_node --name-for-id ${HA_NODE_ID})"
+[ -z "${HA_NODE_NAME}" -o "${HA_NODE_NAME}" == '(null)' ] && echo "ERROR: Failed to resolve node name for given ID (${HA_NODE_ID})" >&2 && exit 1
 cat << EOF | cibadmin -o nodes -M -c -p
-<node id="${HA_NODE}" type="normal" uname="${HA_NODE}">
-  <utilization id="${HA_NODE}-utilization">
-    <nvpair id="${HA_NODE}-utilization-cpu" name="cpu" value="${HA_NODE_CPU}"/>
-    <nvpair id="${HA_NODE}-utilization-memory" name="memory" value="${HA_NODE_RAM}"/>
+<node id="${HA_NODE_ID}">
+  <utilization id="${HA_NODE_NAME}-utilization">
+    <nvpair id="${HA_NODE_NAME}-utilization-cpu" name="cpu" value="${HA_NODE_CPU}"/>
+    <nvpair id="${HA_NODE_NAME}-utilization-memory" name="memory" value="${HA_NODE_RAM}"/>
   </utilization>
 </node>
 EOF
