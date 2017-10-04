@@ -1,0 +1,10 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-conf-network-bond
+
+This package provides standard configuration of specified interfaces
+as part of a network bond interface.
+
+In particular, it addresses standard configuration of:
+ - bond MII link monitoring frequency, along up- and down-delay
+

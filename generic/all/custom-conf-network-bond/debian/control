@@ -1,0 +1,13 @@
+Source: custom-conf-network-bond
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 3.9.8
+
+Package: custom-conf-network-bond
+Architecture: all
+Depends: ifenslave
+Conflicts: custom-conf-network-bridge
+Description: Custom Configuration Framework - Network bonding (trunking)
+

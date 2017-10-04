@@ -1,0 +1,20 @@
+Template: custom-conf-network-bond/bond-name
+Type: string
+Default: bond0
+Description: Bond name ?
+
+Template: custom-conf-network-bond/bond-mode
+Type: select
+Choices: balance-rr, active-backup, balance-xor, 802.3ad, balance-tlb, balance-alb
+Default: active-backup
+Description: Bond mode ?
+
+Template: custom-conf-network-bond/bond-slaves
+Type: string
+Default: eth0 eth1
+Description: Bonded interfaces (space-separated) ?
+
+Template: custom-conf-network-bond/bond-primary
+Type: string
+Description: Primary (default active) interface ?
+
