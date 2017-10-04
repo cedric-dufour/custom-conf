@@ -17,6 +17,9 @@ db_get ${PKGNAME}/network-authentication && CUSTOM_CONF_LIBVIRT_NETWORK_AUTHENTI
 db_get ${PKGNAME}/network-authorization && CUSTOM_CONF_LIBVIRT_NETWORK_AUTHORIZATION="${RET}"
 db_stop
 
+# Clean-up legacy files
+[ -e /root/.bashrc.d/90-custom-conf-libvirt ] && gcfg rm --batch --force /root/.bashrc.d/90-custom-conf-libvirt >/dev/null
+
 # Install files
 custom-conf-install "${PKGNAME}" "/usr/share/${PKGNAME}/config" || exit 1
 
