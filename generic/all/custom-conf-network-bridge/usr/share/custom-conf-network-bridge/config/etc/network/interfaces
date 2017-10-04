@@ -4,20 +4,16 @@
 auto lo
 iface lo inet loopback
 
-# Primary interface
-# (Please use 'dpkg-reconfigure custom-conf-network-bridge' to change these settings)
-# ... to be manually enable by bridge interface
-iface %{CUSTOM_CONF_NETWORK_INTERFACE} inet manual
-
 # Bridge interface
+# (Please use 'dpkg-reconfigure custom-conf-network-bridge' to change these settings)
 auto %{CUSTOM_CONF_NETWORK_BRIDGE}
 iface %{CUSTOM_CONF_NETWORK_BRIDGE} inet static
   # ... bridge parameters
-  bridge-ports %{CUSTOM_CONF_NETWORK_INTERFACE}
+  %{CUSTOM_CONF_NETWORK_PORT}
   bridge-maxwait 0
   bridge-stp off
   bridge-fd 0
-  hwaddress ether %{CUSTOM_CONF_NETWORK_MACADDRESS}
+  %{CUSTOM_CONF_NETWORK_MACADDRESS}
   # ... IPv4
   address %{CUSTOM_CONF_NETWORK_IP4ADDRESS}
   netmask %{CUSTOM_CONF_NETWORK_IP4MASK}

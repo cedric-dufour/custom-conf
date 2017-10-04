@@ -3,10 +3,11 @@ Section: admin
 Priority: optional
 Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
 Homepage: https://github.com/cedric-dufour/custom-conf
-Standards-Version: 3.9.7
+Standards-Version: 3.9.8
 
 Package: custom-conf-network-bridge
 Architecture: all
 Depends: bridge-utils
+Conflicts: custom-conf-network-bond
 Description: Custom Configuration Framework - Network bridging
 
