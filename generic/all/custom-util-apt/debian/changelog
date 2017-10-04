@@ -1,3 +1,9 @@
+custom-util-apt (2017.10.04a) UNRELEASED; urgency=low
+
+  * Added root's bash aliases ('_a*' for apt and '_d*' for dpkg)
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Wed, 04 Oct 2017 11:50:04 +0200
+
 custom-util-apt (2014.02.08) UNRELEASED; urgency=low
 
   * Post Tenebras Lux

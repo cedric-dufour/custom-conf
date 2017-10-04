@@ -7,5 +7,6 @@ Standards-Version: 3.9.7
 
 Package: custom-util-apt
 Architecture: all
+Conflicts: custom-root-env (<< 2017.10.04a)
 Description: Custom Configuration Framework - APT utilities
 

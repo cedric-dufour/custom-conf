@@ -1,0 +1,42 @@
+## CUSTOM-UTIL: File automatically created/updated [custom-util-apt]
+
+# Additional Aliases
+# ... apt
+alias _au='apt-get update'
+_as() { apt-cache search $@ | sort ; }
+alias _ap='apt-cache policy'
+alias _aw='apt-cache show'
+_av() { [ $# -le 0 ] && dpkg -l | sort || dpkg -l | fgrep $1 | sort ; }
+alias _ai='apt-get install'
+alias _aii='apt-get install --reinstall'
+alias _ar='apt-get remove --purge'
+alias _aar='apt-get autoremove --purge'
+alias _adu='apt-get dist-upgrade'
+alias _aduh='apt-get dist-upgrade --ignore-hold'
+alias _ac='apt-get clean'
+# ... dpkg
+alias _dl='dpkg -L'
+alias _dp='dpkg -P'
+
+# Additional Completion
+# ... apt
+function _mycomp_apt_packages {
+ local cur
+ cur=`_get_cword`
+ COMPREPLY=( $( apt-cache pkgnames "$cur" 2>/dev/null ) )
+}
+complete -F _mycomp_apt_packages _aw
+complete -F _mycomp_apt_packages _ap
+complete -F _mycomp_apt_packages _ai
+# ... dpkg
+function _mycomp_dpkg_packages {
+ local cur
+ cur=`_get_cword`
+ COMPREPLY=( $( dpkg --get-selections 2>/dev/null | awk '{print $1}' | grep "^$cur" ) )
+}
+complete -F _mycomp_dpkg_packages _ar
+complete -F _mycomp_dpkg_packages _aar
+complete -F _mycomp_dpkg_packages _aii
+complete -F _mycomp_dpkg_packages _dl
+complete -F _mycomp_dpkg_packages _dp
+
