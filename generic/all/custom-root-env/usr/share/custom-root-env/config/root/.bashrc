@@ -64,22 +64,6 @@ alias lh='ls -lh'
 alias la='ls -la'
 # ... rm
 alias rm='rm --one-file-system'
-# ... apt
-alias _au='apt-get update'
-_as() { apt-cache search $@ | sort ; }
-alias _ap='apt-cache policy'
-alias _aw='apt-cache show'
-_av() { [ $# -le 0 ] && dpkg -l | sort || dpkg -l | fgrep $1 | sort ; }
-alias _ai='apt-get install'
-alias _aii='apt-get install --reinstall'
-alias _ar='apt-get remove --purge'
-alias _aar='apt-get autoremove --purge'
-alias _adu='apt-get dist-upgrade'
-alias _aduh='apt-get dist-upgrade --ignore-hold'
-alias _ac='apt-get clean'
-# ... dpkg
-alias _dl='dpkg -L'
-alias _dp='dpkg -P'
 # ... ps
 alias _psl='ps wwaxf -o user,tty,pid,state,start,time,%cpu,nlwp,ni,pri,%mem,vsz,rsz,command | less -S'
 # ... gcfg
@@ -90,27 +74,6 @@ alias _gd='gcfg delta'
 # ... misc
 alias _dm='dmesg | tail -n 25'
 alias _sl='tail -n 25 /var/log/syslog'
-
-# ... completion
-function _mycomp_apt_available_packages {
- local cur
- cur=`_get_cword`
- COMPREPLY=( $( apt-cache pkgnames "$cur" 2>/dev/null ) )
-}
-complete -F _mycomp_apt_available_packages _aw
-complete -F _mycomp_apt_available_packages _ap
-complete -F _mycomp_apt_available_packages _ai
-
-function _mycomp_dpkg_installed_packages {
- local cur
- cur=`_get_cword`
- COMPREPLY=( $( dpkg --get-selections | awk '{print $1}' | grep "^$cur" ) )
-}
-complete -F _mycomp_dpkg_installed_packages _ar
-complete -F _mycomp_dpkg_installed_packages _aar
-complete -F _mycomp_dpkg_installed_packages _aii
-complete -F _mycomp_dpkg_installed_packages _dl
-complete -F _mycomp_dpkg_installed_packages _dp
 
 # Environment
 export EDITOR=vim

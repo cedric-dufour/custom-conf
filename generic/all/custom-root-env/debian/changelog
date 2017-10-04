@@ -1,3 +1,9 @@
+custom-root-env (2017.10.04a) UNRELEASED; urgency=low
+
+  * Moved apt and dpkg aliases ('_a*' and '_d*') to 'custom-util-apt'
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Wed, 04 Oct 2017 11:52:29 +0200
+
 custom-root-env (2017.09.21a) UNRELEASED; urgency=low
 
   * Added '_sl' (alias) for viewing last syslog entries
