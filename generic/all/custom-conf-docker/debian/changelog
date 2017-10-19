@@ -1,3 +1,10 @@
+custom-conf-docker (2017.10.19a) UNRELEASED; urgency=low
+
+  * FIX: Add 'docker-ce' as (preferred) alternate dependency to 'docker-engine'
+  * FIX: Use 'dockerd' as Docker Daemon if it exists
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Thu, 19 Oct 2017 14:36:34 +0200
+
 custom-conf-docker (2017.01.18a) UNRELEASED; urgency=low
 
   * FIX: Typo in Debian post-installation script
