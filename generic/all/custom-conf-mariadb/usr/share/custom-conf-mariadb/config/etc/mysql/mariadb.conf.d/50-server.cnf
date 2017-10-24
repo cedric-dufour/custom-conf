@@ -22,7 +22,8 @@ skip-external-locking
 #ssl-ca=/etc/ssl/local/localhost-cachain.pem
 #ssl-cert=/etc/ssl/local/localhost-cert.pem
 #ssl-key=/etc/ssl/local/localhost-key.pem
-#ssl-cipher=TLSv1.2
+# NOTE: Debian-packaged MariaDB uses ("bundled") YaSSL; 'ssl-cipher' requires OpenSSL
+##ssl-cipher=TLSv1.2
 #ssl=on
 
 # Fine Tuning
