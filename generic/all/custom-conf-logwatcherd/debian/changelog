@@ -1,3 +1,9 @@
+custom-conf-logwatcherd (2017.11.05a) UNRELEASED; urgency=low
+
+  - Added 'asterisk_reg' rule (to catch Asterisk/SIP registration failures)
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Sun, 05 Nov 2017 10:36:46 +0100
+
 custom-conf-logwatcherd (2017.03.07b) UNRELEASED; urgency=low
 
   * Include LOGWATCHER_* iptables rules automatically
