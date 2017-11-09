@@ -151,7 +151,7 @@ gsed "s|%{CUSTOM_CONF_SSH_LISTEN_IPV4}|${CUSTOM_CONF_SSH_LISTEN_IPV4}|g;s|%{CUST
 gsed "s|%{CUSTOM_CONF_SSH_FORWARDX11}|${CUSTOM_CONF_SSH_FORWARDX11}|g;s|%{CUSTOM_CONF_SSH_TCPKEEPALIVE}|${CUSTOM_CONF_SSH_TCPKEEPALIVE}|g;s|%{CUSTOM_CONF_SSH_HASHKNOWNHOSTS}|${CUSTOM_CONF_SSH_HASHKNOWNHOSTS}|g;s|%NL;|\n|g" /etc/ssh/ssh_config
 
 # Additional actions
-sshkey_comment="$(hostname -f) (generated $(date +"%Y-%m-%d") with OpenSSL $(dpkg -l | grep 'ii\s*libssl' | awk '{print $3}'))"
+sshkey_comment="$(hostname -f) (generated $(date +"%Y-%m-%d") with OpenSSL $(dpkg -l | grep 'ii\s*libssl' | awk '{print $3}' | sort -V | head -n 1))"
 if [ ! -e /etc/ssh/ssh_host_rsa_key.pub -o "$(ssh-keygen -lf /etc/ssh/ssh_host_rsa_key.pub | cut -d' ' -f1)" == '2048' ]; then
   echo "WARNING[${PKGNAME}]: The RSA key does not exist or its length does not match security policies"
   echo ': creating new RSA key...'
