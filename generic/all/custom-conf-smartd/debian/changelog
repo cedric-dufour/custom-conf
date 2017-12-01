@@ -1,3 +1,9 @@
+custom-conf-smartd (2017.12.01a) UNRELEASED; urgency=low
+
+  * Added support for NVMe devices
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Fri, 01 Dec 2017 14:27:58 +0100
+
 custom-conf-smartd (2014.12.10a) UNRELEASED; urgency=low
 
   * Post Tenebras Lux
