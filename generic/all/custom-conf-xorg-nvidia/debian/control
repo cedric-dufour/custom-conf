@@ -3,13 +3,11 @@ Section: admin
 Priority: optional
 Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
 Homepage: https://github.com/cedric-dufour/custom-conf
-Standards-Version: 3.9.7
+Standards-Version: 3.9.8
 
 Package: custom-conf-xorg-nvidia
 Architecture: all
-Depends: custom-conf
-Conflicts: custom-conf-xorg-generic
-Breaks: custom-conf-nvidia (<< 2016.07.05a)
-Replaces: custom-conf-nvidia (<< 2016.07.05a)
+Depends: custom-conf, xserver-xorg-video-nvidia
+Conflicts: custom-conf-xorg-generic, custom-conf-xorg-intel
 Description: Custom Configuration Framework - X.org <-> nVidia GPU
 

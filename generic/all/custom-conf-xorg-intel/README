@@ -1,0 +1,7 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-conf-xorg-intel
+
+This package provides standard configuration of the X.org X11 display server
+along Intel (i8xx/i9xx) graphic cards (GPU).
+

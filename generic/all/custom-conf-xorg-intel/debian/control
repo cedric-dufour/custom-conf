@@ -1,0 +1,13 @@
+Source: custom-conf-xorg-intel
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 3.9.8
+
+Package: custom-conf-xorg-intel
+Architecture: all
+Depends: custom-conf, xserver-xorg-video-intel
+Conflicts: custom-conf-xorg-generic, custom-conf-xorg-nvidia
+Description: Custom Configuration Framework - X.org <-> Intel GPU
+
