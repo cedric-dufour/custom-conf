@@ -1,4 +1,4 @@
-custom-conf-smartd (2017.12.01a) UNRELEASED; urgency=low
+custom-conf-smartd (2017.12.01b) UNRELEASED; urgency=low
 
   * Added support for NVMe devices
 
