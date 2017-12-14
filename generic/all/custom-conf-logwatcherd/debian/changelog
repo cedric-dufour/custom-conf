@@ -1,3 +1,10 @@
+custom-conf-logwatcherd (2017.12.14a) UNRELEASED; urgency=low
+
+  - Split 'dovecot_auth' and 'dovecot_noauth' rules (the latter potentially
+    source of false positives)
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Thu, 14 Dec 2017 12:00:29 +0100
+
 custom-conf-logwatcherd (2017.11.05a) UNRELEASED; urgency=low
 
   - Added 'asterisk_reg' rule (to catch Asterisk/SIP registration failures)
