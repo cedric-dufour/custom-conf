@@ -1,3 +1,9 @@
+custom-conf-apparmor (2017.12.16a) UNRELEASED; urgency=low
+
+  * Make sure to update Grub after adding AppArmor to the kernel options
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Sat, 16 Dec 2017 15:52:30 +0100
+
 custom-conf-apparmor (2017.05.04a) UNRELEASED; urgency=low
 
   * Make sure AppArmor is enabled in the kernel (security=apparmor)

@@ -14,6 +14,7 @@ if [ -n "$(grep '^\s*GRUB_CMDLINE_LINUX.*[" ]security=' /etc/default/grub | fgre
   echo "WARNING[${PKGNAME}]: Another kernel security model in enforced; AppArmor can NOT co-exist with it!"
 elif [ -z "$(grep '^\s*GRUB_CMDLINE_LINUX.*[" ]security=apparmor[" ]' /etc/default/grub)" ]; then
   gsed 's|^\s*GRUB_CMDLINE_LINUX_DEFAULT\s*=\s*"|GRUB_CMDLINE_LINUX_DEFAULT="security=apparmor |' /etc/default/grub
+  update-grub
   echo "WARNING[${PKGNAME}]: You MUST reboot to enable AppArmor!"
 fi
 
