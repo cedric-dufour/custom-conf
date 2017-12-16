@@ -1,0 +1,9 @@
+#!/bin/sh
+## CUSTOM-CONF: File automatically created/updated [custom-conf-thunderbird]
+
+# QUIRK: Make sure AppArmor's Thunderbird profile is not disabled
+#  <->   https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=884191
+[ -e /etc/apparmor.d/disable/usr.bin.thunderbird ] || exit 0
+rm /etc/apparmor.d/disable/usr.bin.thunderbird
+apparmor_parser -r /etc/apparmor.d/usr.bin.thunderbird
+

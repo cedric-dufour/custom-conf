@@ -1,3 +1,10 @@
+custom-conf-thunderbird (2017.12.16a) UNRELEASED; urgency=low
+
+  * QUIRK: Make sure AppArmor's Thunderbird profile is not disabled
+     <->   https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=884191
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Sat, 16 Dec 2017 15:13:10 +0100
+
 custom-conf-thunderbird (2017.06.29a) UNRELEASED; urgency=low
 
   * Fix AppArmor profile to allow Enigmail/GPG to import keys
