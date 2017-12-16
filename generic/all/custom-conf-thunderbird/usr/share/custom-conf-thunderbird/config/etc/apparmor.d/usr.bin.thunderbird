@@ -207,10 +207,11 @@ profile thunderbird /usr/lib/thunderbird/thunderbird {
   /bin/uname Uxr,
   /usr/bin/locale Uxr,
 
-  # [custom-conf-thunderbird] Suppress /usr/bin/gpg support/profile entirely
+  # [custom-conf-thunderbird] Suppress gpg1 support/profile entirely
   # (it is erroneous, incomplete and readily replaced by gpg2)
+  # WARNING: as from Debian/Stretch, part of gpg2 resources are no longer 2-suffixed
 
-  /usr/bin/gpg2              Cx -> gpg2,
+  /usr/bin/gpg{,2}           Cx -> gpg2,
   /usr/bin/gpgconf           Cx -> gpg2,
   /usr/bin/gpg-connect-agent Cx -> gpg2,
 
@@ -252,7 +253,7 @@ profile thunderbird /usr/lib/thunderbird/thunderbird {
     /usr/bin/pinentry-gtk-2 Ux,
 
     # User resources
-    /usr/bin/gpg2 mr,
+    /usr/bin/gpg{,2} mr,
     owner @{HOME}/.gnupg/ rw,
     owner @{HOME}/.gnupg/gpg.conf r,
     owner @{HOME}/.gnupg/random_seed rwk,
@@ -286,5 +287,6 @@ profile thunderbird /usr/lib/thunderbird/thunderbird {
   }
 
   # Site-specific additions and overrides. See local/README for details.
+  # [custom-conf-thunderbird] WARNING: deny directives can NOT be overriden; hence the need to modify THIS file!
   #include <local/usr.bin.thunderbird>
 }
