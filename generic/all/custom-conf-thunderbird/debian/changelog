@@ -1,4 +1,4 @@
-custom-conf-thunderbird (2017.12.16a) UNRELEASED; urgency=low
+custom-conf-thunderbird (2017.12.16b) UNRELEASED; urgency=low
 
   * QUIRK: Make sure AppArmor's Thunderbird profile is not disabled
      <->   https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=884191
