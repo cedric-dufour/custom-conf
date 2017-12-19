@@ -16,7 +16,10 @@ EOF
 
 # Arguments
 [ -n "${1}" ] && IFACE="${1}" && ADDRFAM='inet6' && METHOD='static'
+
+# Applies ?
 [ -z "${IFACE}" -o "${ADDRFAM}" != 'inet6' -o "${METHOD}" != 'static' ] && exit 0
+[ "${IFACE//:/}" != "${IFACE}" ] && exit 0
 
 # IPv6 static address specific settings
 #  - disable StateLess Address AutoConfiguration (SLAAC)

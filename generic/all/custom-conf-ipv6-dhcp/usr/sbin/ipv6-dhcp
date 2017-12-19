@@ -16,7 +16,10 @@ EOF
 
 # Arguments
 [ -n "${1}" ] && IFACE="${1}" && ADDRFAM='inet6' && METHOD='dhcp'
+
+# Applies ?
 [ -z "${IFACE}" -o "${ADDRFAM}" != 'inet6' -o "${METHOD}" != 'dhcp' ] && exit 0
+[ "${IFACE//:/}" != "${IFACE}" ] && exit 0
 
 # BUG: Give the link time to come up
 # REF: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=783387
