@@ -3,18 +3,18 @@
 
 ## Usage
 [ $# -lt 1 -o "${1##*-}" == 'help' ] && cat << EOF >&2 && exit 1
-USAGE: ${0##*/} <lun#>
+USAGE: ${0##*/} <device>
 
-HINT: echo 1 > /sys/class/scsi_device/0:0:0:<lun#>/device/rescan
+HINT: echo 1 > /sys/block/<device>/device/rescan
 EOF
 
 # Arguments
-LUNID="${1}"
+DEVICE="${1##*/}"
 
 
 ## Command
-SYSDEV="/sys/class/scsi_device/0:0:0:${LUNID}"
-[ ! -e "${SYSDEV}" ] && echo "ERROR: Invalid device/LUN (${SYSDEV})" >&2 && exit 1
+SYSDEV="/sys/block/${DEVICE}"
+[ ! -e "${SYSDEV}" ] && echo "ERROR: Invalid block device (${SYSDEV})" >&2 && exit 1
 echo 'CRITICAL: Make sure to umount all partitions on the device!'
 for dev in ${SYSDEV}/device/block/sd*; do
   echo " > device: ${dev##*/}"
