@@ -1,3 +1,11 @@
+custom-conf-iptables (2018.01.08a) UNRELEASED; urgency=low
+
+  * Moved iptables activation to /etc/network/if-pre-up.d
+  * Moved iptables de-activation to /etc/network/if-post-down.d
+  * Fixed 'ifdown -a' not clearing iptables as expected
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Mon, 08 Jan 2018 15:19:44 +0100
+
 custom-conf-iptables (2017.05.17b) UNRELEASED; urgency=low
 
   * Moved 'BLACKLIST_DROP' chain creation back in 'footer' section
