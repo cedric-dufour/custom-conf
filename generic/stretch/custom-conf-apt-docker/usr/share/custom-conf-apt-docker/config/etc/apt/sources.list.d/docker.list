@@ -1,0 +1,6 @@
+## CUSTOM-CONF: File automatically created/updated [custom-conf-apt-docker]
+
+# Docker repository
+# KEY: wget https://download.docker.com/linux/debian/gpg -O- | apt-key add -
+deb [arch=amd64] https://download.docker.com/linux/debian/ stretch stable
+

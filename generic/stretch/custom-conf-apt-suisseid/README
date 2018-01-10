@@ -1,0 +1,6 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-conf-apt-suisseid
+
+This package provides standard configuration of SuisseID (SwissSign) APT repository.
+

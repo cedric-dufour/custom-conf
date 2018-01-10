@@ -1,0 +1,10 @@
+Template: custom-conf-apt-owncloud/owncloud-server
+Type: boolean
+Default: false
+Description: Enable ownCloud Server repository ?
+
+Template: custom-conf-apt-owncloud/owncloud-client
+Type: boolean
+Default: true
+Description: Enable ownCloud Client repository ?
+

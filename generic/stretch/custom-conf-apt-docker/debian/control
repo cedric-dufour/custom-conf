@@ -1,0 +1,12 @@
+Source: custom-conf-apt-docker
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 3.9.8
+
+Package: custom-conf-apt-docker
+Architecture: all
+Depends: custom-conf, custom-conf-apt, apt-transport-https, ca-certificates
+Description: Custom Configuration Framework - Docker APT repository
+

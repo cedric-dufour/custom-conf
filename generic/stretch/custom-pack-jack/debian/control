@@ -1,0 +1,13 @@
+Source: custom-pack-jack
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 3.9.8
+
+Package: custom-pack-jack
+Architecture: all
+Depends: custom-pack-pulseaudio, pulseaudio-module-jack, jackd, qjackctl
+Suggests: libjack-jackd2-dev
+Description: Custom Configuration Framework - JACK stack
+
