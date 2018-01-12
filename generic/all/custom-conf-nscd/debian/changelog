@@ -1,3 +1,9 @@
+custom-conf-nscd (2018.01.11a) UNRELEASED; urgency=low
+
+  * QUIRK: make sure NSCD starts after the network (systemd)
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Thu, 11 Jan 2018 16:58:39 +0100
+
 custom-conf-nscd (2014.12.16a) UNRELEASED; urgency=low
 
   * Post Tenebras Lux
