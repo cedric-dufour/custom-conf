@@ -1,0 +1,80 @@
+#!/bin/bash
+
+## Usage
+[ $# -lt 1 -o "${1##*-}" == 'help' ] && cat << EOF && exit 100
+USAGE: ${0##*/} [<options] <database> [<entry>]
+
+SYNOPSIS:
+  Check the given NSS-LDAP database availability.
+
+  The exit code shall be the one from 'getent (1)', with the following
+  addition:
+   4 - maximum retries reached
+   5 - timeout reached
+
+OPTIONS:
+  -r, --retries <N>
+    Maximum connections retries (default: 0)
+
+  -t, --timeout <seconds>
+    Timeout (default: 0)
+
+  -d, --delay <seconds>
+    Delay between retries (default: 1)
+EOF
+
+# Arguments
+MY_DATABASE=
+MY_ENTRY=
+MY_RETRIES=0
+MY_TIMEOUT=0
+MY_DELAY=1
+while [ -n "${1}" ]; do
+  case "${1}" in
+
+    -r|--retries)
+      [ -z "{2}" ] && echo "ERROR: Missing option argument (${1})" >&2 && exit 100
+      shift; MY_RETRIES="${1}"
+      ;;
+
+    -t|--timeout)
+      [ -z "{2}" ] && echo "ERROR: Missing option argument (${1})" >&2 && exit 100
+      shift; MY_TIMEOUT="${1}"
+      ;;
+
+    -d|--delay)
+      [ -z "{2}" ] && echo "ERROR: Missing option argument (${1})" >&2 && exit 100
+      shift; MY_DELAY="${1}"
+      ;;
+
+    -*)
+      echo "ERROR: Invalid option (${1})" >&2 && exit 100
+      ;;
+
+    *)
+      if [ -n "${MY_ENTRY}" ]; then
+        echo "ERROR: Too many arguments (${1})" >&2 && exit 100
+      elif [ -n "${MY_DATABASE}" ]; then
+        MY_ENTRY="${1}"
+      else
+        MY_DATABASE="${1}"
+      fi
+      ;;
+
+  esac
+  shift
+done
+
+
+## Check
+epoch_start=$(date +'%s')
+while true; do
+  output="$(getent -s ${MY_DATABASE}:ldap ${MY_DATABASE} ${MY_ENTRY})" || exit $?
+  [ -n "${output}" ] && exit 0
+  [ ${MY_RETRIES} -le 0 ] && exit 4
+  MY_RETRIES=$(( ${MY_RETRIES} -1 ))
+  elapsed=$(( $(date +'%s') - ${epoch_start} ))
+  [ ${elapsed} -gt ${MY_TIMEOUT} ] && exit 5
+  sleep ${MY_DELAY}
+done
+

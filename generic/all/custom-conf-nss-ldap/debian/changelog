@@ -1,3 +1,9 @@
+custom-conf-nss-ldap (2018.01.11a) UNRELEASED; urgency=low
+
+  * Added 'nss-ldap-check' script
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Thu, 11 Jan 2018 16:21:16 +0100
+
 custom-conf-nss-ldap (2016.07.05a) UNRELEASED; urgency=low
 
   * Post Tenebras Lux
