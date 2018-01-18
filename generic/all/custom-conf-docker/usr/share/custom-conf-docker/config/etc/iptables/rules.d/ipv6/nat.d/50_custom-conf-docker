@@ -21,3 +21,12 @@
 "${IPTABLES}" --table nat --append POSTROUTING --out-interface docker1 --match addrtype --src-type LOCAL --jump MASQUERADE
 "${IPTABLES}" --table nat --append POSTROUTING --source fec0:c0a8:d600::/120 ! --out-interface docker1 --jump MASQUERADE
 
+# Internal traffic (between containers) using the "published" IP address (NAT loopback)
+"${IPTABLES}" --table nat --append POSTROUTING --match mark --mark 0xC0A8D600 --jump MASQUERADE
+# (Please use a separate file to add host-specific rules)
+# "${IPTABLES}" --table mangle --append PREROUTING \
+#   --in-interface docker1 \
+#   --source fec0:c0a8:d600::/120 \
+#   --destination <published-IP-address> \
+#   --jump MARK --set-mark 0xC0A8D600
+

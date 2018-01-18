@@ -9,7 +9,7 @@
 
 # Inbound traffic (to containers published ports)
 "${IPTABLES}" --table filter --new-chain DOCKER_INBOUND
-"${IPTABLES}" --table filter --append FORWARD --out-interface docker1 --jump DOCKER_INBOUND
+"${IPTABLES}" --table filter --append FORWARD ! --in-interface docker1 --out-interface docker1 --jump DOCKER_INBOUND
 # (Please use a separate file to add containers-specific rules)
 # "${IPTABLES}" --table filter --append DOCKER_INBOUND \
 #   ! --in-interface docker1 \

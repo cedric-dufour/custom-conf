@@ -1,3 +1,10 @@
+custom-conf-docker (2018.01.18a) UNRELEASED; urgency=low
+
+  * FIX: Make sure DOCKER_INTERNAL traffic is not caught by DOCKER_INBOUND chain
+  * NEW: Provision NAT loopback (internal traffic via "published" IP address)
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Thu, 18 Jan 2018 14:02:41 +0100
+
 custom-conf-docker (2017.10.19a) UNRELEASED; urgency=low
 
   * FIX: Add 'docker-ce' as (preferred) alternate dependency to 'docker-engine'
