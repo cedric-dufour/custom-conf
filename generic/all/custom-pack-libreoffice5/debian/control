@@ -7,9 +7,7 @@ Standards-Version: 3.9.7
 
 Package: custom-pack-libreoffice5
 Architecture: all
-Breaks: custom-packages-install-libreoffice5 (<< 2017.03.07a)
-Replaces: custom-packages-install-libreoffice5 (<< 2017.03.07a)
-Depends: custom-pack-libreoffice5-en-us, libreoffice5.3, libreoffice5.3-calc, libreoffice5.3-draw, libreoffice5.3-impress, libreoffice5.3-math, libreoffice5.3-writer, libreoffice5.3-debian-menus, libobasis5.3-gnome-integration, libobasis5.3-graphicfilter, libobasis5.3-ogltrans, libobasis5.3-ooofonts, libobasis5.3-ooolinguistic
+Depends: custom-pack-libreoffice5-en-us, libreoffice5.4, libreoffice5.4-calc, libreoffice5.4-draw, libreoffice5.4-impress, libreoffice5.4-math, libreoffice5.4-writer, libreoffice5.4-debian-menus, libobasis5.4-gnome-integration, libobasis5.4-graphicfilter, libobasis5.4-ogltrans, libobasis5.4-ooofonts, libobasis5.4-ooolinguistic
 Suggests: custom-pack-libreoffice5-en-gb, custom-pack-libreoffice5-de, custom-pack-libreoffice5-fr, custom-pack-libreoffice5-it
-Description: Custom Configuration Framework - LibreOffice 5.3 (original upstream packages)
+Description: Custom Configuration Framework - LibreOffice 5.4 (original upstream packages)
 

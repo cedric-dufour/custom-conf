@@ -1,3 +1,9 @@
+custom-pack-libreoffice5-en-us (2018.02.05a) UNRELEASED; urgency=low
+
+  * New upstream "Still" version: 5.4
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Mon, 05 Feb 2018 16:47:49 +0100
+
 custom-pack-libreoffice5-en-us (2017.08.08a) UNRELEASED; urgency=low
 
   * New upstream "Still" version: 5.3
