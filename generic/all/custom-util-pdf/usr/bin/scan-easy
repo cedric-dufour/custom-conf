@@ -26,6 +26,7 @@ OPTIONS:
   -So  --options-scan   Scan (scanimage) options       []
   -Io  --options-image  Image (convert) options        []
   -Po  --options-print  Printer (lp) options           [-o sides=two-sided-long-edge]
+  -F   --from           Page(s) source (device|file)   []
 EOF
 
 # Arguments
@@ -46,6 +47,8 @@ MY_PREVIEW=
 MY_OPTIONS_SCAN=
 MY_OPTIONS_IMAGE=
 MY_OPTIONS_PRINT='-o sides=two-sided-long-edge'
+MY_INPUT=
+MY_SOURCE='scanner'
 EXT_OPTIONS=
 while [ -n "${1}" ]; do
   case "${1}" in
@@ -66,6 +69,8 @@ while [ -n "${1}" ]; do
     -So|--options-scan) shift; MY_OPTIONS_SCAN="${1}" ;;
     -Io|--options-image) shift; MY_OPTIONS_IMAGE="${1}" ;;
     -Po|--options-print) shift; MY_OPTIONS_PRINT="${1}" ;;
+    -F|--from) shift; MY_INPUT="${1}" ;;
+    -*) echo "ERROR: Invalid option (${1})" >&2 && exit 1 ;;
     *)
       [ -n "${MY_OUTPUT}" ] && echo 'ERROR: Too many arguments' >&2 && exit 1
       MY_OUTPUT="${1}"
@@ -80,6 +85,10 @@ done
 [ ${MY_QUALITY} -lt 1 ] && echo "ERROR: Invalid quality (${MY_QUALITY})" >&2 && exit 1
 [ ${MY_COPIES} -lt 1 ] && echo "ERROR: Invalid copies quantity (${MY_COPIES})" >&2 && exit 1
 
+# Check dependencies
+[ -z "$(which scanimage)" ] && echo "ERROR: 'scanimage' was not found" >&2 && exit 1
+[ -z "$(which convert)" ] && echo "ERROR: 'convert' was not found" >&2 && exit 1
+[ -z "$(which tiffcp)" ] && echo "ERROR: 'tiffcp' was not found" >&2 && exit 1
 
 # Parameters
 # ... images
@@ -148,45 +157,84 @@ case "${MY_DESTINATION}" in
 esac
 # ... files
 [ -z "${MY_NAME}" ] && MY_NAME="$(date +'%Y%m%d%H%M%S')-$(whoami).scan"
-MY_FILETMP="${TMP:-/tmp}/${MY_NAME}"
-touch "${MY_FILETMP}.tif" && chmod 600 "${MY_FILETMP}.tif"
-touch "${MY_FILETMP}.pdf" && chmod 600 "${MY_FILETMP}.pdf"
+MY_DIRTMP="${TMP:-/tmp}/${MY_NAME}.d"
+mkdir "${MY_DIRTMP}" || exit 1
+trap "rm -rf '${MY_DIRTMP}'" EXIT
+chmod 700 "${MY_DIRTMP}" || exit 1
+MY_FILETMP="${MY_DIRTMP}/output"
 [ -z "${MY_OUTPUT_TIF}" ] && MY_OUTPUT_TIF="${MY_FILETMP}.tif"
 [ -z "${MY_OUTPUT_PDF}" ] && MY_OUTPUT_PDF="${MY_FILETMP}.pdf"
 [ "${MY_PREVIEW}" == 'tif' ] && MY_PREVIEW="${MY_OUTPUT_TIF}"
 [ "${MY_PREVIEW}" == 'pdf' ] && MY_PREVIEW="${MY_OUTPUT_PDF}"
+# ... source
+if [ -d "${MY_INPUT}" ]; then
+  MY_SOURCE='dir'
+elif [ -f "${MY_INPUT}" ]; then
+  MY_SOURCE='file'
+fi
 
-# Check dependencies
-[ -z "$(which scanimage)" ] && echo "ERROR: 'scanimage' was not found" >&2 && exit 1
-[ -z "$(which convert)" ] && echo "ERROR: 'convert' was not found" >&2 && exit 1
-[ -z "$(which tiffcp)" ] && echo "ERROR: 'tiffcp' was not found" >&2 && exit 1
 
-# Trap
-trap "rm -f '${MY_FILETMP}'.*" EXIT
-
-# Scan image
+# Scan/import page(s)
 p=0
-while true; do
-  let p1=p+1
-  P="000${p}"; P=${P:${#P}-3} # PS: ${parameter:-offset} doest not work...
+if [ "${MY_SOURCE}" == 'scanner' ]; then
   while true; do
-    echo -n "[S]can page N°${p1}, [D]one with scanning (or <CTRL-C> to abort) [S/d] ? " && read answer
-    case "${answer}" in
-      'D'|'d')
-        [ ${p} -eq 0 ] && echo 'Empty document (no page); bailing out.' && exit 0
-        echo "Done with scanning; generating output (${p} pages)..."
-        break 2;;
-      'S'|'s'|'')
-        break 1;;
-    esac
+    let p1=p+1
+    P="000${p}"; P=${P:${#P}-3}
+    while true; do
+      echo -n "[S]can page N°${p1}, [D]one with scanning (or <CTRL-C> to abort) [S/d] ? " && read answer
+      case "${answer}" in
+        'D'|'d')
+          [ ${p} -eq 0 ] && echo 'Empty document (no page); bailing out.' && exit 0
+          echo "Done with scanning; generating output (${p} pages)..."
+          break 2;;
+        'S'|'s'|'')
+          break 1;;
+      esac
+    done
+    echo "Scanning page N°${p1}..."
+    scanimage ${MY_INPUT:+--device-name ${MY_INPUT}} --progress --mode Color -x ${MY_WIDTH} -y ${MY_HEIGHT} --resolution ${MY_RESOLUTION} --format tiff ${MY_OPTIONS_SCAN} \
+    | convert - -contrast-stretch "${MY_BLACK}%x${MY_WHITE}%" ${MY_CONVERT} -compress zip ${MY_OPTIONS_IMAGE} "${MY_FILETMP}.${P}.tif"
+    [ $? -ne 0 ] && echo 'ERROR: Failed to scan page' >&2 && exit 1
+    p=${p1}
   done
-  echo "Scanning page N°${p1}..."
-  touch "${MY_FILETMP}.${P}.tif" && chmod 600 "${MY_FILETMP}.${P}.tif"
-  scanimage --progress --mode Color -x ${MY_WIDTH} -y ${MY_HEIGHT} --resolution ${MY_RESOLUTION} --format tiff ${MY_OPTIONS_SCAN} \
-  | convert - -contrast-stretch "${MY_BLACK}%x${MY_WHITE}%" ${MY_CONVERT} -compress zip ${MY_OPTIONS_IMAGE} "${MY_FILETMP}.${P}.tif"
-  [ $? -ne 0 ] && echo 'ERROR: Failed to scan image' >&2 && exit 1
-  p=${p1}
-done
+elif [ "${MY_SOURCE}" == 'dir' ]; then
+  while read input_file; do
+    let p1=p+1
+    P="000${p}"; P=${P:${#P}-3}
+    echo "Importing file '${input_file}' as page N°${p1}..."
+    convert "${input_file}" -contrast-stretch "${MY_BLACK}%x${MY_WHITE}%" ${MY_CONVERT} -resize "$(( ${MY_WIDTH}*${MY_RESOLUTION}*10/254 ))x$(( ${MY_HEIGHT}*${MY_RESOLUTION}*10/254 ))" -density ${MY_RESOLUTION} -units PixelsPerInch -compress zip ${MY_OPTIONS_IMAGE} "${MY_FILETMP}.${P}.tif"
+    [ $? -ne 0 ] && echo 'ERROR: Failed to import file' >&2 && exit 1
+    p=${p1}
+  done < <(find -L "${MY_INPUT}" -maxdepth 1 -type f -not -name '.*' | sort)
+elif [ "${MY_SOURCE}" == 'file' ]; then
+  case "${MY_INPUT##*.}" in
+    'pdf'|'PDF')
+      [ -z "$(which pdftoppm)" ] && echo "ERROR: 'pdftoppm' was not found" >&2 && exit 1
+      echo "Extracting pages from PDF file '${MY_INPUT}'..."
+      pdftoppm -r ${MY_RESOLUTION} -cropbox -thinlinemode shape -tiff -tiffcompression deflate "${MY_INPUT}" "${MY_DIRTMP}/input."
+      [ $? -ne 0 ] && echo 'ERROR: Failed to extract pages' >&2 && exit 1
+      ;;
+    'tif'|'TIF'|'tiff'|'TIFF')
+      [ -z "$(which tiffsplit)" ] && echo "ERROR: 'tiffsplit' was not found" >&2 && exit 1
+      echo "Extracting pages from TIF file '${MY_INPUT}'..."
+      tiffsplit "${MY_INPUT}" "${MY_DIRTMP}/input."
+      [ $? -ne 0 ] && echo 'ERROR: Failed to extract pages' >&2 && exit 1
+      ;;
+    *)
+      echo "ERROR: Unsupported input type (${MY_INPUT})" >&2 && exit 1
+      ;;
+  esac
+  while read input_file; do
+    let p1=p+1
+    P="000${p}"; P=${P:${#P}-3}
+    echo "Importing page N°${p1}..."
+    convert "${input_file}" -contrast-stretch "${MY_BLACK}%x${MY_WHITE}%" ${MY_CONVERT} -resize "$(( ${MY_WIDTH}*${MY_RESOLUTION}*10/254 ))x$(( ${MY_HEIGHT}*${MY_RESOLUTION}*10/254 ))" -density ${MY_RESOLUTION} -units PixelsPerInch -compress zip ${MY_OPTIONS_IMAGE} "${MY_FILETMP}.${P}.tif"
+    [ $? -ne 0 ] && echo 'ERROR: Failed to import file' >&2 && exit 1
+    p=${p1}
+  done < <(find "${MY_DIRTMP}" -maxdepth 1 -type f -name 'input.*' | sort)
+else
+  echo "ERROR: Invalid source type (${MY_SOURCE})" >&2 && exit 1
+fi
 unset p
 
 # Create TIF file

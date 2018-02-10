@@ -1,3 +1,9 @@
+custom-util-pdf (2018.02.10a) UNRELEASED; urgency=low
+
+  * Added '--from <device|dir|file>' option to 'scan-easy'
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Sat, 10 Feb 2018 12:37:07 +0100
+
 custom-util-pdf (2017.04.02a) UNRELEASED; urgency=low
 
   * Fixed characters encoding in non-ASCII PDF title (ImageMagick<6.9.2-9 bug)
