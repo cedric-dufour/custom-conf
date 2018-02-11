@@ -1,3 +1,12 @@
+custom-conf-php70-fpm (2018.02.11a) UNRELEASED; urgency=low
+
+  * Disable PHP automatic sessions garbage collection
+    Let cron/systemd do the job. Fixes:
+     'PHP Notice: session_start(): ps_files_cleanup_dir:
+      opendir(/var/lib/php/sessions) failed: Permission denied'
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Sun, 11 Feb 2018 12:58:13 +0100
+
 custom-conf-php70-fpm (2017.05.19a) UNRELEASED; urgency=low
 
   * Hail PHP 7.0 !
