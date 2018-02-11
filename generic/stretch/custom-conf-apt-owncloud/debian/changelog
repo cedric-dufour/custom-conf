@@ -1,3 +1,9 @@
+custom-conf-apt-owncloud (2018.02.11a) UNRELEASED; urgency=low
+
+  * Switch to HTTPS and add 'apt-transport-https' dependency
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Sun, 11 Feb 2018 13:25:18 +0100
+
 custom-conf-apt-owncloud (2017.10.19a) UNRELEASED; urgency=low
 
   * Post Tenebras Lux

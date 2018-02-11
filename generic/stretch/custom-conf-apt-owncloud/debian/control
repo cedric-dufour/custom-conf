@@ -7,6 +7,6 @@ Standards-Version: 3.9.8
 
 Package: custom-conf-apt-owncloud
 Architecture: all
-Depends: custom-conf, custom-conf-apt
+Depends: custom-conf, custom-conf-apt, apt-transport-https
 Description: Custom Configuration Framework - ownCloud (Server and Client) APT repositories
 
