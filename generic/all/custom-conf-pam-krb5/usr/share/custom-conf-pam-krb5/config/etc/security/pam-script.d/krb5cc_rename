@@ -1,12 +1,15 @@
 #!/bin/sh
 ## CUSTOM-CONF: File automatically created/updated [custom-conf-pam-krb5]
 
-
 ## Rename misnamed Kerberos 5 credential cache (ticket)
 #  FIX: https://bugs.launchpad.net/ubuntu/+source/lightdm/+bug/1336663
 
-# Parameters
+# Parameter(s)
 KRB5CC_DIR='/tmp'
+
+# Argument(s)
+PAM_USER="${1}"
+[ -z "${PAM_USER}" ] && echo 'ERROR: Missing/empty PAM user name' >&2 && exit 1
 
 # Look for matching - although misnamed - credential cache (ticket)
 # ... user UID
