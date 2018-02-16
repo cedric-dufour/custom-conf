@@ -1,3 +1,9 @@
+custom-conf-apache2 (2018.02.14a) UNRELEASED; urgency=low
+
+  * Do not require path configuration for "maintenance mode"
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Wed, 14 Feb 2018 11:29:34 +0100
+
 custom-conf-apache2 (2017.07.13a) UNRELEASED; urgency=low
 
   * Added "maintenance mode" configuration and HTTP 503 error document
