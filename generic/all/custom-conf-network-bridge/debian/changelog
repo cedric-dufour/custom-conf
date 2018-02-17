@@ -1,3 +1,10 @@
+custom-conf-network-bridge (2018.02.17a) UNRELEASED; urgency=low
+
+  * Provides/conflicts/replaces virtual package 'custom-conf-network'
+  * Include other interfaces in /etc/network/interfaces.d
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Sat, 17 Feb 2018 15:00:55 +0100
+
 custom-conf-network-bridge (2017.09.25a) UNRELEASED; urgency=low
 
   * Conflicts with (new) 'custom-conf-network-bond'

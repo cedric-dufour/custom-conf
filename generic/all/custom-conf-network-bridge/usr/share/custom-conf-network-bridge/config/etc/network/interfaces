@@ -4,7 +4,7 @@
 auto lo
 iface lo inet loopback
 
-# Bridge interface
+# Primary (bridge) interface
 # (Please use 'dpkg-reconfigure custom-conf-network-bridge' to change these settings)
 auto %{CUSTOM_CONF_NETWORK_BRIDGE}
 iface %{CUSTOM_CONF_NETWORK_BRIDGE} inet static
@@ -23,4 +23,7 @@ iface %{CUSTOM_CONF_NETWORK_BRIDGE} inet6 static
   address %{CUSTOM_CONF_NETWORK_IP6ADDRESS}
   netmask %{CUSTOM_CONF_NETWORK_IP6MASK}
   gateway %{CUSTOM_CONF_NETWORK_IP6GATEWAY}
+
+# Other interfaces
+source /etc/network/interfaces.d/*
 

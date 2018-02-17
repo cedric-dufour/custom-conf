@@ -4,8 +4,8 @@
 auto lo
 iface lo inet loopback
 
-# Bridge interface
-# (Please use 'dpkg-reconfigure custom-conf-network-bonding' to change these settings)
+# Primary (bond) interface
+# (Please use 'dpkg-reconfigure custom-conf-network-bond' to change these settings)
 auto %{CUSTOM_CONF_NETWORK_BOND}
 iface %{CUSTOM_CONF_NETWORK_BOND} inet static
   # ... bond parameters
@@ -25,4 +25,7 @@ iface %{CUSTOM_CONF_NETWORK_BOND} inet6 static
   address %{CUSTOM_CONF_NETWORK_IP6ADDRESS}
   netmask %{CUSTOM_CONF_NETWORK_IP6MASK}
   gateway %{CUSTOM_CONF_NETWORK_IP6GATEWAY}
+
+# Other interfaces
+source /etc/network/interfaces.d/*
 

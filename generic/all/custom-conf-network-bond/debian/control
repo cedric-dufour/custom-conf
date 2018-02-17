@@ -8,6 +8,8 @@ Standards-Version: 3.9.8
 Package: custom-conf-network-bond
 Architecture: all
 Depends: ifenslave
-Conflicts: custom-conf-network-bridge
+Provides: custom-conf-network
+Conflicts: custom-conf-network
+Replaces: custom-conf-network
 Description: Custom Configuration Framework - Network bonding (trunking)
 

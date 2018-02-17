@@ -8,6 +8,8 @@ Standards-Version: 3.9.8
 Package: custom-conf-network-bridge
 Architecture: all
 Depends: bridge-utils
-Conflicts: custom-conf-network-bond
+Provides: custom-conf-network
+Conflicts: custom-conf-network
+Replaces: custom-conf-network
 Description: Custom Configuration Framework - Network bridging
 
