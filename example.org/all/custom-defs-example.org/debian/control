@@ -3,10 +3,12 @@ Section: admin
 Priority: optional
 Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
 Homepage: https://github.com/cedric-dufour/custom-conf
-Standards-Version: 3.9.7
+Standards-Version: 4.1.3
 
 Package: custom-defs-example.org
 Architecture: all
-Depends: custom-conf
+Provides: custom-conf-defs
+Conflicts: custom-conf-defs
+Replaces: custom-conf-defs
 Description: Custom Configuration Framework - Definitions <-> example.org
 
