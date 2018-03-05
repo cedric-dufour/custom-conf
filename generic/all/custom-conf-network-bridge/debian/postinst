@@ -23,23 +23,23 @@ custom-conf-install "${PKGNAME}" "/usr/share/${PKGNAME}/config" || exit 1
 
 # Retrieve network settings
 # ... retrieve default gateway
-CUSTOM_CONF_NETWORK_DFLTGW="$(ip -6 route | grep '^default')"
-[ -z "${CUSTOM_CONF_NETWORK_DFLTGW}" ] && CUSTOM_CONF_NETWORK_DFLTGW="$(ip -4 route | grep '^default')"
+CUSTOM_CONF_NETWORK_DFLTGW="$(ip -6 route | grep '^default' | head -n 1)"
+[ -z "${CUSTOM_CONF_NETWORK_DFLTGW}" ] && CUSTOM_CONF_NETWORK_DFLTGW="$(ip -4 route | grep '^default' | head -n 1)"
 [ -z "${CUSTOM_CONF_NETWORK_DFLTGW}" ] && echo 'ERROR: Failed to retrieve the default gateway' >&2 && exit 1
 # ... retrieve default gateway interface
 CUSTOM_CONF_NETWORK_DEVICE="$(echo "${CUSTOM_CONF_NETWORK_DFLTGW}" | fgrep ' dev ' | sed 's|^.* dev \([^ ]*\)\( .*\)*$|\1|')"
 [ -z "${CUSTOM_CONF_NETWORK_DEVICE}" ] && echo 'ERROR: Failed to retrieve the main interface' >&2 && exit 1
 # ... retrieve default gateway IP addresses
-CUSTOM_CONF_NETWORK_IP4GATEWAY="$(ip -4 route | grep '^default' | sed 's|^.* via \([^ ]*\) dev .*$|\1|')"
+CUSTOM_CONF_NETWORK_IP4GATEWAY="$(ip -4 route | grep '^default' | head -n 1 | sed 's|^.* via \([^ ]*\) dev .*$|\1|')"
 [ -z "${CUSTOM_CONF_NETWORK_IP4GATEWAY}" ] && echo 'ERROR: Failed to retrieve the gateway IPv4 address' >&2 && exit 1
-CUSTOM_CONF_NETWORK_IP6GATEWAY="$(ip -6 route | grep '^default' | sed 's|^.* via \([^ ]*\) dev .*$|\1|')"
+CUSTOM_CONF_NETWORK_IP6GATEWAY="$(ip -6 route | grep '^default' | head -n 1 | sed 's|^.* via \([^ ]*\) dev .*$|\1|')"
 [ -z "${CUSTOM_CONF_NETWORK_IP6GATEWAY}" ] && echo 'ERROR: Failed to retrieve the gateway IPv6 address' >&2 && exit 1
 # ... retrieve IP addresses
-CUSTOM_CONF_NETWORK_IP4ADDRESS="$(ip -4 addr show ${CUSTOM_CONF_NETWORK_DEVICE} | fgrep ' scope global ' | sed 's|^.*inet \([^ /]*\)\(/[^ ]*\)*\( .*\)*$|\1|')"
-CUSTOM_CONF_NETWORK_IP6ADDRESS="$(ip -6 addr show ${CUSTOM_CONF_NETWORK_DEVICE} | fgrep ' scope global ' | sed 's|^.*inet6 \([^ /]*\)\(/[^ ]*\)*\( .*\)*$|\1|')"
+CUSTOM_CONF_NETWORK_IP4ADDRESS="$(ip -4 addr show ${CUSTOM_CONF_NETWORK_DEVICE} | fgrep ' scope global ' | head -n 1 | sed 's|^.*inet \([^ /]*\)\(/[^ ]*\)*\( .*\)*$|\1|')"
+CUSTOM_CONF_NETWORK_IP6ADDRESS="$(ip -6 addr show ${CUSTOM_CONF_NETWORK_DEVICE} | fgrep ' scope global ' | head -n 1 | sed 's|^.*inet6 \([^ /]*\)\(/[^ ]*\)*\( .*\)*$|\1|')"
 # ... retrieve network masks
-CUSTOM_CONF_NETWORK_IP4MASK="$(ip -4 addr show ${CUSTOM_CONF_NETWORK_DEVICE} | fgrep ' scope global ' | sed 's|^.*inet \([^ /]*\)/\([^ ]*\)\( .*\)*$|\2|')"
-CUSTOM_CONF_NETWORK_IP6MASK="$(ip -6 addr show ${CUSTOM_CONF_NETWORK_DEVICE} | fgrep ' scope global ' | sed 's|^.*inet6 \([^ /]*\)/\([^ ]*\)\( .*\)*$|\2|')"
+CUSTOM_CONF_NETWORK_IP4MASK="$(ip -4 addr show ${CUSTOM_CONF_NETWORK_DEVICE} | fgrep ' scope global ' | head -n 1 | sed 's|^.*inet \([^ /]*\)/\([^ ]*\)\( .*\)*$|\2|')"
+CUSTOM_CONF_NETWORK_IP6MASK="$(ip -6 addr show ${CUSTOM_CONF_NETWORK_DEVICE} | fgrep ' scope global ' | head -n 1 | sed 's|^.*inet6 \([^ /]*\)/\([^ ]*\)\( .*\)*$|\2|')"
 # ... retrieve the primary interface
 CUSTOM_CONF_NETWORK_PORT="${CUSTOM_CONF_NETWORK_DEVICE}"
 [ "${CUSTOM_CONF_NETWORK_PORT:0:2}" == 'br' ] && CUSTOM_CONF_NETWORK_PORT="$(brctl show "${CUSTOM_CONF_NETWORK_PORT}" | grep '\seth' | sed 's|^.*\seth|eth|')"

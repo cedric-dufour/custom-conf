@@ -1,3 +1,10 @@
+custom-conf-network-bridge (2018.03.05a) UNRELEASED; urgency=low
+
+  * Always use first gateway/interface/address found
+    (don't fail if multiple gateways/interfaces/addresses exist)
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Mon, 05 Mar 2018 16:02:27 +0100
+
 custom-conf-network-bridge (2018.02.17a) UNRELEASED; urgency=low
 
   * Provides/conflicts/replaces virtual package 'custom-conf-network'
