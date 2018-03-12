@@ -7,5 +7,4 @@ Daemon (NSCD).
 
 In particular, it addresses standard configuration of:
  - each name service (passwd, group, hosts, etc.)
- - daemon quirks
 

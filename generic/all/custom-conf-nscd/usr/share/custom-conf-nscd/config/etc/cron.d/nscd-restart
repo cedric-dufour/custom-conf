@@ -1,7 +1,0 @@
-## CUSTOM-CONF: File automatically created/updated [custom-conf-nscd]
-
-# Restart NSCD, which seems to stop regularly, for unknown reasons
-SHELL=/bin/bash
-PATH=/sbin:/bin:/usr/sbin:/usr/bin
-5 0 * * * root [ -x /etc/init.d/nscd ] && sleep $[$RANDOM\%3600] && /etc/init.d/nscd restart > /dev/null
-

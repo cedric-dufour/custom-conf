@@ -2,6 +2,13 @@
 [ "${1}" != 'configure' ] && exit 0
 PKGNAME='custom-conf-nscd'
 
+# Uninstall (legacy/deprecated) files
+for file in /etc/cron.d/nscd-restart; do
+  [ -e "${file}" ] \
+    && gcfg flagged "${file}" "${PKGNAME}" \
+    && gcfg remove --batch "${file}"
+done
+
 # Install files
 custom-conf-install "${PKGNAME}" "/usr/share/${PKGNAME}/config" || exit 1
 

@@ -1,3 +1,12 @@
+custom-conf-nscd (2018.03.12a) UNRELEASED; urgency=low
+
+  * QUIRK: remove NSCD (nigthly) automatic restart (cron job)
+      <->  1. systemd now takes care of restarting the daemon if needs be
+           2. it seems that /run/nscd/* file descriptors may be leaked when
+              NSCD is restarted, leading to /run (tmpfs) slowly filling up
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Mon, 12 Mar 2018 11:17:11 +0100
+
 custom-conf-nscd (2018.01.11a) UNRELEASED; urgency=low
 
   * QUIRK: make sure NSCD starts after the network (systemd)
