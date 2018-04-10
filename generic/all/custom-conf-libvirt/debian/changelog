@@ -1,3 +1,11 @@
+custom-conf-libvirt (2018.04.10a) UNRELEASED; urgency=low
+
+  * QUIRK: Allow libvirtd to manage its own cgroup hierarchy
+    FIXES: virsh cpu-stats -> cgroup CPUACCT controller is not mounted
+    REF:   https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=895360
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Tue, 10 Apr 2018 15:13:13 +0200
+
 custom-conf-libvirt (2017.10.04a) UNRELEASED; urgency=low
 
   * Moved root's bash aliases to 'custom-util-libvirt'
