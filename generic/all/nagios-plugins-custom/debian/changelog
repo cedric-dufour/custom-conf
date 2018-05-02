@@ -1,3 +1,9 @@
+nagios-plugins-custom (2018.05.02a) UNRELEASED; urgency=low
+
+  * Fix DRBD check and consider 'Connected UpToDate/UpToDate' resource as OK
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Wed, 02 May 2018 10:22:48 +0200
+
 nagios-plugins-custom (2017.03.01a) UNRELEASED; urgency=low
 
   * Fix handling of non-ASCII characters in checks which rely on them

@@ -7,11 +7,10 @@
 [ "${1##*-}" == 'help' ] && cat << EOF && exit 3
 USAGE: ${0##*/}
 SYNOPSIS: Nagios-compliant command to check DRBD status
-REQUIRED: drbd8-utils (check: /etc/init.d/drbd status)
 EOF
 
 # Parameters
-DRBD_COMMAND='/etc/init.d/drbd status'
+DRBD_COMMAND='cat /proc/drbd'
 
 # DRBD status
 DRBD_OUTPUT="$(${DRBD_COMMAND})"
@@ -23,7 +22,7 @@ DRBD_OUTPUT="$(echo "${DRBD_OUTPUT}" | egrep -i '(primary|secondary)' | awk '{pr
 DRBD_STATUS=0
 DRBD_DATA="$(echo "${DRBD_OUTPUT}" | tr '\n' ';' | sed 's/;$//')"
 IFS=$'\n'; for r in ${DRBD_OUTPUT}; do
-  [ -n "$(echo ${r} | fgrep -i 'primary')" -a -n "$(echo ${r} | fgrep -i 'uptodate/uptodate')" ] && continue
+  [ -n "$(echo ${r} | fgrep -i 'connected')" -a -n "$(echo ${r} | fgrep -i 'uptodate/uptodate')" ] && continue
   [ -z "$(echo ${r} | fgrep -i 'uptodate')" ] && DRBD_STATUS=2 && break
   DRBD_STATUS=1
 done
