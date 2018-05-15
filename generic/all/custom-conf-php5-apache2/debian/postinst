@@ -7,7 +7,7 @@ custom-conf-install "${PKGNAME}" "/usr/share/${PKGNAME}/config" || exit 1
 
 # Fine-tune configuration
 source /usr/share/custom-conf/custom-conf.defs
-gsed "s|%{CUSTOM_CONF_SMTP_SERVER}|${CUSTOM_CONF_SMTP_SERVER}|g" /etc/php5/apache2/php.ini
+gcfg.sed "s|%{CUSTOM_CONF_SMTP_SERVER}|${CUSTOM_CONF_SMTP_SERVER}|g" /etc/php5/apache2/php.ini
 
 # Fine-tune permissions
 chmod 350 /var/log/php

@@ -6,7 +6,7 @@ MY_HOSTNAME="${1}"
 
 # Retrieve host name based on its IP address / RDNS pointer
 # ... clear previous settings
-gsed '/##HOSTNAME##DO-NOT-ERASE-THIS-ANCHOR##/d' /etc/hosts
+gcfg.sed '/##HOSTNAME##DO-NOT-ERASE-THIS-ANCHOR##/d' /etc/hosts
 # ... retrieve default gateway
 MY_DFLTGW="$(ip -6 route | grep '^default')"
 [ -z "${MY_DFLTGW}" ] && MY_DFLTGW="$(ip -4 route | grep '^default')"

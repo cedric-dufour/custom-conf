@@ -18,24 +18,24 @@ segments=
 for segment in ${CUSTOM_CONF_IPTABLES_WHITELIST_IPV4S}; do
   segments="${segments}${segments:+%NL;}${segment}"
 done
-gsed "s|%{CUSTOM_CONF_IPTABLES_WHITELIST_IPV4S}|${segments}|g;s|%NL;|\n|g" /etc/iptables/rules.d/ipv4/filter.whitelist
+gcfg.sed "s|%{CUSTOM_CONF_IPTABLES_WHITELIST_IPV4S}|${segments}|g;s|%NL;|\n|g" /etc/iptables/rules.d/ipv4/filter.whitelist
 segments=
 for segment in ${CUSTOM_CONF_IPTABLES_BLACKLIST_IPV4S}; do
   segments="${segments}${segments:+%NL;}${segment}"
 done
-gsed "s|%{CUSTOM_CONF_IPTABLES_BLACKLIST_IPV4S}|${segments}|g;s|%NL;|\n|g" /etc/iptables/rules.d/ipv4/filter.blacklist
+gcfg.sed "s|%{CUSTOM_CONF_IPTABLES_BLACKLIST_IPV4S}|${segments}|g;s|%NL;|\n|g" /etc/iptables/rules.d/ipv4/filter.blacklist
 segments=
 for segment in ${CUSTOM_CONF_IPTABLES_WHITELIST_IPV6S}; do
   segment="$(echo "${segment}" | sed 's|:|.|g;s|\.\([^/]*/[a-z][a-z0-9]*\)$|:\1|')"
   segments="${segments}${segments:+%NL;}${segment}"
 done
-gsed "s|%{CUSTOM_CONF_IPTABLES_WHITELIST_IPV6S}|${segments}|g;s|%NL;|\n|g" /etc/iptables/rules.d/ipv6/filter.whitelist
+gcfg.sed "s|%{CUSTOM_CONF_IPTABLES_WHITELIST_IPV6S}|${segments}|g;s|%NL;|\n|g" /etc/iptables/rules.d/ipv6/filter.whitelist
 segments=
 for segment in ${CUSTOM_CONF_IPTABLES_BLACKLIST_IPV6S}; do
   segment="$(echo "${segment}" | sed 's|:|.|g;s|\.\([^/]*/[a-z][a-z0-9]*\)$|:\1|')"
   segments="${segments}${segments:+%NL;}${segment}"
 done
-gsed "s|%{CUSTOM_CONF_IPTABLES_BLACKLIST_IPV6S}|${segments}|g;s|%NL;|\n|g" /etc/iptables/rules.d/ipv6/filter.blacklist
+gcfg.sed "s|%{CUSTOM_CONF_IPTABLES_BLACKLIST_IPV6S}|${segments}|g;s|%NL;|\n|g" /etc/iptables/rules.d/ipv6/filter.blacklist
 
 # Enable IP tables
 if [ -n "$(ifconfig | fgrep 'inet ')" ]; then

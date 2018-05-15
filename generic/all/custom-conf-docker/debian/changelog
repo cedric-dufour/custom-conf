@@ -1,3 +1,9 @@
+custom-conf-docker (2018.05.14a) UNRELEASED; urgency=low
+
+  * Use 'gcfg.sed' instead of 'gsed' in scripts
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Mon, 14 May 2018 14:39:32 +0200
+
 custom-conf-docker (2018.01.18a) UNRELEASED; urgency=low
 
   * FIX: Make sure DOCKER_INTERNAL traffic is not caught by DOCKER_INBOUND chain

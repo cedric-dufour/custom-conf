@@ -7,7 +7,7 @@ custom-conf-install "${PKGNAME}" "/usr/share/${PKGNAME}/config" || exit 1
 
 # Fine-tune files
 grep -q '^md.*raid[456]' /proc/mdstat && CUSTOM_CONF_MDADM_AUTOCHECK='true' || CUSTOM_CONF_MDADM_AUTOCHECK='false'
-gsed "s|%{CUSTOM_CONF_MDADM_AUTOCHECK}|${CUSTOM_CONF_MDADM_AUTOCHECK}|g" /etc/default/mdadm
+gcfg.sed "s|%{CUSTOM_CONF_MDADM_AUTOCHECK}|${CUSTOM_CONF_MDADM_AUTOCHECK}|g" /etc/default/mdadm
 
 # Exit
 exit 0

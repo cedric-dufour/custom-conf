@@ -11,8 +11,8 @@ CUSTOM_CONF_NFS4_GSSD=
 
 # Fine-tune configuration
 source /usr/share/custom-conf/custom-conf.defs
-gsed "s|%{CUSTOM_CONF_DOMAIN}|${CUSTOM_CONF_DOMAIN}|g" /etc/idmapd.conf
-gsed "s|%{CUSTOM_CONF_NFS4_GSSD}|${CUSTOM_CONF_NFS4_GSSD}|g" /etc/default/nfs-common
+gcfg.sed "s|%{CUSTOM_CONF_DOMAIN}|${CUSTOM_CONF_DOMAIN}|g" /etc/idmapd.conf
+gcfg.sed "s|%{CUSTOM_CONF_NFS4_GSSD}|${CUSTOM_CONF_NFS4_GSSD}|g" /etc/default/nfs-common
 
 # Additional actions
 [ -h /var/lib/nfs/rpc_pipefs ] && rm /var/lib/nfs/rpc_pipefs  # clean-up legacy mess

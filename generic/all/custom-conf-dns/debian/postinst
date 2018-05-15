@@ -16,7 +16,7 @@ for s in ${CUSTOM_CONF_DNS_SERVERS}; do
   servers="${servers}${servers:+%NL;}nameserver ${s}"
 done
 [ -n "${CUSTOM_CONF_DNS_SERVERS}" -a -z "${servers}" ] && echo "ERROR[${PKGNAME}]: No IPv4 server found (${CUSTOM_CONF_DNS_SERVERS})" >&2
-gsed "s|%{CUSTOM_CONF_DOMAIN}|${CUSTOM_CONF_DOMAIN}|g;s|%{CUSTOM_CONF_DNS_SERVERS}|${servers}|g;s|%NL;|\n|g" /etc/resolv.conf
+gcfg.sed "s|%{CUSTOM_CONF_DOMAIN}|${CUSTOM_CONF_DOMAIN}|g;s|%{CUSTOM_CONF_DNS_SERVERS}|${servers}|g;s|%NL;|\n|g" /etc/resolv.conf
 
 # Additional actions
 invoke-rc.d nscd restart

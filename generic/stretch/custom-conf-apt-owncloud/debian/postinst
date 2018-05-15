@@ -25,8 +25,8 @@ if [ -e /etc/apt/sources.list.d/owncloud.list ]; then
 fi
 
 # Fine-tune files
-[ "${OWNCLOUD_SERVER}" == 'true' ] && gsed "s|^#deb |deb |" /etc/apt/sources.list.d/owncloud-server.list
-[ "${OWNCLOUD_CLIENT}" == 'true' ] && gsed "s|^#deb |deb |" /etc/apt/sources.list.d/owncloud-client.list
+[ "${OWNCLOUD_SERVER}" == 'true' ] && gcfg.sed "s|^#deb |deb |" /etc/apt/sources.list.d/owncloud-server.list
+[ "${OWNCLOUD_CLIENT}" == 'true' ] && gcfg.sed "s|^#deb |deb |" /etc/apt/sources.list.d/owncloud-client.list
 
 # Message
 [ "${OWNCLOUD_SERVER}" == 'true' ] && cat << EOF

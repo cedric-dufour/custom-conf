@@ -8,7 +8,7 @@ custom-conf-install "${PKGNAME}" "/usr/share/${PKGNAME}/config" || exit 1
 # Fine-tune configuration
 source /usr/share/custom-conf/custom-conf.defs
 CUSTOM_CONF_ETC_TIMEZONE="$(head -n 1 /etc/timezone)"
-gsed "s|%{CUSTOM_CONF_SMTP_SERVER}|${CUSTOM_CONF_SMTP_SERVER}|g;s|%{CUSTOM_CONF_ETC_TIMEZONE}|${CUSTOM_CONF_ETC_TIMEZONE}|g" /etc/php/7.0/apache2/php.ini
+gcfg.sed "s|%{CUSTOM_CONF_SMTP_SERVER}|${CUSTOM_CONF_SMTP_SERVER}|g;s|%{CUSTOM_CONF_ETC_TIMEZONE}|${CUSTOM_CONF_ETC_TIMEZONE}|g" /etc/php/7.0/apache2/php.ini
 
 # Fine-tune permissions
 chmod 350 /var/log/php/7.0

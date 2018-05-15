@@ -29,9 +29,9 @@ case "${HOST_TYPE}" in
     ENABLE_APT_UPDATE_CHECK=false
     ;;
 esac
-gsed "s|%{ENABLE_APT_UPDATE_CHECK}|${ENABLE_APT_UPDATE_CHECK}|g" /etc/cron.d/apt-update-check
-[ "${DEB_MULTIMEDIA}" == 'true' ] && gsed "s|^#deb |deb |" /etc/apt/sources.list.d/debian-multimedia.list
-[ "${DEB_BACKPORTS}" == 'true' ] && gsed "s|^#deb |deb |" /etc/apt/sources.list.d/debian-backports.list
+gcfg.sed "s|%{ENABLE_APT_UPDATE_CHECK}|${ENABLE_APT_UPDATE_CHECK}|g" /etc/cron.d/apt-update-check
+[ "${DEB_MULTIMEDIA}" == 'true' ] && gcfg.sed "s|^#deb |deb |" /etc/apt/sources.list.d/debian-multimedia.list
+[ "${DEB_BACKPORTS}" == 'true' ] && gcfg.sed "s|^#deb |deb |" /etc/apt/sources.list.d/debian-backports.list
 
 # Uninstall deprecated GPG keys
 if [ -x /usr/bin/apt-key ]; then

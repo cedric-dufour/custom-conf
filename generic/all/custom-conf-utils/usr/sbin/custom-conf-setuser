@@ -22,7 +22,7 @@ for user in $(echo "local,${MY_USERS}" | tr ',' '\n' | uniq); do
   LOCAL_USERS="${LOCAL_USERS}${LOCAL_USERS:+,}${user}"
 done
 cp -p /etc/group /etc/group.bak
-gsed "s/:\([^:]*\)local.*/:\1/;s/,$//;
+gcfg.sed "s/:\([^:]*\)local.*/:\1/;s/,$//;
 s/^audio:\\([^:]*\\):\\([^:]*\\):.*/audio:\\1:\\2:pulse${LOCAL_USERS:+,}${LOCAL_USERS}/;
 s/^camera:\\([^:]*\\):\\([^:]*\\):.*/camera:\\1:\\2:${LOCAL_USERS}/;
 s/^cdrom:\\([^:]*\\):\\([^:]*\\):.*/cdrom:\\1:\\2:${LOCAL_USERS}/;

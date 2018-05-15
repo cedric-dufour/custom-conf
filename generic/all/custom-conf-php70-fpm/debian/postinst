@@ -9,14 +9,14 @@ custom-conf-install "${PKGNAME}" "/usr/share/${PKGNAME}/config" || exit 1
 source /usr/share/custom-conf/custom-conf.defs
 # ... PHP
 CUSTOM_CONF_ETC_TIMEZONE="$(head -n 1 /etc/timezone)"
-gsed "s|%{CUSTOM_CONF_SMTP_SERVER}|${CUSTOM_CONF_SMTP_SERVER}|g;s|%{CUSTOM_CONF_ETC_TIMEZONE}|${CUSTOM_CONF_ETC_TIMEZONE}|g" /etc/php/7.0/fpm/php.ini
+gcfg.sed "s|%{CUSTOM_CONF_SMTP_SERVER}|${CUSTOM_CONF_SMTP_SERVER}|g;s|%{CUSTOM_CONF_ETC_TIMEZONE}|${CUSTOM_CONF_ETC_TIMEZONE}|g" /etc/php/7.0/fpm/php.ini
 # ... logrotate
 CUSTOM_CONF_PHP70_FPM_LOGOWNER='root'
 [ "$(lsb_release -si)" == 'Ubuntu' ] && CUSTOM_CONF_PHP70_FPM_LOGOWNER='syslog'
 CUSTOM_CONF_PHP70_FPM_LOGROTATE='invoke-rc.d rsyslog rotate >/dev/null'
 [ "$(lsb_release -si)" == 'Debian' -a $(lsb_release -sr | cut -d. -f1) -lt 7 ] && CUSTOM_CONF_PHP70_FPM_LOGROTATE='invoke-rc.d rsyslog reload >/dev/null'
 [ "$(lsb_release -si)" == 'Ubuntu' -a $(lsb_release -sr | cut -d. -f1) -lt 14 ] && CUSTOM_CONF_PHP70_FPM_LOGROTATE='reload rsyslog >/dev/null 2>\&1 \|\| true'
-gsed "s|%{CUSTOM_CONF_PHP70_FPM_LOGOWNER}|${CUSTOM_CONF_PHP70_FPM_LOGOWNER}|g;s|%{CUSTOM_CONF_PHP70_FPM_LOGROTATE}|${CUSTOM_CONF_PHP70_FPM_LOGROTATE}|g" /etc/logrotate.d/php70-fpm-rsyslog
+gcfg.sed "s|%{CUSTOM_CONF_PHP70_FPM_LOGOWNER}|${CUSTOM_CONF_PHP70_FPM_LOGOWNER}|g;s|%{CUSTOM_CONF_PHP70_FPM_LOGROTATE}|${CUSTOM_CONF_PHP70_FPM_LOGROTATE}|g" /etc/logrotate.d/php70-fpm-rsyslog
 
 # Additional actions
 invoke-rc.d php7.0-fpm restart

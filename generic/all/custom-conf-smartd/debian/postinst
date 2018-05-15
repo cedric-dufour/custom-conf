@@ -25,7 +25,7 @@ for harddisk in /dev/nvme[0-9]n[0-9]; do
   smartctl -i ${harddisk} >/dev/null && \
     CUSTOM_CONF_SMARTD_DISKS="${CUSTOM_CONF_SMARTD_DISKS}${CUSTOM_CONF_SMARTD_DISKS:+%NL;}${harddisk} -a -H -m root"
 done
-gsed "s|%{CUSTOM_CONF_SMARTD_DISKS}|${CUSTOM_CONF_SMARTD_DISKS}|g;s|%NL;|\n|g" /etc/smartd.conf
+gcfg.sed "s|%{CUSTOM_CONF_SMARTD_DISKS}|${CUSTOM_CONF_SMARTD_DISKS}|g;s|%NL;|\n|g" /etc/smartd.conf
 
 # Additional actions
 invoke-rc.d smartmontools restart >/dev/null

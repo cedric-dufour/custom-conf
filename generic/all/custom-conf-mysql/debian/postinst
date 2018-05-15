@@ -81,8 +81,8 @@ if [ -z "${CUSTOM_CONF_MYSQL_LISTEN_IPADDR}" ]; then
 fi
 
 # ... do it
-gsed "s|%{CUSTOM_CONF_MYSQL_LISTEN_IPADDR}|${CUSTOM_CONF_MYSQL_LISTEN_IPADDR}|g" /etc/mysql/my.cnf
-[ "${SSL_ENABLE}" == 'true' ] && gsed "s|^#ssl-|ssl-|" /etc/mysql/my.cnf
+gcfg.sed "s|%{CUSTOM_CONF_MYSQL_LISTEN_IPADDR}|${CUSTOM_CONF_MYSQL_LISTEN_IPADDR}|g" /etc/mysql/my.cnf
+[ "${SSL_ENABLE}" == 'true' ] && gcfg.sed "s|^#ssl-|ssl-|" /etc/mysql/my.cnf
 
 # Permissions
 chmod 400 /etc/mysql/my.inc

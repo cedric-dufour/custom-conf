@@ -78,7 +78,7 @@ done
 [ -n "${CUSTOM_CONF_NTP_SERVERS}" -a -z "${servers}" ] && echo "ERROR[${PKGNAME}]: No IPv4 server found (${CUSTOM_CONF_NTP_SERVERS})" >&2
 
 # ... do it
-gsed "s|%{CUSTOM_CONF_NTP_LISTEN_IPV4}|${CUSTOM_CONF_NTP_LISTEN_IPV4}|g;s|%{CUSTOM_CONF_NTP_LISTEN_IPV6}|${CUSTOM_CONF_NTP_LISTEN_IPV6}|g;s|%{CUSTOM_CONF_NTP_SERVERS}|${servers}|g;s|%NL;|\n|g" /etc/ntp.conf
+gcfg.sed "s|%{CUSTOM_CONF_NTP_LISTEN_IPV4}|${CUSTOM_CONF_NTP_LISTEN_IPV4}|g;s|%{CUSTOM_CONF_NTP_LISTEN_IPV6}|${CUSTOM_CONF_NTP_LISTEN_IPV6}|g;s|%{CUSTOM_CONF_NTP_SERVERS}|${servers}|g;s|%NL;|\n|g" /etc/ntp.conf
 
 # Additional actions
 rm -f /var/lib/ntp/*.dhcp

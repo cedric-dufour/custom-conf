@@ -8,12 +8,12 @@ custom-conf-install "${PKGNAME}" "/usr/share/${PKGNAME}/config" || exit 1
 # Finalize configuration
 source /usr/share/custom-conf/custom-conf.defs
 [ -n "${CUSTOM_CONF_APPARMOR_HOMEDIRS}" ] && CUSTOM_CONF_APPARMOR_HOMEDIRS="@{HOMEDIRS}+=${CUSTOM_CONF_APPARMOR_HOMEDIRS}" || CUSTOM_CONF_APPARMOR_HOMEDIRS="#No additional @{HOMEDIRS}"
-gsed "s|%{CUSTOM_CONF_APPARMOR_HOMEDIRS}|${CUSTOM_CONF_APPARMOR_HOMEDIRS}|g" /etc/apparmor.d/tunables/home.d/custom
+gcfg.sed "s|%{CUSTOM_CONF_APPARMOR_HOMEDIRS}|${CUSTOM_CONF_APPARMOR_HOMEDIRS}|g" /etc/apparmor.d/tunables/home.d/custom
 # ... kernel
 if [ -n "$(grep '^\s*GRUB_CMDLINE_LINUX.*[" ]security=' /etc/default/grub | fgrep -v 'security=apparmor')" ]; then
   echo "WARNING[${PKGNAME}]: Another kernel security model in enforced; AppArmor can NOT co-exist with it!"
 elif [ -z "$(grep '^\s*GRUB_CMDLINE_LINUX.*[" ]security=apparmor[" ]' /etc/default/grub)" ]; then
-  gsed 's|^\s*GRUB_CMDLINE_LINUX_DEFAULT\s*=\s*"|GRUB_CMDLINE_LINUX_DEFAULT="security=apparmor |' /etc/default/grub
+  gcfg.sed 's|^\s*GRUB_CMDLINE_LINUX_DEFAULT\s*=\s*"|GRUB_CMDLINE_LINUX_DEFAULT="security=apparmor |' /etc/default/grub
   update-grub
   echo "WARNING[${PKGNAME}]: You MUST reboot to enable AppArmor!"
 fi

@@ -37,7 +37,7 @@ if [ "${IPTABLES_AUTO}" != 'true' ]; then
   CUSTOM_CONF_DOCKER_IPTABLES_MANUAL_EXIT='exit 0  # Docker iptables are managed manually'
 fi
 [ "${SYSLOG_LISTEN}" == 'true' ] && CUSTOM_CONF_DOCKER_IPTABLES_SYSLOG_TARGET='ACCEPT'
-gsed "s|%{CUSTOM_CONF_DOCKER_IPTABLES_AUTO_EXIT}|${CUSTOM_CONF_DOCKER_IPTABLES_AUTO_EXIT}|g;s|%{CUSTOM_CONF_DOCKER_IPTABLES_MANUAL_EXIT}|${CUSTOM_CONF_DOCKER_IPTABLES_MANUAL_EXIT}|g;s|%{CUSTOM_CONF_DOCKER_IPTABLES_SYSLOG_TARGET}|${CUSTOM_CONF_DOCKER_IPTABLES_SYSLOG_TARGET}|g" /etc/iptables/hooks.d/ipv{4,6}/{pre-stop,post-start}.d/50_custom-conf-docker /etc/iptables/rules.d/ipv{4,6}/{filter,nat}.d/50_custom-conf-docker
+gcfg.sed "s|%{CUSTOM_CONF_DOCKER_IPTABLES_AUTO_EXIT}|${CUSTOM_CONF_DOCKER_IPTABLES_AUTO_EXIT}|g;s|%{CUSTOM_CONF_DOCKER_IPTABLES_MANUAL_EXIT}|${CUSTOM_CONF_DOCKER_IPTABLES_MANUAL_EXIT}|g;s|%{CUSTOM_CONF_DOCKER_IPTABLES_SYSLOG_TARGET}|${CUSTOM_CONF_DOCKER_IPTABLES_SYSLOG_TARGET}|g" /etc/iptables/hooks.d/ipv{4,6}/{pre-stop,post-start}.d/50_custom-conf-docker /etc/iptables/rules.d/ipv{4,6}/{filter,nat}.d/50_custom-conf-docker
 
 # ... userns
 [ -n "${USERNS_SHIFT}" ] && USERNS_SHIFT=$(( 1 * ${USERNS_SHIFT} )) || USERNS_SHIFT=0
@@ -50,14 +50,14 @@ fi
 if [ ${CUSTOM_CONF_USERNS_SHIFT} -ne 0 ]; then
   CUSTOM_CONF_DOCKER_OPTS="${CUSTOM_CONF_DOCKER_OPTS} --userns-remap=userns-docker:userns-docker"
   adduser --system --home /nonexistent --no-create-home --shell /bin/false --group --disabled-login --gecos 'Docker UserNS' userns-docker >/dev/null
-  gsed '/^userns-docker:/d' /etc/subuid /etc/subgid
+  gcfg.sed '/^userns-docker:/d' /etc/subuid /etc/subgid
   echo "userns-docker:${CUSTOM_CONF_USERNS_SHIFT}:65536" >> /etc/subuid
   echo "userns-docker:${CUSTOM_CONF_USERNS_SHIFT}:65536" >> /etc/subgid
 fi
-gsed "s|%{CUSTOM_CONF_DOCKER_DAEMON}|${CUSTOM_CONF_DOCKER_DAEMON}|g;s|%{CUSTOM_CONF_DOCKER_OPTS}|${CUSTOM_CONF_DOCKER_OPTS}|g" /etc/default/docker /etc/systemd/system/docker.service
+gcfg.sed "s|%{CUSTOM_CONF_DOCKER_DAEMON}|${CUSTOM_CONF_DOCKER_DAEMON}|g;s|%{CUSTOM_CONF_DOCKER_OPTS}|${CUSTOM_CONF_DOCKER_OPTS}|g" /etc/default/docker /etc/systemd/system/docker.service
 
 # ... rsyslog
-[ "${SYSLOG_LISTEN}" == 'true' ] && gsed 's|^#\$|$|' /etc/rsyslog.d/05_custom-conf-docker.conf
+[ "${SYSLOG_LISTEN}" == 'true' ] && gcfg.sed 's|^#\$|$|' /etc/rsyslog.d/05_custom-conf-docker.conf
 
 # Additional actions
 invoke-rc.d docker restart

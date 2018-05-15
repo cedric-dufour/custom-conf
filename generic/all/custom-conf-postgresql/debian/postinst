@@ -122,8 +122,8 @@ CUSTOM_CONF_POSTGRESQL_MONITORING="${servers}"
 [ -z "${CUSTOM_CONF_POSTGRESQL_MONITORING}" ] && CUSTOM_CONF_POSTGRESQL_MONITORING='#host template1 nagios [server:unspecified] trust'
 
 # ... do it
-gsed "s|%{CUSTOM_CONF_POSTGRESQL_LISTEN_IPADDR}|${CUSTOM_CONF_POSTGRESQL_LISTEN_IPADDR}|g;s|%{CUSTOM_CONF_POSTGRESQL_SSL}|${CUSTOM_CONF_POSTGRESQL_SSL}|g;s|%NL;|\n|g" /etc/postgresql/${CUSTOM_CONF_POSTGRESQL_VERSION}/main/postgresql.conf
-gsed "s|%{CUSTOM_CONF_POSTGRESQL_MONITORING}|${CUSTOM_CONF_POSTGRESQL_MONITORING}|g;s|%NL;|\n|g" /etc/postgresql/${CUSTOM_CONF_POSTGRESQL_VERSION}/main/pg_hba.conf
+gcfg.sed "s|%{CUSTOM_CONF_POSTGRESQL_LISTEN_IPADDR}|${CUSTOM_CONF_POSTGRESQL_LISTEN_IPADDR}|g;s|%{CUSTOM_CONF_POSTGRESQL_SSL}|${CUSTOM_CONF_POSTGRESQL_SSL}|g;s|%NL;|\n|g" /etc/postgresql/${CUSTOM_CONF_POSTGRESQL_VERSION}/main/postgresql.conf
+gcfg.sed "s|%{CUSTOM_CONF_POSTGRESQL_MONITORING}|${CUSTOM_CONF_POSTGRESQL_MONITORING}|g;s|%NL;|\n|g" /etc/postgresql/${CUSTOM_CONF_POSTGRESQL_VERSION}/main/pg_hba.conf
 
 # SSL certificates
 [ ! -e /var/lib/postgresql/${CUSTOM_CONF_POSTGRESQL_VERSION}/main/root.crt ] && ln -sf /etc/ssl/local/localhost-cachain.pem /var/lib/postgresql/${CUSTOM_CONF_POSTGRESQL_VERSION}/main/root.crt

@@ -7,7 +7,7 @@ custom-conf-install "${PKGNAME}" "/usr/share/${PKGNAME}/config" || exit 1
 
 # Fine-tune configuration
 source /usr/share/custom-conf/custom-conf.defs
-gsed "s|%{CUSTOM_CONF_LDAP_SERVER_URI}|${CUSTOM_CONF_LDAP_SERVER_URI}|g;s|%{CUSTOM_CONF_LDAP_BASEDN}|${CUSTOM_CONF_LDAP_BASEDN}|g" /etc/ldap/ldap.conf
+gcfg.sed "s|%{CUSTOM_CONF_LDAP_SERVER_URI}|${CUSTOM_CONF_LDAP_SERVER_URI}|g;s|%{CUSTOM_CONF_LDAP_BASEDN}|${CUSTOM_CONF_LDAP_BASEDN}|g" /etc/ldap/ldap.conf
 
 # Exit
 exit 0

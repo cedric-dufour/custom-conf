@@ -25,7 +25,7 @@ for s in ${CUSTOM_CONF_KRB5_SERVERS_KDC}; do
   servers_kdc="${servers_kdc}${servers_kdc:+%NL;}    kdc = ${s}"
 done
 [ -n "${CUSTOM_CONF_KRB5_SERVERS_KDC}" -a -z "${servers_kdc}" ] && echo "ERROR[${PKGNAME}]: No IPv4 server found (${CUSTOM_CONF_KRB5_SERVERS_KDC})" >&2
-gsed "s|%{CUSTOM_CONF_KRB5_REALM}|${CUSTOM_CONF_KRB5_REALM}|g;s|%{CUSTOM_CONF_KRB5_SERVER_ADMIN}|${server_admin}|g;s|%{CUSTOM_CONF_KRB5_SERVERS_KDC}|${servers_kdc}|g;s|%{CUSTOM_CONF_DOMAIN}|${CUSTOM_CONF_DOMAIN}|g;s|%NL;|\n|g" /etc/krb5.conf
+gcfg.sed "s|%{CUSTOM_CONF_KRB5_REALM}|${CUSTOM_CONF_KRB5_REALM}|g;s|%{CUSTOM_CONF_KRB5_SERVER_ADMIN}|${server_admin}|g;s|%{CUSTOM_CONF_KRB5_SERVERS_KDC}|${servers_kdc}|g;s|%{CUSTOM_CONF_DOMAIN}|${CUSTOM_CONF_DOMAIN}|g;s|%NL;|\n|g" /etc/krb5.conf
 
 # Warning
 if [ ! -e /etc/krb5.keytab ]; then

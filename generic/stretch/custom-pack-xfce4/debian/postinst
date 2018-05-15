@@ -2,7 +2,7 @@
 [ "${1}" != 'configure' ] && exit 0
 
 # Fix LightDM default Xsession
-[ -e /usr/share/xsessions/lightdm-xsession.desktop ] && gsed 's|^Exec=default$|Exec=startxfce4|' /usr/share/xsessions/lightdm-xsession.desktop
+[ -e /usr/share/xsessions/lightdm-xsession.desktop ] && gcfg.sed 's|^Exec=default$|Exec=startxfce4|' /usr/share/xsessions/lightdm-xsession.desktop
 
 # Exit
 exit 0

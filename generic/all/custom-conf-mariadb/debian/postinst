@@ -81,8 +81,8 @@ if [ -z "${CUSTOM_CONF_MARIADB_LISTEN_IPADDR}" ]; then
 fi
 
 # ... do it
-gsed "s|%{CUSTOM_CONF_MARIADB_LISTEN_IPADDR}|${CUSTOM_CONF_MARIADB_LISTEN_IPADDR}|g" /etc/mysql/mariadb.conf.d/50-server.cnf
-[ "${SSL_ENABLE}" == 'true' ] && gsed "s|^#ssl|ssl|" /etc/mysql/mariadb.conf.d/50-server.cnf
+gcfg.sed "s|%{CUSTOM_CONF_MARIADB_LISTEN_IPADDR}|${CUSTOM_CONF_MARIADB_LISTEN_IPADDR}|g" /etc/mysql/mariadb.conf.d/50-server.cnf
+[ "${SSL_ENABLE}" == 'true' ] && gcfg.sed "s|^#ssl|ssl|" /etc/mysql/mariadb.conf.d/50-server.cnf
 
 # Additional actions
 invoke-rc.d mariadb restart

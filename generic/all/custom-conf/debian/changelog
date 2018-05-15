@@ -1,3 +1,10 @@
+custom-conf (2018.05.14a) UNRELEASED; urgency=low
+
+  * Bumped 'custom-conf-utils' minimum version dependency
+    (cf. 'gcfg.sed' -> 'gsed' script renaming)
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Mon, 14 May 2018 15:27:34 +0200
+
 custom-conf (2014.11.07) UNRELEASED; urgency=low
 
   * Post Tenebras Lux

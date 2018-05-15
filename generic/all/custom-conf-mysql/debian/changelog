@@ -1,3 +1,9 @@
+custom-conf-mysql (2018.05.14a) UNRELEASED; urgency=low
+
+  * Use 'gcfg.sed' instead of 'gsed' in scripts
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Mon, 14 May 2018 14:39:32 +0200
+
 custom-conf-mysql (2017.07.24a) UNRELEASED; urgency=low
 
   * Alias 'mysql' to automatically use admin credentials (/etc/mysql/my.inc)

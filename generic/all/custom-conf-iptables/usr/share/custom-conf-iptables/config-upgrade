@@ -68,7 +68,7 @@ function _upgrade {
   done
 
   # Upgrade paths within scripts
-  find /etc/iptables/rules.d -type f -exec gsed 's|rules.d/iptables-|rules.d/ipv4/|g;s|iptables-||g;s|rules.d/ip6tables-|rules.d/ipv6/|g;s|ip6tables-||g' {} \;
+  find /etc/iptables/rules.d -type f -exec gcfg.sed 's|rules.d/iptables-|rules.d/ipv4/|g;s|iptables-||g;s|rules.d/ip6tables-|rules.d/ipv6/|g;s|ip6tables-||g' {} \;
 }
 
 

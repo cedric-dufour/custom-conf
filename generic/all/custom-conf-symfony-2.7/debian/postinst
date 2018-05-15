@@ -22,7 +22,7 @@ chown www-data:www-data /var/cache/php/symfony
 if fgrep -q '%{CUSTOM_CONF_SYMFONY_SECRET}' /etc/php/symfony/parameters.yml; then
   echo "NOTICE[${PKGNAME}]: Generating secret token; this may take some time..."
   CUSTOM_CONF_SYMFONY_SECRET="$(dd if=/dev/random bs=512 count=1 2>/dev/null | sha1sum | awk '{print $1}')"
-  gsed "s|%{CUSTOM_CONF_SYMFONY_SECRET}|${CUSTOM_CONF_SYMFONY_SECRET}|" /etc/php/symfony/parameters.yml
+  gcfg.sed "s|%{CUSTOM_CONF_SYMFONY_SECRET}|${CUSTOM_CONF_SYMFONY_SECRET}|" /etc/php/symfony/parameters.yml
 fi
 
 # Additional actions

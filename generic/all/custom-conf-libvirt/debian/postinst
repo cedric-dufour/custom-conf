@@ -75,16 +75,16 @@ fi
 [ -n "${CUSTOM_CONF_LIBVIRT_ALLOW_SASL}" ] && CUSTOM_CONF_LIBVIRT_ALLOW_SASL="[${CUSTOM_CONF_LIBVIRT_ALLOW_SASL}]"
 
 # Daemon settings
-gsed "s|%{CUSTOM_CONF_LIBVIRT_DAEMON_OPTIONS}|${CUSTOM_CONF_LIBVIRT_DAEMON_OPTIONS}|g" /etc/default/libvirtd
+gcfg.sed "s|%{CUSTOM_CONF_LIBVIRT_DAEMON_OPTIONS}|${CUSTOM_CONF_LIBVIRT_DAEMON_OPTIONS}|g" /etc/default/libvirtd
 
 # Daemon configuration
-gsed "s|%{CUSTOM_CONF_LIBVIRT_LISTEN_ADDR}|${CUSTOM_CONF_LIBVIRT_LISTEN_ADDR}|g;s|%{CUSTOM_CONF_LIBVIRT_LISTEN_TCP}|${CUSTOM_CONF_LIBVIRT_LISTEN_TCP}|g;s|%{CUSTOM_CONF_LIBVIRT_LISTEN_TLS}|${CUSTOM_CONF_LIBVIRT_LISTEN_TLS}|g;s|%{CUSTOM_CONF_LIBVIRT_AUTH_TCP}|${CUSTOM_CONF_LIBVIRT_AUTH_TCP}|g;s|%{CUSTOM_CONF_LIBVIRT_ALLOW_TLS}|${CUSTOM_CONF_LIBVIRT_ALLOW_TLS}|g;s|%{CUSTOM_CONF_LIBVIRT_ALLOW_SASL}|${CUSTOM_CONF_LIBVIRT_ALLOW_SASL}|g" /etc/libvirt/libvirtd.conf
-[ -z "${CUSTOM_CONF_LIBVIRT_LISTEN_ADDR}" ] && gsed 's|^\s*listen_addr|#listen_addr|' /etc/libvirt/libvirtd.conf
-[ -z "${CUSTOM_CONF_LIBVIRT_ALLOW_TLS}" ] && gsed 's|^\s*tls_allowed_dn_list|#tls_allowed_dn_list|' /etc/libvirt/libvirtd.conf
-[ -z "${CUSTOM_CONF_LIBVIRT_ALLOW_SASL}" ] && gsed 's|^\s*sasl_allowed_username_list|#sasl_allowed_username_list|' /etc/libvirt/libvirtd.conf
+gcfg.sed "s|%{CUSTOM_CONF_LIBVIRT_LISTEN_ADDR}|${CUSTOM_CONF_LIBVIRT_LISTEN_ADDR}|g;s|%{CUSTOM_CONF_LIBVIRT_LISTEN_TCP}|${CUSTOM_CONF_LIBVIRT_LISTEN_TCP}|g;s|%{CUSTOM_CONF_LIBVIRT_LISTEN_TLS}|${CUSTOM_CONF_LIBVIRT_LISTEN_TLS}|g;s|%{CUSTOM_CONF_LIBVIRT_AUTH_TCP}|${CUSTOM_CONF_LIBVIRT_AUTH_TCP}|g;s|%{CUSTOM_CONF_LIBVIRT_ALLOW_TLS}|${CUSTOM_CONF_LIBVIRT_ALLOW_TLS}|g;s|%{CUSTOM_CONF_LIBVIRT_ALLOW_SASL}|${CUSTOM_CONF_LIBVIRT_ALLOW_SASL}|g" /etc/libvirt/libvirtd.conf
+[ -z "${CUSTOM_CONF_LIBVIRT_LISTEN_ADDR}" ] && gcfg.sed 's|^\s*listen_addr|#listen_addr|' /etc/libvirt/libvirtd.conf
+[ -z "${CUSTOM_CONF_LIBVIRT_ALLOW_TLS}" ] && gcfg.sed 's|^\s*tls_allowed_dn_list|#tls_allowed_dn_list|' /etc/libvirt/libvirtd.conf
+[ -z "${CUSTOM_CONF_LIBVIRT_ALLOW_SASL}" ] && gcfg.sed 's|^\s*sasl_allowed_username_list|#sasl_allowed_username_list|' /etc/libvirt/libvirtd.conf
 
 # SASL configuration
-gsed "s|%{CUSTOM_CONF_LIBVIRT_SASL_MECHANISM}|${CUSTOM_CONF_LIBVIRT_SASL_MECHANISM}|g" /etc/sasl2/libvirt.conf
+gcfg.sed "s|%{CUSTOM_CONF_LIBVIRT_SASL_MECHANISM}|${CUSTOM_CONF_LIBVIRT_SASL_MECHANISM}|g" /etc/sasl2/libvirt.conf
 
 
 ## Additional actions

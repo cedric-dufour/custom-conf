@@ -8,7 +8,7 @@ custom-conf-install "${PKGNAME}" "/usr/share/${PKGNAME}/config" || exit 1
 # Fine-tune configuration
 CUSTOM_CONF_RSYSLOG_OWNERSHIP='$FileOwner root'
 [ "$(lsb_release -si)" == 'Ubuntu' ] && CUSTOM_CONF_RSYSLOG_OWNERSHIP='$FileOwner syslog%NL;$PrivDropToUser syslog%NL;$PrivDropToGroup syslog'
-gsed "s|%{CUSTOM_CONF_RSYSLOG_OWNERSHIP}|${CUSTOM_CONF_RSYSLOG_OWNERSHIP}|g;s|%NL;|\n|g" /etc/rsyslog.conf
+gcfg.sed "s|%{CUSTOM_CONF_RSYSLOG_OWNERSHIP}|${CUSTOM_CONF_RSYSLOG_OWNERSHIP}|g;s|%NL;|\n|g" /etc/rsyslog.conf
 
 # Additional actions
 invoke-rc.d rsyslog restart

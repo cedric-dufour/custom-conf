@@ -38,7 +38,7 @@ custom-conf-install "${PKGNAME}" "/usr/share/${PKGNAME}/config/common" || exit 1
 source /usr/share/custom-conf/custom-conf.defs
 CUSTOM_CONF_DJANGO_DOMAIN="${CUSTOM_CONF_DOMAIN}"
 CUSTOM_CONF_DJANGO_SECRET="$(dd if=/dev/urandom bs=1k count=1 2>/dev/null | md5sum | awk '{print $1}')"
-gsed "s|%{CUSTOM_CONF_DJANGO_DOMAIN}|${CUSTOM_CONF_DJANGO_DOMAIN}|g;s|%{CUSTOM_CONF_DJANGO_SECRET}|${CUSTOM_CONF_DJANGO_SECRET}|g" /etc/django/custom-conf-django/settings.py
+gcfg.sed "s|%{CUSTOM_CONF_DJANGO_DOMAIN}|${CUSTOM_CONF_DJANGO_DOMAIN}|g;s|%{CUSTOM_CONF_DJANGO_SECRET}|${CUSTOM_CONF_DJANGO_SECRET}|g" /etc/django/custom-conf-django/settings.py
 
 # File permissions
 chmod 640 /etc/django/custom-conf-django/settings.py

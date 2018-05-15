@@ -93,7 +93,7 @@ else
 fi
 
 # ... do it
-gsed "s|%{CUSTOM_CONF_NRPE_LISTEN_IPADDR}|${CUSTOM_CONF_NRPE_LISTEN_IPADDR}|g;s|%{CUSTOM_CONF_NRPE_ALLOWEDHOSTS}|${servers:+allowed_hosts=${servers}}|g;s|%{CUSTOM_CONF_NRPE_CHECK_DISKS_OPTIONS}|${CUSTOM_CONF_NRPE_CHECK_DISKS_OPTIONS}|g" /etc/nagios/nrpe.cfg
+gcfg.sed "s|%{CUSTOM_CONF_NRPE_LISTEN_IPADDR}|${CUSTOM_CONF_NRPE_LISTEN_IPADDR}|g;s|%{CUSTOM_CONF_NRPE_ALLOWEDHOSTS}|${servers:+allowed_hosts=${servers}}|g;s|%{CUSTOM_CONF_NRPE_CHECK_DISKS_OPTIONS}|${CUSTOM_CONF_NRPE_CHECK_DISKS_OPTIONS}|g" /etc/nagios/nrpe.cfg
 
 # Additional actions
 invoke-rc.d nagios-nrpe-server stop

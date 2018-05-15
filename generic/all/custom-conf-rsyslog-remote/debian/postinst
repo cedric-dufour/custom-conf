@@ -18,7 +18,7 @@ for s in ${CUSTOM_CONF_SYSLOG_SERVER}; do
   break
 done
 [ -n "${CUSTOM_CONF_SYSLOG_SERVER}" -a -z "${server}" ] && echo "ERROR[${PKGNAME}]: No IPv4 server found (${CUSTOM_CONF_SYSLOG_SERVER})" >&2
-gsed "s|%{CUSTOM_CONF_SYSLOG_SERVER}|${server}|g" /etc/rsyslog.d/05-remote.conf
+gcfg.sed "s|%{CUSTOM_CONF_SYSLOG_SERVER}|${server}|g" /etc/rsyslog.d/05-remote.conf
 
 # Additional actions
 invoke-rc.d rsyslog restart
