@@ -3,20 +3,20 @@
 
 ## Usage
 [ $# -lt 1 -o "${1##*-}" == 'help' ] && cat << EOF >&2 && exit 1
-USAGE: ${0##*/} <lun#>
+USAGE: ${0##*/} <scsi-device>
 
-HINT: echo 1 > /sys/class/scsi_device/0:0:0:<lun#>/device/delete
+HINT: echo 1 > /sys/class/scsi_device/<scsi-device>/device/delete
 EOF
 
 # Arguments
-LUNID="${1}"
+SCSI_DEVICE="${1}"
 
 
 ## Command
-SYSDEV="/sys/class/scsi_device/0:0:0:${LUNID}"
-[ ! -e "${SYSDEV}" ] && echo "ERROR: Invalid device/LUN (${SYSDEV})" >&2 && exit 1
+SCSI_CLASS="/sys/class/scsi_device/${SCSI_DEVICE}"
+[ ! -e "${SCSI_CLASS}" ] && echo "ERROR: Invalid SCSI device (${SCSI_DEVICE}) <-> class (${SCSI_CLASS})" >&2 && exit 1
 echo 'CRITICAL: Make sure to umount all partitions on the device!'
-for dev in ${SYSDEV}/device/block/sd*; do
+for dev in ${SCSI_CLASS}/device/block/sd*; do
   echo " > device: ${dev##*/}"
   for part in ${dev}/sd*; do
     echo " > partition: /dev/${part##*/}"
@@ -24,5 +24,5 @@ for dev in ${SYSDEV}/device/block/sd*; do
 done
 echo 'PRESS <ENTER> TO CONTINUE OR <CTRL+C> TO ABORT...'
 read
-echo 1 > ${SYSDEV}/device/delete
+echo 1 > ${SCSI_CLASS}/device/delete
 

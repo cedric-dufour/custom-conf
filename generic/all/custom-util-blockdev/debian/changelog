@@ -1,3 +1,9 @@
+custom-util-blockdev (2018.05.17a) UNRELEASED; urgency=low
+
+  * Consolidated 'scsi{host,dev}-*' scripts
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Thu, 17 May 2018 09:36:22 +0200
+
 custom-util-blockdev (2017.12.23a) UNRELEASED; urgency=low
 
   * Consolidated 'blockdev-*' scripts

@@ -3,15 +3,26 @@
 
 ## Usage
 [ "${1##*-}" == 'help' ] && cat << EOF >&2 && exit 1
-USAGE: ${0##*/}
+USAGE: ${0##*/} [<scsi-host>=host0]
 
-HINT: echo '- - -' > /sys/class/scsi_host/host0/scan
+HINT: echo '- - -' > /sys/class/scsi_host/<scsi-host>/scan
 EOF
 
+# Arguments
+[ -n "${1}" ] && SCSI_HOST="${1}" || SCSI_HOST='host0'
+
+# Checks
+SCSI_CLASS="/sys/class/scsi_host/${SCSI_HOST}"
+[ ! -e "${SCSI_CLASS}" ] && echo "ERROR: Invalid SCSI host (${SCSI_HOST}) <-> class (${SCSI_CLASS})" >&2 && exit 1
+SCSI_PATH="$(readlink "${SCSI_CLASS}")"
+[ -z "${SCSI_PATH}" ] && echo "ERROR: Invalid class path (${SCSI_CLASS})" >&2 && exit 1
 
 ## Command
+echo 'INFO: Triggering SCSI host refresh...'
+echo "  ${SCSI_CLASS} ->"
+echo "  ${SCSI_PATH}"
 echo '- - -' > /sys/class/scsi_host/host0/scan
-echo 'Waiting for SCSI host refresh...'
 sleep 3
-ls -al /dev/disk/by-id/
+echo 'INFO: Attached SCSI devices'
+ls -1 /dev/disk/by-path/*scsi*
 
