@@ -1,0 +1,424 @@
+#!/bin/bash
+## CUSTOM-UTIL: File automatically created/updated [custom-util-ha]
+
+# REF: http://www.linux-ha.org/doc/dev-guides/ra-dev-guide.html
+
+
+## Initialization
+: ${OCF_FUNCTIONS_DIR=${OCF_ROOT}/lib/heartbeat}
+. ${OCF_FUNCTIONS_DIR}/ocf-shellfuncs
+
+
+## Defaults
+OCF_RESKEY_readonly_default='0'
+: ${OCF_RESKEY_readonly:=${OCF_RESKEY_readonly_default}}
+OCF_RESKEY_atime_default='0'
+: ${OCF_RESKEY_atime:=${OCF_RESKEY_atime_default}}
+OCF_RESKEY_relatime_default='0'
+: ${OCF_RESKEY_relatime:=${OCF_RESKEY_relatime_default}}
+OCF_RESKEY_exec_default='0'
+: ${OCF_RESKEY_exec:=${OCF_RESKEY_exec_default}}
+OCF_RESKEY_setuid_default='0'
+: ${OCF_RESKEY_setuid:=${OCF_RESKEY_setuid_default}}
+OCF_RESKEY_xattr_default='0'
+: ${OCF_RESKEY_xattr:=${OCF_RESKEY_xattr_default}}
+OCF_RESKEY_strict_config_default=0
+: ${OCF_RESKEY_strict_config:=${OCF_RESKEY_strict_config_default}}
+
+
+## Usage
+usage() {
+  echo "USAGE: ${0##*/} {start|stop|status|monitor|meta-data|validate-all}"
+}
+
+meta_data() {
+  cat <<END
+<?xml version="1.0"?>
+<!DOCTYPE resource-agent SYSTEM "ra-api-1.dtd">
+<resource-agent name="ZfsMount">
+  <version>1.1</version>
+
+  <longdesc lang="en">
+    Resource agent for managing a ZFS filesystem (mount, unmount).
+  </longdesc>
+  <shortdesc lang="en">Manage ZFS filesystem</shortdesc>
+
+  <parameters>
+
+    <parameter name="filesystem" unique="1" required="1">
+      <longdesc lang="en">
+        The name of the ZFS filesystem.
+      </longdesc>
+      <shortdesc lang="en">ZFS filesystem name</shortdesc>
+      <content type="string" default="" />
+    </parameter>
+
+    <parameter name="readonly">
+      <longdesc lang="en">
+        Mount the filesystem read-only (1) or read-write (-1).
+        Defaults to in-filesystem property if (0).
+        (as in 'zfs mount -o {ro,rw} ...')
+      </longdesc>
+      <shortdesc lang="en">Mount the filesystem '-o {ro,rw}'</shortdesc>
+      <content type="integer" default="${OCF_RESKEY_readonly_default}" />
+    </parameter>
+
+    <parameter name="atime">
+      <longdesc lang="en">
+        Mount the filesystem with (1) or without (-1) access time accounting.
+        Defaults to in-filesystem property if (0).
+        (as in 'zfs mount -o {no,}atime ...')
+      </longdesc>
+      <shortdesc lang="en">Mount the filesystem '-o {no,}atime'</shortdesc>
+      <content type="boolean" default="${OCF_RESKEY_atime_default}" />
+    </parameter>
+
+    <parameter name="relatime">
+      <longdesc lang="en">
+        Mount the filesystem with (1) or without (-1) relaxed (once per 24h)
+        access time accounting.
+        Defaults to in-filesystem property if (0).
+        (as in 'zfs mount -o {no,}relatime ...')
+      </longdesc>
+      <shortdesc lang="en">Mount the filesystem '-o {no,}relatime'</shortdesc>
+      <content type="boolean" default="${OCF_RESKEY_relatime_default}" />
+    </parameter>
+
+    <parameter name="exec">
+      <longdesc lang="en">
+        Mount the filesystem with (1) or without (-1) execution permission.
+        Defaults to in-filesystem property if (0).
+        (as in 'zfs mount -o {no,}exec ...')
+      </longdesc>
+      <shortdesc lang="en">Mount the filesystem '-o {no,}exec'</shortdesc>
+      <content type="boolean" default="${OCF_RESKEY_exec_default}" />
+    </parameter>
+
+    <parameter name="setuid">
+      <longdesc lang="en">
+        Mount the filesystem with (1) or without (-1) user/group impersonation
+        permission.
+        Defaults to in-filesystem property if (0).
+        (as in 'zfs mount -o {no,}suid ...')
+      </longdesc>
+      <shortdesc lang="en">Mount the filesystem '-o {no,}suid'</shortdesc>
+      <content type="boolean" default="${OCF_RESKEY_setuid_default}" />
+    </parameter>
+
+    <parameter name="xattr">
+      <longdesc lang="en">
+        Mount the filesystem with (1) or without (-1) extended attributes.
+        Defaults to in-filesystem property if (0).
+        (as in 'zfs mount -o {no,}xattr ...')
+      </longdesc>
+      <shortdesc lang="en">Mount the filesystem '-o {no,}xattr'</shortdesc>
+      <content type="boolean" default="${OCF_RESKEY_xattr_default}" />
+    </parameter>
+
+    <parameter name="strict_config">
+      <longdesc lang="en">
+        Consider configuration errors as critical, prompting the cluster to
+        fence the hosting node.
+        WARNING! You MUST make sure the configuration is sane before enabling
+        this option! Otherwise, the misconfigured resource will trigger fencing
+        of each and every nodes as the cluster attempts to start it elsewhere
+        (and fail systematically), leading to entire cluster failure.
+      </longdesc>
+      <shortdesc lang="en">Consider configuration errors critical</shortdesc>
+      <content type="boolean" default="${OCF_RESKEY_strict_config_default}" />
+    </parameter>
+
+  </parameters>
+
+  <actions>
+    <action name="start" timeout="30" />
+    <action name="stop" timeout="30" />
+    <action name="monitor" depth="0" timeout="10" interval="60" />
+    <action name="meta-data" timeout="5" />
+    <action name="validate-all" timeout="5" />
+  </actions>
+
+</resource-agent>
+END
+
+  exit ${OCF_SUCCESS}
+}
+
+
+## Helpers
+ZfsMount_IsEnabled() {
+  if [ -e /sys/module/zfs ]; then
+    return 0
+  fi
+  return 1
+}
+
+ZfsMount_DoCmd() {
+  local cmd="$@"
+  local cmd_out
+  local cmd_rc
+
+  # Execute command
+  ocf_log debug "${OCF_RESKEY_filesystem}::DoCmd: Executing command: ${cmd}"
+  cmd_out="$("$@" 2>&1)"
+  cmd_rc=$?
+  if [ ${cmd_rc} -ne 0 ]; then
+    ocf_log warn "${OCF_RESKEY_filesystem}::DoCmd: Command failed; ${cmd} > ${cmd_out} [${cmd_rc}]"
+    echo "${cmd_out}"
+    return ${cmd_rc}
+  else
+    ocf_log debug "${OCF_RESKEY_filesystem}::DoCmd: Command succeeded; ${cmd} > ${cmd_out}"
+  fi
+
+  # Done
+  echo "${cmd_out}"
+  return ${cmd_rc}
+}
+
+ZfsMount_CheckConfig() {
+  local rc
+  local out
+
+  # Check the filesystem name
+  if [ -z "${OCF_RESKEY_filesystem}" ]; then
+    ocf_log err "*::CheckConfig: Missing/empty configuration parameter 'filesystem'"
+    return ${OCF_ERR_CONFIGURED}
+  fi
+
+  # No further checks during probe
+  if ocf_is_probe; then
+    return ${OCF_SUCCESS}
+  fi
+
+  # Check filesystem type
+  out="$(ZfsMount_DoCmd zfs get -H -o value "${OCF_RESKEY_filesystem}")" ; rc=$?
+  if [ ${rc} -ne 0 ]; then
+    ocf_log err "${OCF_RESKEY_filesystem}::CheckConfig: Failed to retrieve filesystem type"
+    return ${OCF_ERR_CONFIGURED}
+  fi
+  if [ -z "${out}" ]; then
+    ocf_log err "${OCF_RESKEY_filesystem}::CheckConfig: No matching filesystem"
+    return ${OCF_ERR_CONFIGURED}
+  fi
+  if [ "${out}" != 'filesystem' ]; then
+    ocf_log err "${OCF_RESKEY_filesystem}::CheckConfig: Invalid dataset type (${out})"
+    return ${OCF_ERR_CONFIGURED}
+  fi
+
+  # Done
+  return ${OCF_SUCCESS}
+}
+
+ZfsMount_Status() {
+  local mounted
+
+  # Check configuration (strict_config = off)
+  if [ -z "${OCF_RESKEY_filesystem}" ]; then
+    # Note: if configuration is incomplete, resource can not have been started
+    return ${OCF_NOT_RUNNING}
+  fi
+
+  # Retrieve mount status
+  mounted="$(ZfsMount_DoCmd zfs get -H -o value mounted "${OCF_RESKEY_filesystem}")"
+  ocf_log debug "${OCF_RESKEY_filesystem}::Status: ${mounted}"
+
+  # Mount status <-> OCF status
+  case "${mounted,,}" in
+    'no'|*'does not exist')
+      return ${OCF_NOT_RUNNING}
+      ;;
+    'yes')
+      return ${OCF_SUCCESS}
+      ;;
+    *)
+      return ${OCF_ERR_GENERIC}
+      ;;
+  esac
+
+  # Done
+  return ${OCF_ERR_GENERIC}
+}
+
+
+## OCF actions
+ZfsMount_Start() {
+  local rc
+  local options
+
+  # Check if ZFS is enabled
+  if ! ZfsMount_IsEnabled; then
+    ocf_log err "${OCF_RESKEY_filesystem}::Start: ZFS not enabled"
+    return ${OCF_ERR_GENERIC}
+  fi
+
+  # Check configuration (strict_config = off)
+  if [ -z "${OCF_RESKEY_filesystem}" ]; then
+    return ${OCF_ERR_CONFIGURED}
+  fi
+
+  # Retrieve filesystem status
+  ZfsMount_Status ; rc=$?
+  if [ ${rc} -eq ${OCF_SUCCESS} ]; then
+    ocf_log info "${OCF_RESKEY_filesystem}::Start: Filesystem already started (mounted)"
+    return ${OCF_SUCCESS}
+  fi
+
+  # Mount filesystem
+  [ ${OCF_RESKEY_readonly} -gt 0 ] && options="${options} -o ro"
+  [ ${OCF_RESKEY_readonly} -lt 0 ] && options="${options} -o rw"
+  [ ${OCF_RESKEY_atime} -gt 0 ] && options="${options} -o atime"
+  [ ${OCF_RESKEY_atime} -lt 0 ] && options="${options} -o noatime"
+  [ ${OCF_RESKEY_relatime} -gt 0 ] && options="${options} -o relatime"
+  [ ${OCF_RESKEY_relatime} -lt 0 ] && options="${options} -o norelatime"
+  [ ${OCF_RESKEY_exec} -gt 0 ] && options="${options} -o exec"
+  [ ${OCF_RESKEY_exec} -lt 0 ] && options="${options} -o noexec"
+  [ ${OCF_RESKEY_setuid} -gt 0 ] && options="${options} -o suid"
+  [ ${OCF_RESKEY_setuid} -lt 0 ] && options="${options} -o nosuid"
+  [ ${OCF_RESKEY_xattr} -gt 0 ] && options="${options} -o xattr"
+  [ ${OCF_RESKEY_xattr} -lt 0 ] && options="${options} -o noxattr"
+  ZfsMount_DoCmd zfs mount ${options} "${OCF_RESKEY_filesystem}" ; rc=$?
+  if [ ${rc} -ne 0 ]; then
+    return ${OCF_ERR_GENERIC}
+  fi
+
+  # Wait for filesystem to start
+  # NB: LRM will kill us based on action (meta-data) timeout
+  while true; do
+    sleep 1
+    ZfsMount_Status ; rc=$?
+    if [ ${rc} -eq ${OCF_SUCCESS} ]; then
+      break
+    fi
+  done
+
+  # Done
+  ocf_log debug "${OCF_RESKEY_filesystem}::Start: Filesystem successfully started (mounted)"
+  return ${OCF_SUCCESS}
+}
+
+ZfsMount_Stop() {
+  local rc
+
+  # Check if ZFS is enabled
+  if ! ZfsMount_IsEnabled; then
+    return ${OCF_SUCCESS}
+  fi
+
+  # Check configuration (strict_config = off)
+  if [ -z "${OCF_RESKEY_filesystem}" ]; then
+    # Note: if configuration is incomplete, resource can not have been started
+    return ${OCF_SUCCESS}
+  fi
+
+  # Retrieve filesystem status
+  ZfsMount_Status ; rc=$?
+  if [ ${rc} -eq ${OCF_NOT_RUNNING} ]; then
+    ocf_log info "${OCF_RESKEY_filesystem}::Stop: Filesystem already stopped (unmounted)"
+    return ${OCF_SUCCESS}
+  fi
+
+  # Unmount filesystem
+  ZfsMount_DoCmd zfs unmount "${OCF_RESKEY_filesystem}" ; rc=$?
+  if [ ${rc} -ne 0 ]; then
+    return ${OCF_ERR_GENERIC}
+  fi
+
+  # Wait for filesystem to stop
+  # NB: LRM will kill us based on action (meta-data) timeout
+  while true; do
+    sleep 1
+    ZfsMount_Status ; rc=$?
+    if [ ${rc} -eq ${OCF_NOT_RUNNING} ]; then
+      break
+    fi
+  done
+
+  # Done
+  ocf_log debug "${OCF_RESKEY_filesystem}::Stop: Filesystem successfully stopped (unmounted)"
+  return ${OCF_SUCCESS}
+}
+
+ZfsMount_Monitor() {
+  local rc
+
+  # Check if ZFS is enabled
+  if ! ZfsMount_IsEnabled; then
+    ocf_log warn "${OCF_RESKEY_filesystem}::Monitor: ZFS not enabled"
+    return ${OCF_NOT_RUNNING}
+  fi
+
+  # Retrieve resource status
+  ZfsMount_Status ; rc=$?
+
+  # Done
+  return ${rc}
+}
+
+ZfsMount_ValidateAll() {
+  local rc
+  local binary
+
+  # Required binaries
+  for binary in zfs grep; do
+    check_binary ${binary}
+  done
+
+  # Check configuration
+  ZfsMount_CheckConfig ; rc=$?
+  if [ ${rc} -ne ${OCF_SUCCESS} ] && ocf_is_true ${OCF_RESKEY_strict_config}; then
+    return ${rc}
+  fi
+
+  # Done
+  return ${OCF_SUCCESS}
+}
+
+
+## Main
+
+# Check arguments
+if [ $# -ne 1 ]; then
+  usage
+  exit ${OCF_ERR_ARGS}
+fi
+ACTION=${1}
+
+# Non-actions
+case ${ACTION,,} in
+  'meta-data')
+    meta_data
+    exit ${OCF_SUCCESS}
+    ;;
+  'usage'|'help')
+    usage
+    exit ${OCF_SUCCESS}
+    ;;
+  'promote'|'demote'|'migrate_from'|'migrate_to'|'notify')
+    exit ${OCF_ERR_UNIMPLEMENTED}
+    ;;
+esac
+
+# Actual actions
+ZfsMount_ValidateAll || exit $?
+case ${ACTION,,} in
+  'validate-all')
+    ;;
+  'start')
+    ZfsMount_Start
+    ;;
+  'stop')
+    ZfsMount_Stop
+    ;;
+  'status')
+    ZfsMount_Status
+    ;;
+  'monitor')
+    ZfsMount_Monitor
+    ;;
+  *)
+    usage
+    exit ${OCF_ERR_ARGS}
+    ;;
+esac
+exit $?
+

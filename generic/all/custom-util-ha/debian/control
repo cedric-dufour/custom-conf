@@ -9,6 +9,6 @@ Package: custom-util-ha
 Architecture: all
 Depends: bsd-mailx
 Recommends: pacemaker-cli-utils | pacemaker (<< 1.1.16), snmp
-Suggests: crmsh, snmp
+Suggests: crmsh, libxml2-utils
 Description: Custom Configuration Framework - High-Availability (HA) utilities
 

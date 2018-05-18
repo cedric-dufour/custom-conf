@@ -1,0 +1,412 @@
+#!/bin/bash
+## CUSTOM-UTIL: File automatically created/updated [custom-util-ha]
+
+# REF: http://www.linux-ha.org/doc/dev-guides/ra-dev-guide.html
+
+
+## Initialization
+: ${OCF_FUNCTIONS_DIR=${OCF_ROOT}/lib/heartbeat}
+. ${OCF_FUNCTIONS_DIR}/ocf-shellfuncs
+
+
+## Defaults
+OCF_RESKEY_altroot_default='/'
+: ${OCF_RESKEY_altroot:=${OCF_RESKEY_altroot_default}}
+OCF_RESKEY_readonly_default='0'
+: ${OCF_RESKEY_readonly:=${OCF_RESKEY_readonly_default}}
+OCF_RESKEY_nofs_default='0'
+: ${OCF_RESKEY_nofs:=${OCF_RESKEY_nofs_default}}
+OCF_RESKEY_devdir_default='/dev'
+: ${OCF_RESKEY_devdir:=${OCF_RESKEY_devdir_default}}
+OCF_RESKEY_cachefile_default='/etc/zfs/zpool.cache'
+: ${OCF_RESKEY_cachefile:=${OCF_RESKEY_cachefile_default}}
+OCF_RESKEY_strict_config_default=0
+: ${OCF_RESKEY_strict_config:=${OCF_RESKEY_strict_config_default}}
+
+
+## Usage
+usage() {
+  echo "USAGE: ${0##*/} {start|stop|status|monitor|meta-data|validate-all}"
+}
+
+meta_data() {
+  cat <<END
+<?xml version="1.0"?>
+<!DOCTYPE resource-agent SYSTEM "ra-api-1.dtd">
+<resource-agent name="ZfsPool">
+  <version>1.1</version>
+
+  <longdesc lang="en">
+    Resource agent for managing a ZFS pool (import, export).
+  </longdesc>
+  <shortdesc lang="en">Manage ZFS pool</shortdesc>
+
+  <parameters>
+
+    <parameter name="pool" unique="1" required="1">
+      <longdesc lang="en">
+        The name of the ZFS pool.
+      </longdesc>
+      <shortdesc lang="en">ZFS pool name</shortdesc>
+      <content type="string" default="" />
+    </parameter>
+
+    <parameter name="altroot">
+      <longdesc lang="en">
+        Full path to the root (mountpoint) of the pool.
+        (as in 'zpool import -o altroot=\${altroot} ...')
+      </longdesc>
+      <shortdesc lang="en">Pool mountpoint path</shortdesc>
+      <content type="string" default="${OCF_RESKEY_altroot_default}" />
+    </parameter>
+
+    <parameter name="readonly">
+      <longdesc lang="en">
+        Mount the pool read-only.
+        (as in 'zpool import -o readonly=yes ...')
+      </longdesc>
+      <shortdesc lang="en">Mount the pool read-only</shortdesc>
+      <content type="boolean" default="${OCF_RESKEY_readonly_default}" />
+    </parameter>
+
+    <parameter name="nofs">
+      <longdesc lang="en">
+        Do not mount the pool's filesystem(s).
+        (as in 'zpool import -N ...')
+        NOTE: See the ZfsMount resource agent.
+      </longdesc>
+      <shortdesc lang="en">No filesystem(s) mount</shortdesc>
+      <content type="boolean" default="${OCF_RESKEY_nofs_default}" />
+    </parameter>
+
+    <parameter name="cachefile">
+      <longdesc lang="en">
+        Full path to the ZFS pool(s) cache file.
+        (as in 'zpool import -c \${cachefile} ...')
+      </longdesc>
+      <shortdesc lang="en">ZFS pool(s) cache path</shortdesc>
+      <content type="string" default="${OCF_RESKEY_cachefile_default}" />
+    </parameter>
+
+    <parameter name="devdir">
+      <longdesc lang="en">
+        Full path to the ZFS pool(s) devices directory.
+        (as in 'zpool import -d \${devdir} ...')
+        WARNING: If empty, the \${cachefile} parameter will be used instead.
+        This will prevent a DEGRADED pool to be imported.
+      </longdesc>
+      <shortdesc lang="en">ZFS pool(s) devices directory</shortdesc>
+      <content type="string" default="${OCF_RESKEY_devdir_default}" />
+    </parameter>
+
+    <parameter name="strict_config">
+      <longdesc lang="en">
+        Consider configuration errors as critical, prompting the cluster to
+        fence the hosting node.
+        WARNING! You MUST make sure the configuration is sane before enabling
+        this option! Otherwise, the misconfigured resource will trigger fencing
+        of each and every nodes as the cluster attempts to start it elsewhere
+        (and fail systematically), leading to entire cluster failure.
+      </longdesc>
+      <shortdesc lang="en">Consider configuration errors critical</shortdesc>
+      <content type="boolean" default="${OCF_RESKEY_strict_config_default}" />
+    </parameter>
+
+  </parameters>
+
+  <actions>
+    <action name="start" timeout="30" />
+    <action name="stop" timeout="30" />
+    <action name="monitor" depth="0" timeout="10" interval="60" />
+    <action name="meta-data" timeout="5" />
+    <action name="validate-all" timeout="5" />
+  </actions>
+
+</resource-agent>
+END
+
+  exit ${OCF_SUCCESS}
+}
+
+
+## Helpers
+ZfsPool_IsEnabled() {
+  if [ -e /sys/module/zfs ]; then
+    return 0
+  fi
+  return 1
+}
+
+ZfsPool_DoCmd() {
+  local cmd="$@"
+  local cmd_out
+  local cmd_rc
+
+  # Execute command
+  ocf_log debug "${OCF_RESKEY_pool}::DoCmd: Executing command: ${cmd}"
+  cmd_out="$("$@" 2>&1)"
+  cmd_rc=$?
+  if [ ${cmd_rc} -ne 0 ]; then
+    ocf_log warn "${OCF_RESKEY_pool}::DoCmd: Command failed; ${cmd} > ${cmd_out} [${cmd_rc}]"
+    echo "${cmd_out}"
+    return ${cmd_rc}
+  else
+    ocf_log debug "${OCF_RESKEY_pool}::DoCmd: Command succeeded; ${cmd} > ${cmd_out}"
+  fi
+
+  # Done
+  echo "${cmd_out}"
+  return ${cmd_rc}
+}
+
+ZfsPool_CheckConfig() {
+  local rc
+  local out
+
+  # Check the pool name
+  if [ -z "${OCF_RESKEY_pool}" ]; then
+    ocf_log err "*::CheckConfig: Missing/empty configuration parameter 'pool'"
+    return ${OCF_ERR_CONFIGURED}
+  fi
+
+  # Check ZFS pool(s) cache file
+  if [ -z "${OCF_RESKEY_cachefile}" ]; then
+    ocf_log err "*::CheckConfig: Missing/empty configuration parameter 'cachefile'"
+    return ${OCF_ERR_CONFIGURED}
+  fi
+  # ... readable ?
+  if [ ! -r "${OCF_RESKEY_cachefile}" ]; then
+    if ocf_is_probe; then
+      ocf_log warn "*::CheckConfig: Missing/unreadable cache file '${OCF_RESKEY_cachefile}' (during probe)"
+      return ${OCF_SUCCESS}
+    else
+      ocf_log err "*::CheckConfig: Missing/unreadable cache file '${OCF_RESKEY_cachefile}'"
+      return ${OCF_ERR_CONFIGURED}
+    fi
+  fi
+
+  # No further checks during probe
+  if ocf_is_probe; then
+    return ${OCF_SUCCESS}
+  fi
+
+  # Check pool configuration
+  out="$(ZfsPool_DoCmd zdb -C -U "${OCF_RESKEY_cachefile}" | grep "^${OCF_RESKEY_pool}:")" ; rc=${PIPESTATUS[0]}
+  if [ ${rc} -ne 0 ]; then
+    ocf_log err "${OCF_RESKEY_pool}::CheckConfig: Failed to verify pool configuration"
+    return ${OCF_ERR_CONFIGURED}
+  fi
+  if [ -z "${out}" ]; then
+    ocf_log err "${OCF_RESKEY_pool}::CheckConfig: No matching pool in cache file"
+    return ${OCF_ERR_CONFIGURED}
+  fi
+
+  # Done
+  return ${OCF_SUCCESS}
+}
+
+ZfsPool_Status() {
+  local health
+
+  # Check configuration (strict_config = off)
+  if [ -z "${OCF_RESKEY_pool}" ]; then
+    # Note: if configuration is incomplete, resource can not have been started
+    return ${OCF_NOT_RUNNING}
+  fi
+
+  # Retrieve pool health
+  health="$(ZfsPool_DoCmd zpool list -H -o health "${OCF_RESKEY_pool}")"
+  ocf_log debug "${OCF_RESKEY_pool}::Status: ${health}"
+
+  # Pool health <-> OCF status
+  case "${health,,}" in
+    *'no such pool')
+      return ${OCF_NOT_RUNNING}
+      ;;
+    'online'|'degraded')
+      return ${OCF_SUCCESS}
+      ;;
+    'offline'|'removed'|'unavail'|'faulted'|*)
+      return ${OCF_ERR_GENERIC}
+      ;;
+  esac
+
+  # Done
+  return ${OCF_ERR_GENERIC}
+}
+
+
+## OCF actions
+ZfsPool_Start() {
+  local rc
+  local options
+
+  # Check if ZFS is enabled
+  if ! ZfsPool_IsEnabled; then
+    ocf_log err "${OCF_RESKEY_pool}::Start: ZFS not enabled"
+    return ${OCF_ERR_GENERIC}
+  fi
+
+  # Check configuration (strict_config = off)
+  if [ -z "${OCF_RESKEY_pool}" -o -z "${OCF_RESKEY_cachefile}" ]; then
+    return ${OCF_ERR_CONFIGURED}
+  fi
+
+  # Retrieve pool status
+  ZfsPool_Status ; rc=$?
+  if [ ${rc} -eq ${OCF_SUCCESS} ]; then
+    ocf_log info "${OCF_RESKEY_pool}::Start: Pool already started (imported)"
+    return ${OCF_SUCCESS}
+  fi
+
+  # Import pool
+  [ -n "${OCF_RESKEY_devdir}" ] && options="${options} -d ${OCF_RESKEY_devdir}" || options="${options} -c ${OCF_RESKEY_cachefile}"
+  [ -n "${OCF_RESKEY_altroot}" ] && options="${options} -o altroot=${OCF_RESKEY_altroot}"
+  ocf_is_true ${OCF_RESKEY_readonly} && options="${options} -o readonly=on"
+  ocf_is_true ${OCF_RESKEY_nofs} && options="${options} -N"
+  ZfsPool_DoCmd zpool import ${options} "${OCF_RESKEY_pool}" ; rc=$?
+  if [ ${rc} -ne 0 ]; then
+    return ${OCF_ERR_GENERIC}
+  fi
+
+  # Wait for pool to start
+  # NB: LRM will kill us based on action (meta-data) timeout
+  while true; do
+    sleep 1
+    ZfsPool_Status ; rc=$?
+    if [ ${rc} -eq ${OCF_SUCCESS} ]; then
+      break
+    fi
+  done
+
+  # Done
+  ocf_log debug "${OCF_RESKEY_pool}::Start: Pool successfully started (imported)"
+  return ${OCF_SUCCESS}
+}
+
+ZfsPool_Stop() {
+  local rc
+
+  # Check if ZFS is enabled
+  if ! ZfsPool_IsEnabled; then
+    return ${OCF_SUCCESS}
+  fi
+
+  # Check configuration (strict_config = off)
+  if [ -z "${OCF_RESKEY_pool}" ]; then
+    # Note: if configuration is incomplete, resource can not have been started
+    return ${OCF_SUCCESS}
+  fi
+
+  # Retrieve pool status
+  ZfsPool_Status ; rc=$?
+  if [ ${rc} -eq ${OCF_NOT_RUNNING} ]; then
+    ocf_log info "${OCF_RESKEY_pool}::Stop: Pool already stopped (exported)"
+    return ${OCF_SUCCESS}
+  fi
+
+  # Export pool
+  ZfsPool_DoCmd zpool export "${OCF_RESKEY_pool}" ; rc=$?
+  if [ ${rc} -ne 0 ]; then
+    return ${OCF_ERR_GENERIC}
+  fi
+
+  # Wait for pool to stop
+  # NB: LRM will kill us based on action (meta-data) timeout
+  while true; do
+    sleep 1
+    ZfsPool_Status ; rc=$?
+    if [ ${rc} -eq ${OCF_NOT_RUNNING} ]; then
+      break
+    fi
+  done
+
+  # Done
+  ocf_log debug "${OCF_RESKEY_pool}::Stop: Pool successfully stopped (exported)"
+  return ${OCF_SUCCESS}
+}
+
+ZfsPool_Monitor() {
+  local rc
+
+  # Check if ZFS is enabled
+  if ! ZfsPool_IsEnabled; then
+    ocf_log warn "${OCF_RESKEY_pool}::Monitor: ZFS not enabled"
+    return ${OCF_NOT_RUNNING}
+  fi
+
+  # Retrieve resource status
+  ZfsPool_Status ; rc=$?
+
+  # Done
+  return ${rc}
+}
+
+ZfsPool_ValidateAll() {
+  local rc
+  local binary
+
+  # Required binaries
+  for binary in zpool zdb grep; do
+    check_binary ${binary}
+  done
+
+  # Check configuration
+  ZfsPool_CheckConfig ; rc=$?
+  if [ ${rc} -ne ${OCF_SUCCESS} ] && ocf_is_true ${OCF_RESKEY_strict_config}; then
+    return ${rc}
+  fi
+
+  # Done
+  return ${OCF_SUCCESS}
+}
+
+
+## Main
+
+# Check arguments
+if [ $# -ne 1 ]; then
+  usage
+  exit ${OCF_ERR_ARGS}
+fi
+ACTION=${1}
+
+# Non-actions
+case ${ACTION,,} in
+  'meta-data')
+    meta_data
+    exit ${OCF_SUCCESS}
+    ;;
+  'usage'|'help')
+    usage
+    exit ${OCF_SUCCESS}
+    ;;
+  'promote'|'demote'|'migrate_from'|'migrate_to'|'notify')
+    exit ${OCF_ERR_UNIMPLEMENTED}
+    ;;
+esac
+
+# Actual actions
+ZfsPool_ValidateAll || exit $?
+case ${ACTION,,} in
+  'validate-all')
+    ;;
+  'start')
+    ZfsPool_Start
+    ;;
+  'stop')
+    ZfsPool_Stop
+    ;;
+  'status')
+    ZfsPool_Status
+    ;;
+  'monitor')
+    ZfsPool_Monitor
+    ;;
+  *)
+    usage
+    exit ${OCF_ERR_ARGS}
+    ;;
+esac
+exit $?
+

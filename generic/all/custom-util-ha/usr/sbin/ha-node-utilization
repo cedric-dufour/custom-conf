@@ -4,7 +4,7 @@
 
 ## Usage
 [ $# -lt 3 -o "${1##*-}" == 'help' ] && cat << EOF >&2 && exit 1
-USAGE: ${0##*/} <node-id> <RAM-megabytes> <CPU-cores>
+USAGE: ${0##*/} <node-id> <RAM-mebibytes> <CPU-cores>
 
 SYNOPSIS:
   Define the node hardware utilization capabilities.

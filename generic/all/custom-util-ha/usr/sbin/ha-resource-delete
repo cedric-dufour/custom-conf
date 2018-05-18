@@ -5,10 +5,12 @@
 [ $# -lt 1 -o "${1##*-}" == 'help' ] && cat << EOF >&2 && exit 1
 USAGE: ${0##*/} <resource-id>
 
-HINT: cibadmin -o resources -D -A "//primitive[@id='\${resource-id}'] | //group[@id='\${resource-id}']"
+HINT: cibadmin -o constraints -d -f -A "//rsc_location[@rsc='\${resource-id}']"
+      cibadmin -o resources -D -A "//primitive[@id='\${resource-id}'] | //group[@id='\${resource-id}']"
 EOF
 
 # Command
 HA_RID="$1"
+cibadmin -o constraints -d -f -A "//rsc_location[@rsc='${HA_RID}']"
 cibadmin -o resources -D -A "//primitive[@id='${HA_RID}'] | //group[@id='${HA_RID}']"
 

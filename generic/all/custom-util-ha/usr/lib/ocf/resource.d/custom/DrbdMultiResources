@@ -1,0 +1,450 @@
+#!/bin/bash
+## CUSTOM-UTIL: File automatically created/updated [custom-util-ha]
+
+#
+#       OCF Resource Agent compliant drbd resource script.
+#
+# Copyright (c) 2004 - 2007 SUSE LINUX Products GmbH, Lars Marowsky-Bree
+#                    All Rights Reserved.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of version 2 of the GNU General Public License as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it would be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+#
+# Further, this software is distributed without any warranty that it is
+# free of the rightful claim of any third person regarding infringement
+# or the like.  Any license provided herein, whether implied or
+# otherwise, applies only to this software file.  Patent licenses, if
+# any, provided herein do not apply to combinations of this program with
+# other software, or any other product whatsoever.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write the Free Software Foundation,
+# Inc., 59 Temple Place - Suite 330, Boston MA 02111-1307, USA.
+#
+# REF:
+#   http://www.linux-ha.org/doc/dev-guides/ra-dev-guide.html
+#
+
+
+## Initialization
+: ${OCF_FUNCTIONS_DIR=${OCF_ROOT}/lib/heartbeat}
+. ${OCF_FUNCTIONS_DIR}/ocf-shellfuncs
+
+
+## Defaults
+OCF_RESKEY_config_default='/etc/drbd.conf'
+: ${OCF_RESKEY_config:=${OCF_RESKEY_config_default}}
+OCF_RESKEY_allow_nonstarted_default=0
+: ${OCF_RESKEY_allow_nonstarted:=${OCF_RESKEY_allow_nonstarted_default}}
+OCF_RESKEY_strict_config_default=0
+: ${OCF_RESKEY_strict_config:=${OCF_RESKEY_strict_config_default}}
+
+
+## Usage
+usage() {
+  echo "USAGE: ${0##*/} {start|stop|status|monitor|meta-data|validate-all}"
+}
+
+meta_data() {
+  cat <<END
+<?xml version="1.0"?>
+<!DOCTYPE resource-agent SYSTEM "ra-api-1.dtd">
+<resource-agent name="DrbdMultiResources">
+  <version>1.1</version>
+
+  <longdesc lang="en">
+    Resource agent for managing multiple Distributed Replicated Block Device
+    (DRBD) resources (Primary, Secondary) as one, allowing for a given quantity
+    of non-started (non-Primary) resources.
+  </longdesc>
+  <shortdesc lang="en">Manage multiple DRBD resources</shortdesc>
+
+  <parameters>
+
+    <parameter name="resources" unique="1" required="1">
+      <longdesc lang="en">
+        The names of the DRBD resources, space-separated and/or
+        using BASH expansion stanza.
+      </longdesc>
+      <shortdesc lang="en">DRBD resources names</shortdesc>
+      <content type="string" default="" />
+    </parameter>
+
+    <parameter name="allow_nonstarted">
+      <longdesc lang="en">
+        Maximum quantity of non-started individual resources, under which
+        partially started are considered globally started.
+      </longdesc>
+      <shortdesc lang="en">Maximum non-started resources</shortdesc>
+      <content type="integer" default="${OCF_RESKEY_allow_nonstarted_default}" />
+    </parameter>
+
+    <parameter name="config">
+      <longdesc lang="en">
+        Full path to the DRBD configuration file.
+      </longdesc>
+      <shortdesc lang="en">DRBD configuration path</shortdesc>
+      <content type="string" default="${OCF_RESKEY_config_default}" />
+    </parameter>
+
+    <parameter name="strict_config">
+      <longdesc lang="en">
+        Consider configuration errors as critical, prompting the cluster to
+        fence the hosting node.
+        WARNING! You MUST make sure the configuration is sane before enabling
+        this option! Otherwise, the misconfigured resource will trigger fencing
+        of each and every nodes as the cluster attempts to start it elsewhere
+        (and fail systematically), leading to entire cluster failure.
+      </longdesc>
+      <shortdesc lang="en">Consider configuration errors critical</shortdesc>
+      <content type="boolean" default="${OCF_RESKEY_strict_config_default}" />
+    </parameter>
+
+  </parameters>
+
+  <actions>
+    <action name="start" timeout="15" />
+    <action name="stop" timeout="15" />
+    <action name="monitor" depth="0" timeout="5" interval="60" />
+    <action name="meta-data" timeout="5" />
+    <action name="validate-all" timeout="5" />
+  </actions>
+
+</resource-agent>
+END
+
+  exit ${OCF_SUCCESS}
+}
+
+
+## Helpers
+DrbdMultiResources_IsEnabled() {
+  if [ -e /proc/drbd ]; then
+    return 0
+  fi
+  return 1
+}
+
+DrbdMultiResources_DoCmd() {
+  local cmd="$@"
+  local cmd_out
+  local cmd_rc
+
+  # Execute command
+  ocf_log debug "${OCF_RESKEY_resources}::DoCmd: Executing command: ${cmd}"
+  cmd_out="$("$@" 2>&1)"
+  cmd_rc=$?
+  if [ ${cmd_rc} -ne 0 ]; then
+    ocf_log debug "${OCF_RESKEY_resources}::DoCmd: Command failed; ${cmd} > ${cmd_out} [${cmd_rc}]"
+  else
+    ocf_log debug "${OCF_RESKEY_resources}::DoCmd: Command succeeded; ${cmd} > ${cmd_out}"
+  fi
+  # ... trim the garbage drbdadm likes to print when using the node override feature
+  #cmd_out="${cmd_out/found __DRBD_NODE__*<</}"
+
+  # Done
+  echo "${cmd_out}"
+  return ${cmd_rc}
+}
+
+DrbdMultiResources_CheckConfig() {
+  local rc
+  local resource
+
+  # Check the resources names
+  if [ -z "${OCF_RESKEY_resources}" ]; then
+    ocf_log err "*::CheckConfig: Missing/empty configuration parameter 'resource'"
+    return ${OCF_ERR_CONFIGURED}
+  fi
+
+  # Check configuration file
+  if [ -z "${OCF_RESKEY_config}" ]; then
+    ocf_log err "*::CheckConfig: Missing/empty configuration parameter 'config'"
+    return ${OCF_ERR_CONFIGURED}
+  fi
+  # ... readable ?
+  if [ ! -r "${OCF_RESKEY_config}" ]; then
+    if ocf_is_probe; then
+      ocf_log warn "*::CheckConfig: Missing/unreadable configuration file '${OCF_RESKEY_config}' (during probe)"
+      return ${OCF_SUCCESS}
+    else
+      ocf_log err "*::CheckConfig: Missing/unreadable configuration file '${OCF_RESKEY_config}'"
+      return ${OCF_ERR_CONFIGURED}
+    fi
+  fi
+
+  # No further checks on probe
+  if ocf_is_probe; then
+    return ${OCF_SUCCESS}
+  fi
+
+  # Check resource configuration
+  for resource in ${RESOURCES}; do
+    DrbdMultiResources_DoCmd drbdadm -c "${OCF_RESKEY_config}" dump "${resource}" >/dev/null ; rc=$?
+    if [ ${rc} -ne 0 ]; then
+      ocf_log err "${OCF_RESKEY_resources}[${resource}]::ValidateAll: Failed to verify (dump) resource configuration"
+      return ${OCF_ERR_CONFIGURED}
+    fi
+  done
+
+  # Done
+  return ${OCF_SUCCESS}
+}
+
+DrbdMultiResources_Status() {
+  local rc
+  local resource
+  local resource_count=0
+  local resource_started=0
+  local resource_stopped=0
+  local resource_error=0
+  local resource_nonstarted
+  local role
+  local role_local
+  local role_remote
+
+  # Check configuration (strict_config = off)
+  if [ -z "${OCF_RESKEY_resources}" -o -z "${OCF_RESKEY_config}" ]; then
+    # Note: if configuration is incomplete, resource can not have been started
+    return ${OCF_NOT_RUNNING}
+  fi
+
+  # Loop through resources
+  for resource in ${RESOURCES}; do
+    resource_count=$(( ${resource_count} + 1 ))
+
+    # Retrieve resource role
+    role="$(DrbdMultiResources_DoCmd drbdadm -c "${OCF_RESKEY_config}" role "${resource}")" ; rc=$?
+    case "${role,,}" in
+      *'not defined'*)
+        resource_stopped=$(( ${resource_stopped} + 1 ))
+        continue
+        ;;
+      *'/'*)
+        ;;
+      *)
+        ocf_log warn "${OCF_RESKEY_resources}[${resource}]::Status: Unexpected role '${role}'"
+        resource_error=$(( ${resource_error} + 1 ))
+        continue
+        ;;
+    esac
+    role_local=${role%%/*}
+    role_remote=${role##*/}
+
+    # Sanitize the various roles, drbdadm is quite annoying; so if it
+    # outputs something which doesn't make sense, translate it into
+    # a harmless role:
+    case "${role_local,,}" in
+      'primary') role_local='Primary';;
+      'secondary') role_local='Secondary';;
+      *) role_local="Invalid (${role_local})" ;;
+    esac
+    case "${role_remote,,}" in
+      'primary') role_remote='Primary';;
+      'secondary') role_remote='Secondary';;
+      *) role_remote="Invalid (${role_remote})" ;;
+    esac
+    ocf_log debug "${OCF_RESKEY_resources}[${resource}]::Status: ${role} (${role_local}/${role_remote})"
+
+    # Check local role
+    if [ "${role_local}" == "Primary" ]; then
+      resource_started=$(( ${resource_started} + 1 ))
+    elif [ "${role_local}" == "Secondary" ]; then
+      resource_stopped=$(( ${resource_stopped} + 1 ))
+    else
+      ocf_log warn "${OCF_RESKEY_resources}[${resource}]::Status: Unexpected local role '${role_local}'"
+      resource_error=$(( ${resource_error} + 1 ))
+    fi
+  done
+
+  # Check overall status
+  resource_nonstarted=$(( ${resource_count} - ${resource_started} ))
+  if [ ${resource_started} -eq ${resource_count} ]; then
+    return ${OCF_SUCCESS}
+  elif [ ${resource_stopped} -eq ${resource_count} ]; then
+    return ${OCF_NOT_RUNNING}
+  elif [ ${resource_nonstarted} -le ${OCF_RESKEY_allow_nonstarted} ]; then
+    ocf_log warn "${OCF_RESKEY_resources}::Status: Resource has non-started individual resources (${resource_nonstarted}<=${OCF_RESKEY_allow_nonstarted})"
+    return ${OCF_SUCCESS}
+  fi
+
+  # WTF!?!
+  ocf_log err "${OCF_RESKEY_resources}::Status: Resource has too many non-started individual resources (${resource_nonstarted}>${OCF_RESKEY_allow_nonstarted})"
+  return ${OCF_ERR_GENERIC}
+}
+
+
+## OCF actions
+DrbdMultiResources_Start() {
+  local rc
+  local resource
+
+  # Check if DRBD is enabled
+  if ! DrbdMultiResources_IsEnabled; then
+    ocf_log err "${OCF_RESKEY_resources}::Start: DRBD not enabled"
+    return ${OCF_ERR_GENERIC}
+  fi
+
+  # Check configuration (strict_config = off)
+  if [ -z "${OCF_RESKEY_resources}" -o -z "${OCF_RESKEY_config}" ]; then
+    return ${OCF_ERR_GENERIC}
+  fi
+
+  # Retrieve resource status
+  DrbdMultiResources_Status ; rc=$?
+  if [ ${rc} -eq ${OCF_SUCCESS} ]; then
+    ocf_log info "${OCF_RESKEY_resources}::Start: Resource already started (Primary)"
+    return ${OCF_SUCCESS}
+  fi
+
+  # Loop through resources
+  for resource in ${RESOURCES}; do
+    # Switch resource to Primary
+    DrbdMultiResources_DoCmd drbdadm -c "${OCF_RESKEY_config}" primary "${resource}" ; rc=$?
+  done
+
+  # Wait for resource to become Primary
+  # NB: LRM will kill us based on action (meta-data) timeout
+  while true; do
+    sleep 1
+    DrbdMultiResources_Status ; rc=$?
+    if [ ${rc} -eq ${OCF_SUCCESS} ]; then
+      break
+    fi
+  done
+
+  # Done
+  ocf_log debug "${OCF_RESKEY_resources}::Start: Resource successfully started (Primary)"
+  return ${OCF_SUCCESS}
+}
+
+DrbdMultiResources_Stop() {
+  local rc
+  local resource
+
+  # Check if DRBD is enabled
+  if ! DrbdMultiResources_IsEnabled; then
+    return ${OCF_SUCCESS}
+  fi
+
+  # Check configuration (strict_config = off)
+  if [ -z "${OCF_RESKEY_resources}" -o -z "${OCF_RESKEY_config}" ]; then
+    # Note: if configuration is incomplete, resource can not have been started
+    return ${OCF_SUCCESS}
+  fi
+
+  # Retrieve resource status
+  DrbdMultiResources_Status ; rc=$?
+  if [ ${rc} -eq ${OCF_NOT_RUNNING} ]; then
+    ocf_log info "${OCF_RESKEY_resources}::Stop: Resource already stopped (Secondary)"
+    return ${OCF_SUCCESS}
+  fi
+
+  # Loop through resources
+  for resource in ${RESOURCES}; do
+    # Switch resource to Secondary
+    DrbdMultiResources_DoCmd drbdadm -c "${OCF_RESKEY_config}" secondary "${resource}" ; rc=$?
+  done
+
+  # Wait for resource to become Secondary
+  # NB: LRM will kill us based on action (meta-data) timeout
+  while true; do
+    sleep 1
+    DrbdMultiResources_Status ; rc=$?
+    if [ ${rc} -eq ${OCF_NOT_RUNNING} ]; then
+      break
+    fi
+  done
+
+  # Done
+  ocf_log debug "${OCF_RESKEY_resources}::Stop: Resource successfully stopped (Secondary)"
+  return ${OCF_SUCCESS}
+}
+
+DrbdMultiResources_Monitor() {
+  local rc
+
+  # Check if DRBD is enabled
+  if ! DrbdMultiResources_IsEnabled; then
+    ocf_log warn "${OCF_RESKEY_resources}::Monitor: DRBD not enabled"
+    return ${OCF_NOT_RUNNING}
+  fi
+
+  # Retrieve resource status
+  DrbdMultiResources_Status ; rc=$?
+
+  # Done
+  return ${rc}
+}
+
+DrbdMultiResources_ValidateAll() {
+  local rc
+
+  # Required binaries
+  check_binary drbdadm
+
+  # Check configuration
+  DrbdMultiResources_CheckConfig ; rc=$?
+  if [ ${rc} -ne ${OCF_SUCCESS} ] && ocf_is_true ${OCF_RESKEY_strict_config}; then
+    return ${rc}
+  fi
+
+  # Done
+  return ${OCF_SUCCESS}
+}
+
+
+## Main
+
+# Check arguments
+if [ $# -ne 1 ]; then
+  usage
+  exit ${OCF_ERR_ARGS}
+fi
+ACTION=${1}
+
+# Non-actions
+case ${ACTION,,} in
+  'meta-data')
+    meta_data
+    exit ${OCF_SUCCESS}
+    ;;
+  'usage'|'help')
+    usage
+    exit ${OCF_SUCCESS}
+    ;;
+  'promote'|'demote'|'migrate_from'|'migrate_to'|'notify')
+    exit ${OCF_ERR_UNIMPLEMENTED}
+    ;;
+esac
+
+# Actual actions
+RESOURCES="$(eval "echo ${OCF_RESKEY_resources}")"
+DrbdMultiResources_ValidateAll || exit $?
+case ${ACTION,,} in
+  'validate-all')
+    ;;
+  'start')
+    DrbdMultiResources_Start
+    ;;
+  'stop')
+    DrbdMultiResources_Stop
+    ;;
+  'status')
+    DrbdMultiResources_Status
+    ;;
+  'monitor')
+    DrbdMultiResources_Monitor
+    ;;
+  *)
+    usage
+    exit ${OCF_ERR_ARGS}
+    ;;
+esac
+exit $?
+
