@@ -1,3 +1,10 @@
+custom-util-ha (2018.06.07a) UNRELEASED; urgency=low
+
+  * Minor fixes to all resources agents
+  * NEW daemon resource agent: StartStopDaemon
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Thu, 07 Jun 2018 15:01:59 +0200
+
 custom-util-ha (2018.05.18b) UNRELEASED; urgency=low
 
   * Make 'ha-resource-delete' delete the constraint(s) too

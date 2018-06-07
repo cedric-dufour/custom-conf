@@ -93,7 +93,7 @@ SendMail_CheckConfig() {
 
   # Check recipients
   if [ -z "${OCF_RESKEY_recipients}" ]; then
-    ocf_log err "*::CheckConfig: Missing/empty configuration parameter 'recipients'"
+    ocf_log err "${OCF_RESOURCE_INSTANCE}::CheckConfig: Missing/empty configuration parameter 'recipients'"
     return ${OCF_ERR_CONFIGURED}
   fi
 

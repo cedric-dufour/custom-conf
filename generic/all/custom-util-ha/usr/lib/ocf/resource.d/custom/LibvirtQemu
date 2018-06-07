@@ -394,7 +394,7 @@ LibvirtQemu_Stop() {
         fi
 
         # The "shutdown_timeout" we use here is the action timeout specified by the CIB (meta-data), minus 5 seconds
-        shutdown_timeout=$(( ${SECONDS} + (${OCF_RESKEY_CRM_meta_timeout}/1000)-5 ))
+        shutdown_timeout=$(( ${SECONDS} + (${OCF_RESKEY_CRM_meta_timeout}/1000) - 5 ))
 
         # Loop on status until we reach ${shutdown_timeout}
         while [ ${SECONDS} -lt ${shutdown_timeout} ]; do

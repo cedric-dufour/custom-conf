@@ -1,0 +1,488 @@
+#!/bin/bash
+## CUSTOM-UTIL: File automatically created/updated [custom-util-ha]
+
+# REF: http://www.linux-ha.org/doc/dev-guides/ra-dev-guide.html
+
+
+## Initialization
+: ${OCF_FUNCTIONS_DIR=${OCF_ROOT}/lib/heartbeat}
+. ${OCF_FUNCTIONS_DIR}/ocf-shellfuncs
+
+
+## Defaults
+OCF_RESKEY_signal_default='15'
+: ${OCF_RESKEY_signal:=${OCF_RESKEY_signal_default}}
+OCF_RESKEY_background_default='0'
+: ${OCF_RESKEY_background:=${OCF_RESKEY_background_default}}
+OCF_RESKEY_make_pidfile_default='0'
+: ${OCF_RESKEY_make_pidfile:=${OCF_RESKEY_make_pidfile_default}}
+OCF_RESKEY_strict_config_default=0
+: ${OCF_RESKEY_strict_config:=${OCF_RESKEY_strict_config_default}}
+
+
+## Usage
+usage() {
+  echo "USAGE: ${0##*/} {start|stop|status|monitor|meta-data|validate-all}"
+}
+
+meta_data() {
+  cat <<END
+<?xml version="1.0"?>
+<!DOCTYPE resource-agent SYSTEM "ra-api-1.dtd">
+<resource-agent name="StartStopDaemon">
+  <version>1.1</version>
+
+  <longdesc lang="en">
+    Resource agent to start/stop a daemon.
+    (see 'man start-stop-daemon' for details on configuration parameters)
+  </longdesc>
+  <shortdesc lang="en">Start/stop daemon</shortdesc>
+
+  <parameters>
+
+    <parameter name="daemon" required="1">
+      <longdesc lang="en">
+        Full path to the daemon executable file.
+      </longdesc>
+      <shortdesc lang="en">Executable file path</shortdesc>
+      <content type="string" default="" />
+    </parameter>
+
+    <parameter name="options">
+      <longdesc lang="en">
+        Options to pass the daemon on start.
+      </longdesc>
+      <shortdesc lang="en">Daemon options</shortdesc>
+      <content type="string" default="" />
+    </parameter>
+
+    <parameter name="pidfile" required="1">
+      <longdesc lang="en">
+        Full path to the daemon's PID file.
+      </longdesc>
+      <shortdesc lang="en">PID file path</shortdesc>
+      <content type="string" default="" />
+    </parameter>
+
+    <parameter name="chuid">
+      <longdesc lang="en">
+        Change to username/UID[:groupname/GID] before starting the daemon.
+      </longdesc>
+      <shortdesc lang="en">Run as UID/GID</shortdesc>
+      <content type="string" default="" />
+    </parameter>
+
+    <parameter name="chdir">
+      <longdesc lang="en">
+        Change to given directory (full path) before starting the daemon.
+      </longdesc>
+      <shortdesc lang="en">Run directory path</shortdesc>
+      <content type="string" default="" />
+    </parameter>
+
+    <parameter name="chroot">
+      <longdesc lang="en">
+        Chroot to given directory (full path) before starting the daemon.
+      </longdesc>
+      <shortdesc lang="en">Chroot directory path</shortdesc>
+      <content type="string" default="" />
+    </parameter>
+
+    <parameter name="umask">
+      <longdesc lang="en">
+        Change to the given file mode creation mask before starting the daemon.
+      </longdesc>
+      <shortdesc lang="en">File mode creation mask</shortdesc>
+      <content type="string" default="" />
+    </parameter>
+
+    <parameter name="nicelevel">
+      <longdesc lang="en">
+        Change the daemon nice level.
+      </longdesc>
+      <shortdesc lang="en">Nice level</shortdesc>
+      <content type="string" default="" />
+    </parameter>
+
+    <parameter name="procsched">
+      <longdesc lang="en">
+        Change the daemon process scheduler policy[:priority].
+      </longdesc>
+      <shortdesc lang="en">Process scheduler policy/priority</shortdesc>
+      <content type="string" default="" />
+    </parameter>
+
+    <parameter name="iosched">
+      <longdesc lang="en">
+        Change the daemon I/O scheduler class[:priority].
+      </longdesc>
+      <shortdesc lang="en">I/O scheduler class/priority</shortdesc>
+      <content type="string" default="" />
+    </parameter>
+
+    <parameter name="logfile">
+      <longdesc lang="en">
+        Full path to the log file (if not supported by the daemon itself).
+      </longdesc>
+      <shortdesc lang="en">Log file path</shortdesc>
+      <content type="string" default="" />
+    </parameter>
+
+    <parameter name="signal">
+      <longdesc lang="en">
+        Signal to send to the daemon to stop it.
+      </longdesc>
+      <shortdesc lang="en">Stop signal value</shortdesc>
+      <content type="integer" default="${OCF_RESKEY_signal_default}" />
+    </parameter>
+
+    <parameter name="background">
+      <longdesc lang="en">
+        Fork the daemon to the background (if not supported by the daemon itself).
+      </longdesc>
+      <shortdesc lang="en">Fork to background</shortdesc>
+      <content type="boolean" default="${OCF_RESKEY_background_default}" />
+    </parameter>
+
+    <parameter name="make_pidfile">
+      <longdesc lang="en">
+        Handle the PID file creation/removal (if not supported by the daemon itself).
+        NOTE: This parameter will be honored only if 'background' is also enabled.
+      </longdesc>
+      <shortdesc lang="en">Handle PID file</shortdesc>
+      <content type="boolean" default="${OCF_RESKEY_make_pidfile_default}" />
+    </parameter>
+
+    <parameter name="strict_config">
+      <longdesc lang="en">
+        Consider configuration errors as critical, prompting the cluster to
+        fence the hosting node.
+        WARNING! You MUST make sure the configuration is sane before enabling
+        this option! Otherwise, the misconfigured resource will trigger fencing
+        of each and every nodes as the cluster attempts to start it elsewhere
+        (and fail systematically), leading to entire cluster failure.
+      </longdesc>
+      <shortdesc lang="en">Consider configuration errors critical</shortdesc>
+      <content type="boolean" default="${OCF_RESKEY_strict_config_default}" />
+    </parameter>
+
+  </parameters>
+
+  <actions>
+    <action name="start" timeout="30" />
+    <action name="stop" timeout="30" />
+    <action name="monitor" depth="0" timeout="10" interval="60" />
+    <action name="meta-data" timeout="5" />
+    <action name="validate-all" timeout="5" />
+  </actions>
+
+</resource-agent>
+END
+
+  exit ${OCF_SUCCESS}
+}
+
+
+## Helpers
+StartStopDaemon_DoCmd() {
+  local cmd="$@"
+  local cmd_out
+  local cmd_rc
+  local no_out
+  local no_rc_warn
+
+  # Parse macros
+  while [ "${1:0:1}" == '%' ]; do
+    case "${1:1}" in
+      'NO_OUT') no_out='yes';;
+      'NO_RC_WARN') no_rc_warn='yes';;
+    esac
+    shift
+  done
+
+  # Execute command
+  ocf_log debug "${OCF_RESOURCE_INSTANCE}::DoCmd: Executing command: ${cmd}"
+  cmd_out="$("$@" 2>&1)"
+  cmd_rc=$?
+  if [ ${cmd_rc} -ne 0 -a -z "${no_rc_warn}" ]; then
+    ocf_log warn "${OCF_RESOURCE_INSTANCE}::DoCmd: Command failed; ${cmd} > ${cmd_out} [${cmd_rc}]"
+  else
+    ocf_log debug "${OCF_RESOURCE_INSTANCE}::DoCmd: Command succeeded; ${cmd} > ${cmd_out} [${cmd_rc}]"
+  fi
+
+  # Done
+  [ -n "${cmd_out}" -a -z "${no_out}" ] && echo "${cmd_out}"
+  return ${cmd_rc}
+}
+
+StartStopDaemon_CheckConfig() {
+  # Check the daemon executable path
+  if [ -z "${OCF_RESKEY_daemon}" ]; then
+    ocf_log err "${OCF_RESOURCE_INSTANCE}::CheckConfig: Missing/empty configuration parameter 'daemon'"
+    return ${OCF_ERR_CONFIGURED}
+  fi
+
+  # Check the PID file path
+  if [ -z "${OCF_RESKEY_pidfile}" ]; then
+    ocf_log err "${OCF_RESOURCE_INSTANCE}::CheckConfig: Missing/empty configuration parameter 'pidfile'"
+    return ${OCF_ERR_CONFIGURED}
+  fi
+
+  # No further checks during probe
+  if ocf_is_probe; then
+    return ${OCF_SUCCESS}
+  fi
+
+  # Check the daemon existency/executability
+  if [ ! -x "${OCF_RESKEY_daemon}" ]; then
+    ocf_log err "${OCF_RESOURCE_INSTANCE}::CheckConfig: Missing/non-executable daemon file (${OCF_RESKEY_daemon})"
+    return ${OCF_ERR_CONFIGURED}
+  fi
+
+  # Done
+  return ${OCF_SUCCESS}
+}
+
+StartStopDaemon_Status() {
+  local rc
+
+  # Check configuration (strict_config = off)
+  if [ -z "${OCF_RESKEY_daemon}" -o -z "${OCF_RESKEY_pidfile}" ]; then
+    # Note: if configuration is incomplete, resource can not have been started
+    return ${OCF_NOT_RUNNING}
+  fi
+
+  # Retrieve daemon status
+  StartStopDaemon_DoCmd %NO_OUT %NO_RC_WARN start-stop-daemon --status --pidfile ${OCF_RESKEY_pidfile} ; rc=$?
+  ocf_log debug "${OCF_RESOURCE_INSTANCE}::Status: [${rc}]"
+
+  # Daemon status <-> OCF status
+  case ${rc} in
+    0)
+      return ${OCF_SUCCESS}
+      ;;
+    1|3)
+      return ${OCF_NOT_RUNNING}
+      ;;
+    *)
+      return ${OCF_ERR_GENERIC}
+      ;;
+  esac
+
+  # Done
+  return ${OCF_ERR_GENERIC}
+}
+
+
+## OCF actions
+StartStopDaemon_Start() {
+  local rc
+  local options
+
+  # Check configuration (strict_config = off)
+  if [ -z "${OCF_RESKEY_daemon}" -o -z "${OCF_RESKEY_pidfile}" ]; then
+    return ${OCF_ERR_CONFIGURED}
+  fi
+
+  # Retrieve daemon status
+  StartStopDaemon_Status ; rc=$?
+  if [ ${rc} -eq ${OCF_SUCCESS} ]; then
+    ocf_log info "${OCF_RESOURCE_INSTANCE}::Start: Daemon already started"
+    return ${OCF_SUCCESS}
+  fi
+
+  # Start the daemon
+  options="--start --oknodo"
+  options="${options} --startas ${OCF_RESKEY_daemon}"
+  options="${options} --pidfile ${OCF_RESKEY_pidfile}"
+  [ -n "${OCF_RESKEY_chuid}" ] && options="${options} --chuid ${OCF_RESKEY_chuid}"
+  [ -n "${OCF_RESKEY_chdir}" ] && options="${options} --chdir ${OCF_RESKEY_chdir}"
+  [ -n "${OCF_RESKEY_chroot}" ] && options="${options} --chroot ${OCF_RESKEY_chroot}"
+  [ -n "${OCF_RESKEY_umask}" ] && options="${options} --umask ${OCF_RESKEY_umask}"
+  [ -n "${OCF_RESKEY_nicelevel}" ] && options="${options} --nicelevel ${OCF_RESKEY_nicelevel}"
+  [ -n "${OCF_RESKEY_procsched}" ] && options="${options} --procsched ${OCF_RESKEY_procsched}"
+  [ -n "${OCF_RESKEY_iosched}" ] && options="${options} --iosched ${OCF_RESKEY_iosched}"
+  if ocf_is_true ${OCF_RESKEY_background}; then
+    options="${options} --background"
+    ocf_is_true ${OCF_RESKEY_make_pidfile} && options="${options} --make-pidfile"
+    [ -n "${OCF_RESKEY_logfile}" ] && options="${options} --no-close"
+  fi
+  if [ -n "${OCF_RESKEY_logfile}" ]; then
+    # NB: DoCmd intrinsically redirects stderr to stdout
+    StartStopDaemon_DoCmd start-stop-daemon ${options} -- ${OCF_RESKEY_options} 1>>"${OCF_RESKEY_logfile}" 2>/dev/null &
+  else
+    StartStopDaemon_DoCmd start-stop-daemon ${options} -- ${OCF_RESKEY_options} &
+  fi
+  #if [ ${rc} -ne 0 ]; then
+  #  return ${OCF_ERR_GENERIC}
+  #fi
+
+  # Wait for daemon to start
+  # NB: LRM will kill us based on action (meta-data) timeout
+  while true; do
+    sleep 1
+    StartStopDaemon_Status ; rc=$?
+    if [ ${rc} -eq ${OCF_SUCCESS} ]; then
+      break
+    fi
+  done
+
+  # Done
+  ocf_log debug "${OCF_RESOURCE_INSTANCE}::Start: Daemon successfully started"
+  return ${OCF_SUCCESS}
+}
+
+StartStopDaemon_Stop() {
+  local rc
+  local timeout
+
+  # Check configuration (strict_config = off)
+  if [ -z "${OCF_RESKEY_daemon}" -o -z "${OCF_RESKEY_pidfile}" ]; then
+    # Note: if configuration is incomplete, resource can not have been started
+    return ${OCF_SUCCESS}
+  fi
+
+  # Retrieve daemon status
+  StartStopDaemon_Status ; rc=$?
+  if [ ${rc} -eq ${OCF_NOT_RUNNING} ]; then
+    ocf_log info "${OCF_RESOURCE_INSTANCE}::Stop: Daemon already stopped"
+    return ${OCF_SUCCESS}
+  fi
+
+  # Stop the daemon
+  options="--stop --oknodo"
+  options="${options} --pidfile ${OCF_RESKEY_pidfile}"
+  [ -n "${OCF_RESKEY_signal}" ] && options="${options} --signal ${OCF_RESKEY_signal}"
+  if ocf_is_true ${OCF_RESKEY_background}; then
+    ocf_is_true ${OCF_RESKEY_make_pidfile} && options="${options} --remove-pidfile"
+  fi
+  StartStopDaemon_DoCmd start-stop-daemon ${options} ; rc=$?
+  if [ ${rc} -ne 0 ]; then
+    return ${OCF_ERR_GENERIC}
+  fi
+
+  # Wait for daemon to stop
+  # NB: wait for the action (meta-data) timeout, minus 5 seconds; after that, try killing it
+  timeout=$(( ${SECONDS} + (${OCF_RESKEY_CRM_meta_timeout}/1000) - 5 ))
+  while [ ${SECONDS} -lt ${timeout} ]; do
+    sleep 1
+    StartStopDaemon_Status ; rc=$?
+    if [ ${rc} -eq ${OCF_NOT_RUNNING} ]; then
+      break
+    fi
+  done
+  # ... kill
+  if [ ${rc} -ne ${OCF_NOT_RUNNING} ]; then
+    ocf_log warn "${OCF_RESOURCE_INSTANCE}::Stop: Daemon did not stop gracefully; attempting to kill it"
+
+    # Kill the daemon
+    options="--stop --oknodo"
+    options="${options} --pidfile ${OCF_RESKEY_pidfile}"
+    options="${options} --signal 9"
+    if ocf_is_true ${OCF_RESKEY_background}; then
+      ocf_is_true ${OCF_RESKEY_make_pidfile} && options="${options} --remove-pidfile"
+    fi
+    StartStopDaemon_DoCmd start-stop-daemon ${options} ; rc=$?
+    if [ ${rc} -ne 0 ]; then
+      return ${OCF_ERR_GENERIC}
+    fi
+
+    # Wait for daemon to vanish
+    # NB: LRM will kill us based on action (meta-data) timeout
+    while true; do
+      sleep 1
+      StartStopDaemon_Status ; rc=$?
+      if [ ${rc} -eq ${OCF_NOT_RUNNING} ]; then
+        break
+      fi
+    done
+
+    # Done
+    ocf_log warn "${OCF_RESOURCE_INSTANCE}::Stop: Daemon successfully killed (would rather have it stop gracefully...)"
+    return ${OCF_SUCCESS}
+
+  fi
+
+  # Done
+  ocf_log debug "${OCF_RESOURCE_INSTANCE}::Stop: Daemon successfully stopped"
+  return ${OCF_SUCCESS}
+}
+
+StartStopDaemon_Monitor() {
+  local rc
+
+  # Retrieve resource status
+  StartStopDaemon_Status ; rc=$?
+
+  # Done
+  return ${rc}
+}
+
+StartStopDaemon_ValidateAll() {
+  local rc
+  local binary
+
+  # Required binaries
+  for binary in start-stop-daemon; do
+    check_binary ${binary}
+  done
+
+  # Check configuration
+  StartStopDaemon_CheckConfig ; rc=$?
+  if [ ${rc} -ne ${OCF_SUCCESS} ] && ocf_is_true ${OCF_RESKEY_strict_config}; then
+    return ${rc}
+  fi
+
+  # Done
+  return ${OCF_SUCCESS}
+}
+
+
+## Main
+
+# Check arguments
+if [ $# -ne 1 ]; then
+  usage
+  exit ${OCF_ERR_ARGS}
+fi
+ACTION=${1}
+
+# Non-actions
+case ${ACTION,,} in
+  'meta-data')
+    meta_data
+    exit ${OCF_SUCCESS}
+    ;;
+  'usage'|'help')
+    usage
+    exit ${OCF_SUCCESS}
+    ;;
+  'promote'|'demote'|'migrate_from'|'migrate_to'|'notify')
+    exit ${OCF_ERR_UNIMPLEMENTED}
+    ;;
+esac
+
+# Actual actions
+StartStopDaemon_ValidateAll || exit $?
+case ${ACTION,,} in
+  'validate-all')
+    ;;
+  'start')
+    StartStopDaemon_Start
+    ;;
+  'stop')
+    StartStopDaemon_Stop
+    ;;
+  'status')
+    StartStopDaemon_Status
+    ;;
+  'monitor')
+    StartStopDaemon_Monitor
+    ;;
+  *)
+    usage
+    exit ${OCF_ERR_ARGS}
+    ;;
+esac
+exit $?
+

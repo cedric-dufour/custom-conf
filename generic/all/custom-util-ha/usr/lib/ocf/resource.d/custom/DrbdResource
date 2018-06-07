@@ -121,21 +121,32 @@ DrbdResource_DoCmd() {
   local cmd="$@"
   local cmd_out
   local cmd_rc
+  local no_out
+  local no_rc_warn
+
+  # Parse macros
+  while [ "${1:0:1}" == '%' ]; do
+    case "${1:1}" in
+      'NO_OUT') no_out='yes';;
+      'NO_RC_WARN') no_rc_warn='yes';;
+    esac
+    shift
+  done
 
   # Execute command
   ocf_log debug "${OCF_RESKEY_resource}::DoCmd: Executing command: ${cmd}"
   cmd_out="$("$@" 2>&1)"
   cmd_rc=$?
-  if [ ${cmd_rc} -ne 0 ]; then
-    ocf_log debug "${OCF_RESKEY_resource}::DoCmd: Command failed; ${cmd} > ${cmd_out} [${cmd_rc}]"
+  if [ ${cmd_rc} -ne 0 -a -z "${no_rc_warn}" ]; then
+    ocf_log warn "${OCF_RESKEY_resource}::DoCmd: Command failed; ${cmd} > ${cmd_out} [${cmd_rc}]"
   else
-    ocf_log debug "${OCF_RESKEY_resource}::DoCmd: Command succeeded; ${cmd} > ${cmd_out}"
+    ocf_log debug "${OCF_RESKEY_resource}::DoCmd: Command succeeded; ${cmd} > ${cmd_out} [${cmd_rc}]"
   fi
   # ... trim the garbage drbdadm likes to print when using the node override feature
   #cmd_out="${cmd_out/found __DRBD_NODE__*<</}"
 
   # Done
-  echo "${cmd_out}"
+  [ -n "${cmd_out}" -a -z "${no_out}" ] && echo "${cmd_out}"
   return ${cmd_rc}
 }
 

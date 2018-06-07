@@ -141,21 +141,30 @@ ZfsPool_DoCmd() {
   local cmd="$@"
   local cmd_out
   local cmd_rc
+  local no_out
+  local no_rc_warn
+
+  # Parse macros
+  while [ "${1:0:1}" == '%' ]; do
+    case "${1:1}" in
+      'NO_OUT') no_out='yes';;
+      'NO_RC_WARN') no_rc_warn='yes';;
+    esac
+    shift
+  done
 
   # Execute command
   ocf_log debug "${OCF_RESKEY_pool}::DoCmd: Executing command: ${cmd}"
   cmd_out="$("$@" 2>&1)"
   cmd_rc=$?
-  if [ ${cmd_rc} -ne 0 ]; then
+  if [ ${cmd_rc} -ne 0 -a -z "${no_rc_warn}" ]; then
     ocf_log warn "${OCF_RESKEY_pool}::DoCmd: Command failed; ${cmd} > ${cmd_out} [${cmd_rc}]"
-    echo "${cmd_out}"
-    return ${cmd_rc}
   else
-    ocf_log debug "${OCF_RESKEY_pool}::DoCmd: Command succeeded; ${cmd} > ${cmd_out}"
+    ocf_log debug "${OCF_RESKEY_pool}::DoCmd: Command succeeded; ${cmd} > ${cmd_out} [${cmd_rc}]"
   fi
 
   # Done
-  echo "${cmd_out}"
+  [ -n "${cmd_out}" -a -z "${no_out}" ] && echo "${cmd_out}"
   return ${cmd_rc}
 }
 
@@ -215,7 +224,7 @@ ZfsPool_Status() {
   fi
 
   # Retrieve pool health
-  health="$(ZfsPool_DoCmd zpool list -H -o health "${OCF_RESKEY_pool}")"
+  health="$(ZfsPool_DoCmd %NO_RC_WARN zpool list -H -o health "${OCF_RESKEY_pool}")"
   ocf_log debug "${OCF_RESKEY_pool}::Status: ${health}"
 
   # Pool health <-> OCF status

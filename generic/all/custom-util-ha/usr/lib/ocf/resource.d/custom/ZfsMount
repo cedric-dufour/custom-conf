@@ -70,7 +70,7 @@ meta_data() {
         (as in 'zfs mount -o {no,}atime ...')
       </longdesc>
       <shortdesc lang="en">Mount the filesystem '-o {no,}atime'</shortdesc>
-      <content type="boolean" default="${OCF_RESKEY_atime_default}" />
+      <content type="integer" default="${OCF_RESKEY_atime_default}" />
     </parameter>
 
     <parameter name="relatime">
@@ -81,7 +81,7 @@ meta_data() {
         (as in 'zfs mount -o {no,}relatime ...')
       </longdesc>
       <shortdesc lang="en">Mount the filesystem '-o {no,}relatime'</shortdesc>
-      <content type="boolean" default="${OCF_RESKEY_relatime_default}" />
+      <content type="integer" default="${OCF_RESKEY_relatime_default}" />
     </parameter>
 
     <parameter name="exec">
@@ -91,7 +91,7 @@ meta_data() {
         (as in 'zfs mount -o {no,}exec ...')
       </longdesc>
       <shortdesc lang="en">Mount the filesystem '-o {no,}exec'</shortdesc>
-      <content type="boolean" default="${OCF_RESKEY_exec_default}" />
+      <content type="integer" default="${OCF_RESKEY_exec_default}" />
     </parameter>
 
     <parameter name="setuid">
@@ -102,7 +102,7 @@ meta_data() {
         (as in 'zfs mount -o {no,}suid ...')
       </longdesc>
       <shortdesc lang="en">Mount the filesystem '-o {no,}suid'</shortdesc>
-      <content type="boolean" default="${OCF_RESKEY_setuid_default}" />
+      <content type="integer" default="${OCF_RESKEY_setuid_default}" />
     </parameter>
 
     <parameter name="xattr">
@@ -112,7 +112,7 @@ meta_data() {
         (as in 'zfs mount -o {no,}xattr ...')
       </longdesc>
       <shortdesc lang="en">Mount the filesystem '-o {no,}xattr'</shortdesc>
-      <content type="boolean" default="${OCF_RESKEY_xattr_default}" />
+      <content type="integer" default="${OCF_RESKEY_xattr_default}" />
     </parameter>
 
     <parameter name="strict_config">
@@ -157,21 +157,30 @@ ZfsMount_DoCmd() {
   local cmd="$@"
   local cmd_out
   local cmd_rc
+  local no_out
+  local no_rc_warn
+
+  # Parse macros
+  while [ "${1:0:1}" == '%' ]; do
+    case "${1:1}" in
+      'NO_OUT') no_out='yes';;
+      'NO_RC_WARN') no_rc_warn='yes';;
+    esac
+    shift
+  done
 
   # Execute command
   ocf_log debug "${OCF_RESKEY_filesystem}::DoCmd: Executing command: ${cmd}"
   cmd_out="$("$@" 2>&1)"
   cmd_rc=$?
-  if [ ${cmd_rc} -ne 0 ]; then
+  if [ ${cmd_rc} -ne 0 -a -z "${no_rc_warn}" ]; then
     ocf_log warn "${OCF_RESKEY_filesystem}::DoCmd: Command failed; ${cmd} > ${cmd_out} [${cmd_rc}]"
-    echo "${cmd_out}"
-    return ${cmd_rc}
   else
-    ocf_log debug "${OCF_RESKEY_filesystem}::DoCmd: Command succeeded; ${cmd} > ${cmd_out}"
+    ocf_log debug "${OCF_RESKEY_filesystem}::DoCmd: Command succeeded; ${cmd} > ${cmd_out} [${cmd_rc}]"
   fi
 
   # Done
-  echo "${cmd_out}"
+  [ -n "${cmd_out}" -a -z "${no_out}" ] && echo "${cmd_out}"
   return ${cmd_rc}
 }
 
