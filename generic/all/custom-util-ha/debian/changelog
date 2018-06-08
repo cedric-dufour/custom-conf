@@ -1,3 +1,12 @@
+custom-util-ha (2018.06.08a) UNRELEASED; urgency=low
+
+  * Make 'ha-resource-start' delete the 'target-role' parameter rather than
+    set (force) it to 'Started'
+    => fix resource group failing to stop when a sub-primitive has been
+       manually stopped and (re-)started
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Fri, 08 Jun 2018 14:58:22 +0200
+
 custom-util-ha (2018.06.07a) UNRELEASED; urgency=low
 
   * Minor fixes to all resources agents

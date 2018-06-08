@@ -5,10 +5,10 @@
 [ $# -lt 1 -o "${1##*-}" == 'help' ] && cat << EOF >&2 && exit 1
 USAGE: ${0##*/} <resource-id>
 
-HINT: crm_resource -r <resource-id> -m -p target-role -v Started
+HINT: crm_resource -r <resource-id> -m -d target-role
 EOF
 
 # Command
 HA_RID="$1"
-crm_resource -r ${HA_RID} -m -p target-role -v Started
+crm_resource -r ${HA_RID} -m -d target-role
 
