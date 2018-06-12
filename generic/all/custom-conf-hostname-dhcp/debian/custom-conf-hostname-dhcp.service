@@ -1,0 +1,14 @@
+## CUSTOM-CONF: File automatically created/updated [custom-conf-hostname-dhcp]
+
+[Unit]
+Description=Update hostname after Dynamic Host Configuration (DHCP)
+After=network.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=true
+ExecStart=/usr/share/custom-conf-hostname-dhcp/scripts/update_hostname.sh
+
+[Install]
+WantedBy=network-online.target
+

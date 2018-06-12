@@ -1,3 +1,11 @@
+custom-conf-hostname-dhcp (2018.06.12a) UNRELEASED; urgency=low
+
+  * Add the 'hooks.d' configuration directory, to allow any other package to
+    register is own script(s) after hostname is DHCP-updated
+  * Add systemd service for 'network-online' target
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Tue, 12 Jun 2018 12:01:29 +0200
+
 custom-conf-hostname-dhcp (2018.05.14a) UNRELEASED; urgency=low
 
   * Use 'gcfg.sed' instead of 'gsed' in scripts

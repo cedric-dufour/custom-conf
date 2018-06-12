@@ -8,6 +8,9 @@ PKGNAME='custom-conf-hostname-dhcp'
 # Install files
 custom-conf-install "${PKGNAME}" "/usr/share/${PKGNAME}/config" || exit 1
 
+# Debhelpers
+#DEBHELPER#
+
 # Exit
 exit 0
 
