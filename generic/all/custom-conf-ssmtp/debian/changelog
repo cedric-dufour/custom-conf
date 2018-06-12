@@ -1,3 +1,9 @@
+custom-conf-ssmtp (2018.06.12a) UNRELEASED; urgency=low
+
+  * Add 'custom-conf-hostname-dhcp' hook
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Tue, 12 Jun 2018 12:07:06 +0200
+
 custom-conf-ssmtp (2018.05.14a) UNRELEASED; urgency=low
 
   * Use 'gcfg.sed' instead of 'gsed' in scripts
