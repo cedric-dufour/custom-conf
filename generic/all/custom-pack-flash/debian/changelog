@@ -1,3 +1,9 @@
+custom-pack-flash (2018.06.13a) UNRELEASED; urgency=low
+
+  * New version: NPAPI/PPAPI 30.0.0.113
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Wed, 13 Jun 2018 16:40:13 +0200
+
 custom-pack-flash (2018.02.16a) UNRELEASED; urgency=low
 
   * New version: NPAPI/PPAPI 28.0.0.161
