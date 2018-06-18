@@ -122,9 +122,19 @@ meta_data() {
 
     <parameter name="logfile">
       <longdesc lang="en">
-        Full path to the log file (if not supported by the daemon itself).
+        Full path to the standard output log file (if not supported by the daemon itself).
       </longdesc>
-      <shortdesc lang="en">Log file path</shortdesc>
+      <shortdesc lang="en">Output log file path</shortdesc>
+      <content type="string" default="" />
+    </parameter>
+
+    <parameter name="errfile">
+      <longdesc lang="en">
+        Full path to the standard error log file (if not supported by the daemon itself).
+        NOTE: standard error is redirected to standard output if this parameter
+        is left unspecified.
+      </longdesc>
+      <shortdesc lang="en">Error log file path</shortdesc>
       <content type="string" default="" />
     </parameter>
 
@@ -185,20 +195,44 @@ END
 
 ## Helpers
 StartStopDaemon_DoCmd() {
-  local cmd="$@"
+  local cmd
   local cmd_out
   local cmd_rc
   local no_out
   local no_rc_warn
+  local fork_and_log
 
   # Parse macros
   while [ "${1:0:1}" == '%' ]; do
     case "${1:1}" in
       'NO_OUT') no_out='yes';;
       'NO_RC_WARN') no_rc_warn='yes';;
+      'FORK_AND_LOG') fork_and_log='yes';;
     esac
     shift
   done
+  cmd="$@"
+
+  # Fork command (?)
+  if [ -n "${fork_and_log}" ]; then
+    ocf_log debug "${OCF_RESOURCE_INSTANCE}::DoCmd: Forking command: ${cmd}"
+    if [ -n "${OCF_RESKEY_logfile}" -a -n "${OCF_RESKEY_errfile}" ]; then
+      "$@" >>"${OCF_RESKEY_logfile}" 2>>"${OCF_RESKEY_errfile}" &
+    elif [ -n "${OCF_RESKEY_logfile}" ]; then
+      "$@" >>"${OCF_RESKEY_logfile}" 2>&1 &
+    elif [ -n "${OCF_RESKEY_errfile}" ]; then
+      "$@" >/dev/null 2>>"${OCF_RESKEY_logfile}" 2>&1 &
+    else
+      "$@" >/dev/null 2>&1 &
+    fi
+    cmd_rc=$?
+    if [ ${cmd_rc} -ne 0 -a -z "${no_rc_warn}" ]; then
+      ocf_log warn "${OCF_RESOURCE_INSTANCE}::DoCmd: Forking failed; ${cmd} [${cmd_rc}]"
+    else
+      ocf_log debug "${OCF_RESOURCE_INSTANCE}::DoCmd: Forking succeeded; ${cmd} [${cmd_rc}]"
+    fi
+    return ${cmd_rc}
+  fi
 
   # Execute command
   ocf_log debug "${OCF_RESOURCE_INSTANCE}::DoCmd: Executing command: ${cmd}"
@@ -307,15 +341,10 @@ StartStopDaemon_Start() {
     ocf_is_true ${OCF_RESKEY_make_pidfile} && options="${options} --make-pidfile"
     [ -n "${OCF_RESKEY_logfile}" ] && options="${options} --no-close"
   fi
-  if [ -n "${OCF_RESKEY_logfile}" ]; then
-    # NB: DoCmd intrinsically redirects stderr to stdout
-    StartStopDaemon_DoCmd start-stop-daemon ${options} -- ${OCF_RESKEY_options} 1>>"${OCF_RESKEY_logfile}" 2>/dev/null &
-  else
-    StartStopDaemon_DoCmd start-stop-daemon ${options} -- ${OCF_RESKEY_options} &
+  StartStopDaemon_DoCmd %FORK_AND_LOG start-stop-daemon ${options} -- ${OCF_RESKEY_options} ; rc=$?
+  if [ ${rc} -ne 0 ]; then
+    return ${OCF_ERR_GENERIC}
   fi
-  #if [ ${rc} -ne 0 ]; then
-  #  return ${OCF_ERR_GENERIC}
-  #fi
 
   # Wait for daemon to start
   # NB: LRM will kill us based on action (meta-data) timeout

@@ -138,7 +138,7 @@ ZfsPool_IsEnabled() {
 }
 
 ZfsPool_DoCmd() {
-  local cmd="$@"
+  local cmd
   local cmd_out
   local cmd_rc
   local no_out
@@ -152,6 +152,7 @@ ZfsPool_DoCmd() {
     esac
     shift
   done
+  cmd="$@"
 
   # Execute command
   ocf_log debug "${OCF_RESKEY_pool}::DoCmd: Executing command: ${cmd}"

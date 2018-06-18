@@ -1,3 +1,9 @@
+custom-util-ha (2018.06.18a) UNRELEASED; urgency=low
+
+  * Fixed 'StartStopDaemon' resource agent logging
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Mon, 18 Jun 2018 11:52:17 +0200
+
 custom-util-ha (2018.06.08a) UNRELEASED; urgency=low
 
   * Make 'ha-resource-start' delete the 'target-role' parameter rather than

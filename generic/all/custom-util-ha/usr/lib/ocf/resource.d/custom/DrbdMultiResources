@@ -131,7 +131,7 @@ DrbdMultiResources_IsEnabled() {
 }
 
 DrbdMultiResources_DoCmd() {
-  local cmd="$@"
+  local cmd
   local cmd_out
   local cmd_rc
   local no_out
@@ -145,6 +145,7 @@ DrbdMultiResources_DoCmd() {
     esac
     shift
   done
+  cmd="$@"
 
   # Execute command
   ocf_log debug "${OCF_RESKEY_resources}::DoCmd: Executing command: ${cmd}"
