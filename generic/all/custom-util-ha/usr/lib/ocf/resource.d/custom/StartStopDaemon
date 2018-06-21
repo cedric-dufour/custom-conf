@@ -96,6 +96,16 @@ meta_data() {
       <content type="string" default="" />
     </parameter>
 
+    <parameter name="ulimit">
+      <longdesc lang="en">
+        Change the daemon kernel limits to the given ones.
+        NOTE: Limits must be specified using BASH syntax. Multiple limits
+        can be specified, space-separated; e.g. '-c 0 -n 65536 -l unlimited'
+      </longdesc>
+      <shortdesc lang="en">Daemon kernel limits</shortdesc>
+      <content type="string" default="" />
+    </parameter>
+
     <parameter name="nicelevel">
       <longdesc lang="en">
         Change the daemon nice level.
@@ -312,6 +322,8 @@ StartStopDaemon_Status() {
 StartStopDaemon_Start() {
   local rc
   local options
+  local limits
+  local limit
 
   # Check configuration (strict_config = off)
   if [ -z "${OCF_RESKEY_daemon}" -o -z "${OCF_RESKEY_pidfile}" ]; then
@@ -323,6 +335,17 @@ StartStopDaemon_Start() {
   if [ ${rc} -eq ${OCF_SUCCESS} ]; then
     ocf_log info "${OCF_RESOURCE_INSTANCE}::Start: Daemon already started"
     return ${OCF_SUCCESS}
+  fi
+
+  # Set kernel limits
+  if [ -n "${OCF_RESKEY_ulimit}" ]; then
+    IFS='-' read -ra limits <<< "${OCF_RESKEY_ulimit}"
+    for limit in "${limits[@]}"; do
+      [ -z "${limit}" ] && continue
+      limit="-${limit%% }"
+      ocf_log debug "${OCF_RESOURCE_INSTANCE}::Start: Setting daemon kernel limit: ${limit}"
+      ulimit ${limit}
+    done
   fi
 
   # Start the daemon
@@ -382,9 +405,6 @@ StartStopDaemon_Stop() {
   options="--stop --oknodo"
   options="${options} --pidfile ${OCF_RESKEY_pidfile}"
   [ -n "${OCF_RESKEY_signal}" ] && options="${options} --signal ${OCF_RESKEY_signal}"
-  if ocf_is_true ${OCF_RESKEY_background}; then
-    ocf_is_true ${OCF_RESKEY_make_pidfile} && options="${options} --remove-pidfile"
-  fi
   StartStopDaemon_DoCmd start-stop-daemon ${options} ; rc=$?
   if [ ${rc} -ne 0 ]; then
     return ${OCF_ERR_GENERIC}
@@ -408,9 +428,6 @@ StartStopDaemon_Stop() {
     options="--stop --oknodo"
     options="${options} --pidfile ${OCF_RESKEY_pidfile}"
     options="${options} --signal 9"
-    if ocf_is_true ${OCF_RESKEY_background}; then
-      ocf_is_true ${OCF_RESKEY_make_pidfile} && options="${options} --remove-pidfile"
-    fi
     StartStopDaemon_DoCmd start-stop-daemon ${options} ; rc=$?
     if [ ${rc} -ne 0 ]; then
       return ${OCF_ERR_GENERIC}
@@ -426,14 +443,16 @@ StartStopDaemon_Stop() {
       fi
     done
 
-    # Done
+    # Done (almost)
     ocf_log warn "${OCF_RESOURCE_INSTANCE}::Stop: Daemon successfully killed (would rather have it stop gracefully...)"
-    return ${OCF_SUCCESS}
-
+  else
+    ocf_log debug "${OCF_RESOURCE_INSTANCE}::Stop: Daemon successfully stopped"
   fi
 
+  # Remove PID file
+  StartStopDaemon_DoCmd rm -f ${OCF_RESKEY_pidfile}
+
   # Done
-  ocf_log debug "${OCF_RESOURCE_INSTANCE}::Stop: Daemon successfully stopped"
   return ${OCF_SUCCESS}
 }
 
