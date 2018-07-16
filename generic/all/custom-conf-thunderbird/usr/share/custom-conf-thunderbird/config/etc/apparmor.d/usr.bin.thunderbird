@@ -18,6 +18,7 @@ profile thunderbird @{thunderbird_executable} {
   #include <abstractions/dbus>
   #include <abstractions/dbus-accessibility>
   #include <abstractions/dbus-session>
+  #include <abstractions/dconf>
   #include <abstractions/gnome>
   #include <abstractions/ibus>
   #include <abstractions/nameservice>
@@ -67,6 +68,9 @@ profile thunderbird @{thunderbird_executable} {
 
   # rw access to HOME is useful when sending/receiving attachments
   owner @{HOME}/[^.]** rw,
+  # [CUSTOM-CONF:BEGIN]
+  owner @{HOME}/.Unison-Data/** rw,
+  # [CUSTOM-CONF:END]
 
   # other commonly used locations
   # [CUSTOM-CONF:BEGIN]
@@ -128,7 +132,6 @@ profile thunderbird @{thunderbird_executable} {
   /etc/gre.d/* r,
 
   # noisy
-  /etc/dconf/profile/user r,
   deny @{MOZ_LIBDIR}/** w,
   deny /usr/lib/thunderbird-addons/** w,
   deny /usr/lib/xulrunner-addons/** w,
@@ -246,7 +249,7 @@ profile thunderbird @{thunderbird_executable} {
   profile gpg {
     #include <abstractions/base>
 
-    /usr/share/xul-ext/enigmail/chrome/enigmail.jar r,
+    /usr/share/xul-ext/enigmail/chrome/** r,
 
     # Required to import keys from keyservers
     #include <abstractions/nameservice>
@@ -309,7 +312,13 @@ profile thunderbird @{thunderbird_executable} {
     owner @{HOME}/** r,
     owner @{PROC}/@{pids}/mountinfo r,
 
+    # For gpgconf
+    owner @{PROC}/@{pids}/fd/ r,
+
     owner /run/user/[0-9]*/keyring-*/gpg rw,
+
+    # For encryption + signature
+    owner /tmp/gpgOutput.* rw,
 
     # for inline pgp
     owner /tmp/encfile rw,
@@ -323,8 +332,10 @@ profile thunderbird @{thunderbird_executable} {
     /usr/bin/dirmngr ix,
     owner @{PROC}/@{pids}/task/@{tid}/comm rw,
 
-    # for revocation certificate generation
+    # for revocation certificate generation in the Enigmail setup wizard
     owner @{HOME}/.{icedove,thunderbird}/*/0x[A-F0-9]*_rev.asc rw,
+    # for revocation certificate generation in the Enigmail key manager
+    owner @{HOME}/*0x[A-F0-9]**.asc rw,
 
     # for signature generation
     owner /tmp/nsemail.eml w,
