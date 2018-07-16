@@ -47,6 +47,9 @@ profile thunderbird @{thunderbird_executable} {
   /usr/lib/@{multiarch}/xfce4/exo-1/exo-helper-1 ixr,
   /etc/xdg/xdg-xubuntu/xfce4/helpers.rc r,
   /etc/xdg/xfce4/helpers.rc r,
+  # [CUSTOM-CONF:BEGIN]
+  owner @{HOME}/.config/xfce4/helpers.rc r,
+  # [CUSTOM-CONF:END]
 
   # for crash reports?
   ptrace (read,trace) peer=@{profile_name},

@@ -1,8 +1,8 @@
-custom-conf-thunderbird (2018.07.16a) UNRELEASED; urgency=low
+custom-conf-thunderbird (2018.07.16b) UNRELEASED; urgency=low
 
   * Update AppArmor profile (as per Debian/Stretch update)
 
- -- Cédric Dufour <cedric.dufour@ced-network.net>  Mon, 16 Jul 2018 10:29:55 +0200
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Mon, 16 Jul 2018 18:47:18 +0200
 
 custom-conf-thunderbird (2017.12.16c) UNRELEASED; urgency=low
 
