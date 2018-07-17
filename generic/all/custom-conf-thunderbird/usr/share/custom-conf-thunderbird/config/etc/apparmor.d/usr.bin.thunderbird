@@ -153,6 +153,7 @@ profile thunderbird @{thunderbird_executable} {
   # SQL-backed NSS DB (NSS_DEFAULT_DB_TYPE=sql)
   owner @{HOME}/**/cert9.db rwk,
   owner @{HOME}/**/key4.db rwk,
+  owner @{HOME}/**/pkcs11.txt rwk,
 
   # Allow Debian browsers to be launched (*handler.http*)
   /usr/bin/firefox{,-esr} Cx -> sanitized_helper,
