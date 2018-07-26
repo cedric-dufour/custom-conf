@@ -1,3 +1,12 @@
+custom-conf-docker (2018.07.26a) UNRELEASED; urgency=low
+
+  !!! WARNING !!! BREAKING MODIFICATIONS !!! WARNING !!!
+  * MOD: Renamed all 'docker1'-specific chains to DOCKER1_{INBOUND,OUTBOUND,INTERNAL}
+  * MOD: Block all 'docker1' traffic to host or default Docker bridge ('docker0') services
+  * FIX: Make sure DOCKER1_INTERNAL traffic is handled by iptables on recent kernels >= 3.18
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Thu, 26 Jul 2018 12:54:21 +0200
+
 custom-conf-docker (2018.05.14a) UNRELEASED; urgency=low
 
   * Use 'gcfg.sed' instead of 'gsed' in scripts

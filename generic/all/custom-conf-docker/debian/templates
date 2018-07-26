@@ -38,8 +38,8 @@ Description: Have local syslog daemon listen to containers syslog traffic ?
  * <Yes>
  .
    The host rsyslog daemon will be configured to listen to UDP/514 traffic
-   on the Docker bridge; be aware security may be sub-optimal as this may lead
-   to Denial-of-Service on the host (log files filling up the disk).
+   on the 'docker0' bridge; be aware security may be sub-optimal as this may
+   lead to Denial-of-Service on the host (log files filling up the disk).
  .
  ? If unsure, say <No>.
 

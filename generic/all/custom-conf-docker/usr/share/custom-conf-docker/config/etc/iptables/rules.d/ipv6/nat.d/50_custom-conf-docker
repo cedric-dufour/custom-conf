@@ -8,11 +8,11 @@
 ## Docker-specific rules
 
 # Inbound traffic (to containers published ports)
-"${IPTABLES}" --table nat --new-chain DOCKER_INBOUND
-"${IPTABLES}" --table nat --append PREROUTING --match addrtype --dst-type LOCAL --jump DOCKER_INBOUND
-"${IPTABLES}" --table nat --append OUTPUT --match addrtype --dst-type LOCAL --jump DOCKER_INBOUND
+"${IPTABLES}" --table nat --new-chain DOCKER1_INBOUND
+"${IPTABLES}" --table nat --append PREROUTING --match addrtype --dst-type LOCAL --jump DOCKER1_INBOUND
+"${IPTABLES}" --table nat --append OUTPUT --match addrtype --dst-type LOCAL --jump DOCKER1_INBOUND
 # (Please use a separate file to add containers-specific rules)
-# "${IPTABLES}" --table nat --append DOCKER_INBOUND \
+# "${IPTABLES}" --table nat --append DOCKER1_INBOUND \
 #   --protocol <proto> \
 #   --dport <port> \
 #   --jump DNAT --to-destination <ip>:<port>

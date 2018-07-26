@@ -7,14 +7,16 @@
 
 ## Docker-specific rules
 
-# Syslog traffic (to host syslog daemon)
-"${IPTABLES}" --table filter --append FORWARD --in-interface docker1 --out-interface docker0 --destination 192.168.213.1 --protocol udp --dport 514 --jump %{CUSTOM_CONF_DOCKER_IPTABLES_SYSLOG_TARGET}
+# Drop and log inbound traffic (to host or default Docker bridge services)
+"${IPTABLES}" --table filter --append INPUT --in-interface docker1 --jump BLACKLIST_DROP
+"${IPTABLES}" --table filter --append FORWARD --in-interface docker1 --out-interface docker0 --jump BLACKLIST_DROP
+# (Please use a separate file to add exceptions)
 
 # Inbound traffic (to containers published ports)
-"${IPTABLES}" --table filter --new-chain DOCKER_INBOUND
-"${IPTABLES}" --table filter --append FORWARD ! --in-interface docker1 --out-interface docker1 --jump DOCKER_INBOUND
+"${IPTABLES}" --table filter --new-chain DOCKER1_INBOUND
+"${IPTABLES}" --table filter --append FORWARD ! --in-interface docker1 --out-interface docker1 --jump DOCKER1_INBOUND
 # (Please use a separate file to add containers-specific rules)
-# "${IPTABLES}" --table filter --append DOCKER_INBOUND \
+# "${IPTABLES}" --table filter --append DOCKER1_INBOUND \
 #   ! --in-interface docker1 \
 #     --out-interface docker1 \
 #     --destination <ip> \
@@ -23,12 +25,13 @@
 #     --jump ACCEPT
 
 # Outbound traffic (from containers to the wide wild world)
-"${IPTABLES}" --table filter --new-chain DOCKER_OUTBOUND
-"${IPTABLES}" --table filter --append FORWARD --in-interface docker1 ! --out-interface docker1 --jump DOCKER_OUTBOUND
-"${IPTABLES}" --table filter --append DOCKER_OUTBOUND --jump ACCEPT
+"${IPTABLES}" --table filter --new-chain DOCKER1_OUTBOUND
+"${IPTABLES}" --table filter --append FORWARD --in-interface docker1 ! --out-interface docker1 --jump DOCKER1_OUTBOUND
+"${IPTABLES}" --table filter --append DOCKER1_OUTBOUND --jump ACCEPT
 
 # Internal traffic (between containers)
-"${IPTABLES}" --table filter --new-chain DOCKER_INTERNAL
-"${IPTABLES}" --table filter --append FORWARD --in-interface docker1 --out-interface docker1 --jump DOCKER_INTERNAL
-"${IPTABLES}" --table filter --append DOCKER_INTERNAL --jump ACCEPT
+modprobe br_netfilter 2>/dev/null
+"${IPTABLES}" --table filter --new-chain DOCKER1_INTERNAL
+"${IPTABLES}" --table filter --append FORWARD --in-interface docker1 --out-interface docker1 --jump DOCKER1_INTERNAL
+"${IPTABLES}" --table filter --append DOCKER1_INTERNAL --jump ACCEPT
 
