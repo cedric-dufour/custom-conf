@@ -3,13 +3,13 @@ Section: admin
 Priority: optional
 Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
 Homepage: https://github.com/cedric-dufour/custom-conf
-Standards-Version: 3.9.7
+Standards-Version: 4.1.3
 
 Package: custom-conf-pam-ldap
 Architecture: all
 Depends: custom-conf, custom-conf-nss-ldap, libpam-ldap
-Conflicts: custom-conf-pam-krb5
-Breaks: custom-conf-pam (<< 2016.07.05a)
-Replaces: custom-conf-pam (<< 2016.07.05a)
+Provides: custom-conf-pam
+Conflicts: custom-conf-pam
+Replaces: custom-conf-pam
 Description: Custom Configuration Framework - PAM <-> LDAP
 
