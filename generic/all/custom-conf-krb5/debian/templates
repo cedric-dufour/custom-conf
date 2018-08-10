@@ -1,0 +1,5 @@
+Template: custom-conf-krb5/kerberos-pkinit
+Type: boolean
+Default: false
+Description: Use Kerberors PKINIT (public key authentication) ?
+

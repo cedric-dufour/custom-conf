@@ -2,10 +2,24 @@
 [ "${1}" != 'configure' ] && exit 0
 PKGNAME='custom-conf-krb5'
 
+# Debconf
+. /usr/share/debconf/confmodule
+# ... preseed
+for var_priority in kerberos-pkinit:high; do
+  var="${var_priority%:*}"
+  priority="${var_priority#*:}"
+  db_input ${priority} ${PKGNAME}/${var}
+  db_go
+done
+# ... get
+db_get ${PKGNAME}/kerberos-pkinit && CUSTOM_DEBCONF_KRB5_PKINIT="${RET}"
+db_stop
+
 # Install files
 custom-conf-install "${PKGNAME}" "/usr/share/${PKGNAME}/config" || exit 1
 
 # Fine-tune configuration
+# ... IPv4/IPv6
 source /usr/share/custom-conf/custom-conf.defs
 ipv6="$(ip -6 addr 2>/dev/null | fgrep 'scope global')"
 server_admin=
@@ -25,7 +39,15 @@ for s in ${CUSTOM_CONF_KRB5_SERVERS_KDC}; do
   servers_kdc="${servers_kdc}${servers_kdc:+%NL;}    kdc = ${s}"
 done
 [ -n "${CUSTOM_CONF_KRB5_SERVERS_KDC}" -a -z "${servers_kdc}" ] && echo "ERROR[${PKGNAME}]: No IPv4 server found (${CUSTOM_CONF_KRB5_SERVERS_KDC})" >&2
-gcfg.sed "s|%{CUSTOM_CONF_KRB5_REALM}|${CUSTOM_CONF_KRB5_REALM}|g;s|%{CUSTOM_CONF_KRB5_SERVER_ADMIN}|${server_admin}|g;s|%{CUSTOM_CONF_KRB5_SERVERS_KDC}|${servers_kdc}|g;s|%{CUSTOM_CONF_DOMAIN}|${CUSTOM_CONF_DOMAIN}|g;s|%NL;|\n|g" /etc/krb5.conf
+# ... PKCS#11 library
+CUSTOM_CONF_KRB5_PKCS11LIB="$(find /lib /usr/lib -type f -name opensc-pkcs11.so | head -n 1)"
+if [ -z "${CUSTOM_CONF_KRB5_PKCS11LIB}" ]; then
+  [ "${CUSTOM_DEBCONF_KRB5_PKINIT}" == 'true' ] && echo "WARNING[${PKGNAME}]: Failed to locate OpenSC PKCS#11 library; using default" >&2
+  CUSTOM_CONF_KRB5_PKCS11LIB='/usr/lib/x86_64-linux-gnu/opensc-pkcs11.so'
+fi
+# ... done
+gcfg.sed "s|%{CUSTOM_CONF_KRB5_REALM}|${CUSTOM_CONF_KRB5_REALM}|g;s|%{CUSTOM_CONF_KRB5_SERVER_ADMIN}|${server_admin}|g;s|%{CUSTOM_CONF_KRB5_SERVERS_KDC}|${servers_kdc}|g;s|%{CUSTOM_CONF_DOMAIN}|${CUSTOM_CONF_DOMAIN}|g;s|%{CUSTOM_CONF_KRB5_PKCS11LIB}|${CUSTOM_CONF_KRB5_PKCS11LIB}|;s|%NL;|\n|g" /etc/krb5.conf
+[ "${CUSTOM_DEBCONF_KRB5_PKINIT}" == 'true' ] && ! gcfg flagged /etc/krb5.conf @EDITED && gcfg.sed 's|#pkinit_|pkinit_|' /etc/krb5.conf
 
 # Warning
 if [ ! -e /etc/krb5.keytab ]; then

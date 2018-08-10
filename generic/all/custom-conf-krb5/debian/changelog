@@ -1,3 +1,9 @@
+custom-conf-krb5 (2018.08.08a) UNRELEASED; urgency=low
+
+  * Added (optional) PKINIT configuration (based on OpenSC PKCS#11)
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Wed, 08 Aug 2018 10:19:12 +0200
+
 custom-conf-krb5 (2018.05.14a) UNRELEASED; urgency=low
 
   * Use 'gcfg.sed' instead of 'gsed' in scripts
