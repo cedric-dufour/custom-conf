@@ -183,10 +183,19 @@ gcfg.sed "s|%{CUSTOM_CONF_APACHE2_LOGOWNER}|${CUSTOM_CONF_APACHE2_LOGOWNER}|g;s|
 [ ! -e /etc/apache2/ssl/cachain.pem ] && ln -sf /etc/ssl/local/localhost-cachain.pem /etc/apache2/ssl/cachain.pem
 [ ! -e /etc/apache2/ssl/key.pem ] && ln -sf /etc/ssl/local/localhost-key.pem /etc/apache2/ssl/key.pem
 [ ! -e /etc/apache2/ssl/cert.pem ] && ln -sf /etc/ssl/local/localhost-cert.pem /etc/apache2/ssl/cert.pem
+if [ ! -e /etc/apache2/ssl/caauth/ ]; then
+  mkdir /etc/apache2/ssl/caauth/
+  ln -sf /etc/ssl/local/localsite-auth-ca.pem /etc/apache2/ssl/caauth/caauth.pem
+fi
+for cert in /etc/apache2/ssl/caauth/*.pem; do
+  [ ! -r "${cert}" ] && continue
+  ln -sf "${cert##*/}" "/etc/apache2/ssl/caauth/$(openssl x509 -noout -subject_hash -in "${cert}").0"
+  ln -sf "${cert##*/}" "/etc/apache2/ssl/caauth/$(openssl x509 -noout -subject_hash_old -in "${cert}").0"
+done
 
 # Fix permissions
-chown root:root /etc/apache2/ssl
 chmod 710 /etc/apache2/ssl
+chown root:www-data /etc/apache2/ssl
 case "${CUSTOM_CONF_APACHE2_VERSION}" in
   '2.2')
     chown root:root /etc/apache2/sites-available/default{,-ssl}

@@ -1,3 +1,9 @@
+custom-conf-apache2 (2018.08.09a) UNRELEASED; urgency=low
+
+  * Use proper CA certificate(s) path for SSL client authentication
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Thu, 09 Aug 2018 21:04:39 +0200
+
 custom-conf-apache2 (2018.05.14a) UNRELEASED; urgency=low
 
   * Use 'gcfg.sed' instead of 'gsed' in scripts
