@@ -1,0 +1,11 @@
+Template: custom-conf-lightdm/indicators
+Type: multiselect
+Choices: language, session, power
+Default: language, session, power
+Description: Greeter indicators ?
+ Please select the indicators to display in the greeter:
+ .
+  - language: language selector
+  - session:  session types
+  - power:    power actions (reboot, shutdown, etc.)
+

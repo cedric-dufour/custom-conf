@@ -1,0 +1,10 @@
+#!/bin/sh
+## CUSTOM-CONF: File automatically created/updated [custom-conf-lightdm]
+
+## LightDM session cleanup script
+
+# Kill the X session monitor "daemon"
+[ -r "/tmp/.xsession-monitor${DISPLAY%%.*}.pid" ] || exit
+pkill -F "/tmp/.xsession-monitor${DISPLAY%%.*}.pid" || exit $?
+rm -f "/tmp/.xsession-monitor${DISPLAY%%.*}.pid"
+

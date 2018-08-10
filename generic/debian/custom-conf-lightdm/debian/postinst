@@ -2,8 +2,37 @@
 [ "${1}" != 'configure' ] && exit 0
 PKGNAME='custom-conf-lightdm'
 
+# Debconf
+. /usr/share/debconf/confmodule
+# ... preseed
+for var_priority in indicators:high; do
+  var="${var_priority%:*}"
+  priority="${var_priority#*:}"
+  db_input ${priority} ${PKGNAME}/${var}
+  db_go
+done
+# ... get
+db_get ${PKGNAME}/indicators && CUSTOM_DEBCONF_LIGHTDM_INDICATORS="${RET}"
+db_stop
+
+# Upgrade
+gcfg flagged /etc/lightdm/display-setup ${PKGNAME} 2>/dev/null && gcfg mv /etc/lightdm/display-setup /etc/lightdm/display-setup.d/50custom-conf-lightdm
+
 # Install files
 custom-conf-install "${PKGNAME}" "/usr/share/${PKGNAME}/config" || exit 1
+
+# Fine-tune configuration
+# ... indicators
+CUSTOM_CONF_LIGHTDM_INDICATORS=
+for indicator in ${CUSTOM_DEBCONF_LIGHTDM_INDICATORS//,/ }; do
+  CUSTOM_CONF_LIGHTDM_INDICATORS="${CUSTOM_CONF_LIGHTDM_INDICATORS:+;}~${indicator}"
+done
+# ... DPMS; BUG: https://devtalk.nvidia.com/default/topic/975538/linux/wakeup-takes-ages-after-dpms-kick-in
+CUSTOM_CONF_LIGHTDM_DPMS='xset dpms 60 180 300'
+fgrep -q 'Philips 247ELH' /var/log/Xorg.*.log 2>/dev/null && CUSTOM_CONF_LIGHTDM_DPMS='xset -dpms'
+# ... do it
+gcfg.sed "s/%{CUSTOM_CONF_LIGHTDM_DPMS}/${CUSTOM_CONF_LIGHTDM_DPMS}/g" /etc/lightdm/display-setup.d/50custom-conf-lightdm
+gcfg.sed "s/%{CUSTOM_CONF_LIGHTDM_INDICATORS}/${CUSTOM_CONF_LIGHTDM_INDICATORS}/g" /etc/lightdm/lightdm-gtk-greeter.conf
 
 # Warning
 echo "WARNING[${PKGNAME}]: You MUST restart lightdm to enforce changes"

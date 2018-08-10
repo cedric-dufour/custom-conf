@@ -1,3 +1,10 @@
+custom-conf-lightdm (2018.08.10a) UNRELEASED; urgency=low
+
+  * Add hooks (run-parts) for LightDM display/session setup/cleanup
+  * Add X session monitoring "daemon" and hooks (run-parts) <-> lock/unlock
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Fri, 10 Aug 2018 14:01:28 +0200
+
 custom-conf-lightdm (2017.08.11c) UNRELEASED; urgency=low
 
   * Fix indicators (Debian/Stretch)

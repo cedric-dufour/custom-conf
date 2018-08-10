@@ -1,26 +1,25 @@
 #!/bin/sh
 ## CUSTOM-CONF: File automatically created/updated [custom-conf-lightdm]
 
-
 ## LightDM X session wrapper
 #  NOTE: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=752129
-touch "$HOME/.xsession-errors.lightdm"
-chmod go= "$HOME/.xsession-errors.lightdm"
-exec > "$HOME/.xsession-errors.lightdm"
+touch "${HOME}/.xsession-errors.lightdm"
+chmod go= "${HOME}/.xsession-errors.lightdm"
+exec > "${HOME}/.xsession-errors.lightdm"
 exec 2>&1
 echo 'Running X session wrapper'
 
 # Load profile
-for file in '/etc/lightdm/Xsession.d'/* '/etc/xprofile' "$HOME/.xprofile"; do
-    if [ -f "$file" ]; then
-        echo "Loading profile from $file";
-        . "$file"
-    fi
+for file in /etc/lightdm/Xsession.d/* /etc/xprofile "${HOME}/.xprofile"; do
+  if [ -f "${file}" ]; then
+    echo "Loading profile from ${file}";
+    . "${file}"
+  fi
 done
 
 # Done
 echo "X session wrapper complete, running session $@"
-exec > "$HOME/.xsession-errors"
+exec > "${HOME}/.xsession-errors"
 exec 2>&1
 exec $@
 

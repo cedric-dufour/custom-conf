@@ -1,0 +1,18 @@
+#!/bin/sh
+## CUSTOM-CONF: File automatically created/updated [custom-conf-lightdm]
+
+## LightDM display setup script
+
+# Shorten DPMS timeout on login screen
+# BUG: https://devtalk.nvidia.com/default/topic/975538/linux/wakeup-takes-ages-after-dpms-kick-in
+# (Please use 'dpkg-reconfigure custom-conf-lightdm' to change this setting)
+%{CUSTOM_CONF_LIGHTDM_DPMS}
+
+# Disable system beep
+xset -b b off
+
+# Configure non-US keyboard in greeter
+# BUG: Launchpad #995715
+# (Please implement in a separate display setup script)
+#setxkbmap ch fr
+
