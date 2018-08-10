@@ -1,0 +1,10 @@
+## CUSTOM-CONF: File automatically created/updated [custom-conf-pam-krb5+opensc]
+
+## PAM Configuration
+
+# Non-interactive session management
+session required pam_unix.so
+session optional pam_krb5.so minimum_uid=1000
+session optional pam_ldap.so
+session optional pam_umask.so
+

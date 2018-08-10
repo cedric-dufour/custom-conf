@@ -1,0 +1,7 @@
+#!/bin/sh
+
+# Kill the smart card's event manager daemon
+[ -r "/tmp/.card_eventmgr${DISPLAY%%.*}.pid" ] || exit
+pkill -F "/tmp/.card_eventmgr${DISPLAY%%.*}.pid" || exit $?
+rm -f "/tmp/.card_eventmgr${DISPLAY%%.*}.pid"
+

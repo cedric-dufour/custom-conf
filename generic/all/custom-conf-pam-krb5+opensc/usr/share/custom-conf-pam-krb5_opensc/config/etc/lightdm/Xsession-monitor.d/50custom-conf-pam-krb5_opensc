@@ -1,0 +1,7 @@
+#!/bin/sh
+[ "${DBUS_MEMBER}" != 'Unlock' ] && exit
+
+## Rename misnamed Kerberos 5 credential cache (ticket)
+#  FIX: https://bugs.launchpad.net/ubuntu/+source/lightdm/+bug/1336663
+/etc/security/pam-script.d/krb5cc_rename "${USER}"
+

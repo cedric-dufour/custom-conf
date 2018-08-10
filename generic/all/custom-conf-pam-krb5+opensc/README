@@ -1,0 +1,28 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-conf-pam-krb5+opensc
+
+This package provides standard configuration of the Pluggable Authentication
+Modules (PAM) stack along MIT Kerberos V and OpenSC (PKCS#11) authentication
+
+In particular, it addresses standard configuration of:
+ - Mandatory PKCS#11 (OpenSC) authentication
+ - LDAP integration (<-> 'custom-conf-nss' package)
+ - Kerberos integration (<-> 'custom-conf-krb5' package)
+ - Kerberos authentication quirks
+ - SmartCard event manager (<-> session securing on removal)
+
+Noteworthy:
+ - The SmartCard certificate is assumed to store the username in its subject's
+   Common Name (CN)
+ - MIT Kerberos V does NOT allow to *enforce* PKINIT and will always revert
+   to password authentication if the former fails; the only way to *enforce*
+   SmartCard authentication is thus by the  way of 'pam_pkcs11'
+ - In order to avoid weird user experiences - e.g. when Gnome Keyring PAM
+   integration is enabled - authentication must end with the user *password*
+   stored in the PAM stack (and NOT the SmartCard PIN code); this is unfortu-
+   nate but see this as "two+"-factor authentication
+ - WARNING: at the time of writing, 'pam_pkcs11' segfaults when attempting any
+   type of Certificates Revocation List (CRL) check! Performing no CRL checks
+   is however leveraged by password authentication being required.
+

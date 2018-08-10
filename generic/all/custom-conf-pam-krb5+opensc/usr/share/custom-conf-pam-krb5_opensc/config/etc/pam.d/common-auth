@@ -1,0 +1,25 @@
+## CUSTOM-CONF: File automatically created/updated [custom-conf-pam-krb5+opensc]
+
+## PAM Configuration
+
+# Thwart password brute-forcing attempts
+auth required pam_faildelay.so delay=3000000
+
+# User authentication
+# ... local account
+auth [success=ok default=1] pam_localuser.so
+auth [success=done default=die] pam_unix.so
+# ... PKCS#11 (OpenSC)
+auth [success=1 default=ignore] pam_succeed_if.so quiet use_uid service notin login:lightdm:xdm:gdm:kdm:xscreensaver:gnome-screensaver:kscreensaver
+auth [success=ok default=die] pam_pkcs11.so
+# ... Kerberos/LDAP
+auth optional pam_echo.so Password authentication starts
+auth [success=2 default=ignore] pam_krb5.so minimum_uid=1000
+auth [success=1 default=ignore] pam_ldap.so use_first_pass
+# ... auth. failed
+auth requisite pam_deny.so
+# ... FIX: https://bugs.launchpad.net/ubuntu/+source/lightdm/+bug/1336663
+auth optional pam_script.so dir=/etc/security/pam-script.d
+# ... auth. success
+auth required pam_permit.so
+

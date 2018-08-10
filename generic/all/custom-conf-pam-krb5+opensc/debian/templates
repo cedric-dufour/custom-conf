@@ -1,0 +1,13 @@
+Template: custom-conf-pam-krb5_opensc/crl-type
+Type: select
+Choices: none, online, offline, auto
+Default: none
+Description: Certificates Revocation List (CRL) type ?
+ Please select the type of Certificates Revocation List (CRL) to check the
+ presented certificate's revocation status:
+ .
+  - none:    no revocation check is performed
+  - online:  the CRL is downloaded from the certificate's CRL distribution point
+  - offline: the local CRL is used (/etc/ssl/local/localsite-auth-crl.pem)
+  - auto:    try 'online' and fail back to 'offline'
+

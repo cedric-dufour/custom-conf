@@ -1,0 +1,44 @@
+#!/bin/bash
+[ "${1}" != 'configure' ] && exit 0
+PKGNAME='custom-conf-pam-krb5_opensc'
+
+# Debconf
+. /usr/share/debconf/confmodule
+# ... preseed
+for var_priority in crl-type:high; do
+  var="${var_priority%:*}"
+  priority="${var_priority#*:}"
+  db_input ${priority} ${PKGNAME}/${var}
+  db_go
+done
+# ... get
+db_get ${PKGNAME}/crl-type && CUSTOM_CONF_KRB5_OPENSC_CRLTYPE="${RET}"
+db_stop
+
+# Install files
+custom-conf-install "${PKGNAME}" "/usr/share/${PKGNAME}/config" || exit 1
+
+# Fine-tune (extra) metrics configuration
+gcfg.sed "s/%{CUSTOM_CONF_KRB5_OPENSC_CRLTYPE}/${CUSTOM_CONF_KRB5_OPENSC_CRLTYPE}/g" /etc/pam_pkcs11/pam_pkcs11.conf
+
+# Additional actions
+if [ -e /etc/pam_ldap.conf -a ! -h /etc/pam_ldap.conf ]; then
+  [ ! -e /etc/pam_ldap.conf.debian ] && cp -p /etc/pam_ldap.conf /etc/pam_ldap.conf.debian
+  rm -f /etc/pam_ldap.conf
+fi
+if [ ! -e /etc/pam_ldap.conf ]; then
+  ln -s /etc/ldap.conf /etc/pam_ldap.conf
+fi
+invoke-rc.d nscd restart
+
+# Additonal check
+if [ ! -e /etc/ldap.conf ]; then
+cat << EOF
+WARNING[${PKGNAME}]: LDAP configuration file is missing (/etc/ldap.conf)!
+: Running 'gcfg verify' should fix this
+EOF
+fi
+
+# Exit
+exit 0
+

@@ -1,0 +1,54 @@
+#!/bin/bash
+## CUSTOM-CONF: File automatically created/updated [custom-conf-pam-krb5+opensc]
+
+## Rename misnamed Kerberos 5 credential cache (ticket)
+#  FIX: https://bugs.launchpad.net/ubuntu/+source/lightdm/+bug/1336663
+umask 077
+
+# Parameter(s)
+KRB5CC_DIR='/tmp'
+
+# Argument(s)
+KRB5CC_USER="${1}"
+[ -z "${KRB5CC_USER}" ] && echo 'ERROR: Missing/empty user name' >&2 && exit 1
+
+# Look for matching - although misnamed - credential cache (ticket)
+# ... user UID
+KRB5CC_UID="$(id -u "${KRB5CC_USER}")"
+[ -z "${KRB5CC_UID}" ] && echo 'ERROR: Failed to retrieve user UID' >&2 && exit 1
+# ... matching/misnamed ticket
+KRB5CC_SRC="$(find "${KRB5CC_DIR}" -maxdepth 1 -uid "${KRB5CC_UID}" -name 'krb5cc_0')"
+if [ -n "${KRB5CC_SRC}" ]; then
+  mv "${KRB5CC_SRC}" "${KRB5CC_DIR}/krb5cc_0.${KRB5CC_UID}_ORPHANED"
+  KRB5CC_SRC="${KRB5CC_DIR}/krb5cc_0.${KRB5CC_UID}_ORPHANED"
+else
+  KRB5CC_SRC="$(find "${KRB5CC_DIR}" -maxdepth 1 -uid "${KRB5CC_UID}" -name "krb5cc_0.${KRB5CC_UID}_ORPHANED")"
+fi
+[ -z "${KRB5CC_SRC}" ] && echo 'INFO: No Kerberos 5 matching/misnamed ticket found' && exit 0
+KRB5CC_SRC_PRINC="$(klist "${KRB5CC_SRC}" | grep '^Default principal:')"
+[ -z "${KRB5CC_SRC_PRINC}" ] && echo 'ERROR: Failed to retrieve Kerberos 5 ticket principal' >&2 && exit 1
+# ... (older) user tickets
+if [ "${KRB5CCNAME:0:5}" == 'FILE:' ]; then
+  KRB5CC_DST_N="${KRB5CCNAME:5}"
+else
+  KRB5CC_DST_N="$(find "${KRB5CC_DIR}" -maxdepth 1 -uid "${KRB5CC_UID}" -name "krb5cc_${KRB5CC_UID}_*" -not -newer "${KRB5CC_SRC}")"
+fi
+[ -z "${KRB5CC_DST_N}" ] && echo 'INFO: No Kerberos 5 user ticket found' && exit 0
+KRB5CC_UPDATED=
+IFS=$'\n'; for KRB5CC_DST in ${KRB5CC_DST_N}; do
+  if [ "${KRB5CCNAME:0:5}" != 'FILE:' ]; then
+    KRB5CC_DST_PRINC="$(klist "${KRB5CC_DST}" | grep '^Default principal:')"
+    [ -z "${KRB5CC_DST_PRINC}" ] && echo 'ERROR: Failed to retrieve Kerberos 5 ticket principal' >&2 && continue
+    [ "${KRB5CC_DST_PRINC}" != "${KRB5CC_SRC_PRINC}" ] && echo 'ERROR: Mismatched Kerberos 5 principal' >&2 && continue
+  fi
+  cat "${KRB5CC_SRC}" > "${KRB5CC_DST}"
+  [ $? -ne 0 ] && echo 'ERROR: Failed to update Kerberos 5 user ticket' >&2 && continue
+  echo "INFO: Successfully updated Kerberos 5 user ticket (${KRB5CC_DST})"
+  KRB5CC_UPDATED='yes'
+done
+# ... remove matching/misnamed ticket
+[ -n "${KRB5CC_UPDATED}" ] && rm -f "${KRB5CC_SRC}"
+
+# Done
+exit 0
+

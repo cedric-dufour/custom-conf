@@ -1,0 +1,15 @@
+## CUSTOM-CONF: File automatically created/updated [custom-conf-pam-krb5+opensc]
+
+## PAM Configuration
+
+# Account policies
+account [success=ok default=1] pam_localuser.so
+account [success=3 default=die] pam_unix.so
+account [success=ok default=ignore] pam_krb5.so minimum_uid=1000
+account [success=1 default=ignore] pam_ldap.so
+account requisite pam_deny.so
+account required pam_permit.so
+
+# Limit access according to /etc/security/access.conf
+account required pam_access.so
+
