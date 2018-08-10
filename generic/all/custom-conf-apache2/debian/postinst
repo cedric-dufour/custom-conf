@@ -185,7 +185,11 @@ gcfg.sed "s|%{CUSTOM_CONF_APACHE2_LOGOWNER}|${CUSTOM_CONF_APACHE2_LOGOWNER}|g;s|
 [ ! -e /etc/apache2/ssl/cert.pem ] && ln -sf /etc/ssl/local/localhost-cert.pem /etc/apache2/ssl/cert.pem
 if [ ! -e /etc/apache2/ssl/caauth/ ]; then
   mkdir /etc/apache2/ssl/caauth/
-  ln -sf /etc/ssl/local/localsite-auth-ca.pem /etc/apache2/ssl/caauth/caauth.pem
+  if [ -e /etc/ssl/local/localsite-auth-ca.pem ]; then
+    ln -sf /etc/ssl/local/localsite-auth-ca.pem /etc/apache2/ssl/caauth/caauth.pem
+  else
+    ln -sf /etc/ssl/local/localsite-ca.pem /etc/apache2/ssl/caauth/caauth.pem
+  fi
 fi
 for cert in /etc/apache2/ssl/caauth/*.pem; do
   [ ! -r "${cert}" ] && continue
