@@ -1,0 +1,21 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-conf-opensc
+
+This package provides standard configuration of the Open SmartCard
+(OpenSC) stack, along PKCS#11 add-ons.
+
+In particular, it addresses standard configuration of:
+ - generic smartcards usage for authentication and encryption/signature,
+   along common Linux setups: PAM, Kerberos, Firefox/Thunderbird/Chromium,
+   etc.
+
+Noteworthy:
+ - WARNING: this configuration may prove inappropriate for specialized
+   applications with high security requirements, since some compromises
+   have been made to leverage user experience vs (stringent) security
+ - WARNING: at the time of writing, it is highly recommended to use the
+   following Debian/Buster (backported) packages to avoid a few bugs:
+   - libccid >= 1.4.27 (<-> HID 5x22 readers)
+   - opensc >= 0.18 (<-> Aventry MyEID smartcards)
+

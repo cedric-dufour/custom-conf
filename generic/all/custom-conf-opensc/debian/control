@@ -1,0 +1,12 @@
+Source: custom-conf-opensc
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 4.1.3
+
+Package: custom-conf-opensc
+Architecture: all
+Depends: custom-conf, opensc, opensc-pkcs11, pcscd
+Description: Custom Configuration Framework - OpenSC (SmartCard/PKCS#11 stack)
+
