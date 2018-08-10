@@ -155,6 +155,12 @@ profile thunderbird @{thunderbird_executable} {
   owner @{HOME}/**/key4.db rwk,
   owner @{HOME}/**/pkcs11.txt rwk,
 
+  # Access to PKCS#11 modules (and "Security Devices")
+  /usr/lib/@{multiarch}/pkcs11/*.so rm,
+  /usr/lib/@{multiarch}/*pkcs11.so rm,
+  # ... OpenSC
+  /etc/opensc/opensc.conf r,
+
   # Allow Debian browsers to be launched (*handler.http*)
   /usr/bin/firefox{,-esr} Cx -> sanitized_helper,
   /usr/lib/firefox{,-esr}/firefox{,-esr} Cx -> sanitized_helper,
