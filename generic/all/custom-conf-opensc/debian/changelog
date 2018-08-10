@@ -1,3 +1,9 @@
+custom-conf-opensc (2018.08.10b) UNRELEASED; urgency=low
+
+  * Show all PKCS#11 slots (for all purposes)
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Fri, 10 Aug 2018 18:28:16 +0200
+
 custom-conf-opensc (2018.08.10a) UNRELEASED; urgency=low
 
   * Post Tenebras Lux
