@@ -1,7 +1,6 @@
 #!/bin/bash
 ## CUSTOM-UTIL: File automatically created/updated [custom-util-skel]
 
-
 ## Usage
 [ "${1##*-}" == 'help' ] && cat << EOF && exit 1
 USAGE: ${0##*/} [options]

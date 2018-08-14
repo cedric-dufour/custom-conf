@@ -1,7 +1,6 @@
 #!/bin/bash
 ## CUSTOM-UTIL: File automatically created/updated [custom-util-skel]
 
-
 ## Usage
 [ $# -lt 1 -o "${1##*-}" == 'help' ] && cat << EOF && exit 1
 USAGE: ${0##*/} <certificate> [<certificate> ...]
@@ -103,13 +102,12 @@ do
       ln -s "${NSSDBDIR}/key4.db" "${profile}/key4.db"
     fi
   fi
-  if [ ! -h "${profile}/pkcs11.txt" ]; then
+  if [ ! -e "${profile}/pkcs11.txt" ]; then
     if [ -n "${DRYRUN}" ]; then
-      echo "DRY-RUN: NOT symlinking PKCS#11 configuration in user profile (${profile})"
+      echo "DRY-RUN: NOT copying PKCS#11 configuration in user profile (${profile})"
     else
-      echo "INFO: Symlinking PKCS#11 configuration in user profile (${profile})"
-      rm -f "${profile}/pkcs11.txt"
-      ln -s "${NSSDBDIR}/pkcs11.txt" "${profile}/pkcs11.txt"
+      echo "INFO: Copying PKCS#11 configuration in user profile (${profile})"
+      cp -p "${NSSDBDIR}/pkcs11.txt" "${profile}/pkcs11.txt"
     fi
   fi
 done
