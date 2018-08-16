@@ -3,7 +3,7 @@
 PKGNAME='custom-conf-hotfixes'
 
 # Additional actions
-#sysctl --system  # NO sysctl hotfix at the present time
+sysctl --system
 
 # Exit
 exit 0

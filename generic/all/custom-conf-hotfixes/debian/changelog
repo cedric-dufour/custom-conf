@@ -1,3 +1,10 @@
+custom-conf-hotfixes (2018.08.16a) UNRELEASED; urgency=low
+
+  * Added hotfix (ref: https://www.debian.org/security/2018/dsa-4272)
+  - CVE-2018-5391
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Thu, 16 Aug 2018 10:14:24 +0200
+
 custom-conf-hotfixes (2017.03.09a) UNRELEASED; urgency=low
 
   * Added hotfixes (ref: https://www.debian.org/security/2017/dsa-3804)
