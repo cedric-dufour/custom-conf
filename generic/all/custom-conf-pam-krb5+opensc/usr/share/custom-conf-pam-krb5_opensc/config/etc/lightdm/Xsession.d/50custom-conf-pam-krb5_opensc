@@ -1,8 +1,9 @@
 ##!/bin/sh (sourced)
 
 # Launch the smart card's event manager daemon
-pgrep -U "${USER}" -c -x card_eventmgr >/dev/null && return
-UMASK="$(umask)"; umask 077
-card_eventmgr daemon pidfile="/tmp/.card_eventmgr${DISPLAY%%.*}.pid"
-umask ${UMASK}
+if ! pgrep -U "${USER}" -c -x card_eventmgr >/dev/null; then
+  UMASK="$(umask)"; umask 077
+  card_eventmgr daemon pidfile="/tmp/.card_eventmgr${DISPLAY%%.*}.pid"
+  umask ${UMASK}
+fi
 
