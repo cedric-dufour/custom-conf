@@ -4,9 +4,11 @@
 ## LightDM session wrapper script
 
 # Launch the X session monitor "daemon"
-pgrep -U "${USER}" -c -x Xsession-monitor >/dev/null && return
-UMASK="$(umask)"; umask 077
-/etc/lightdm/Xsession-monitor &
-echo $! > "/tmp/.xsession-monitor${DISPLAY%%.*}.pid"
-umask ${UMASK}
+# Note: /proc/*/comm (name) is truncated to 15 characters
+if ! pgrep -U "${USER}" -c -x Xsession-monito >/dev/null; then
+  UMASK="$(umask)"; umask 077
+  /etc/lightdm/Xsession-monitor &
+  echo $! > "/tmp/.xsession-monitor${DISPLAY%%.*}.pid"
+  umask ${UMASK}
+fi
 
