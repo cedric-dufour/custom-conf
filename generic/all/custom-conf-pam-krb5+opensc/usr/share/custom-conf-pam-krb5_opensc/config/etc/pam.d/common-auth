@@ -11,7 +11,7 @@ auth [success=ok default=1] pam_localuser.so
 auth [success=done default=die] pam_unix.so
 # ... PKCS#11 (OpenSC)
 auth [success=1 default=ignore] pam_succeed_if.so quiet use_uid service notin login:lightdm:xdm:gdm:kdm:xscreensaver:gnome-screensaver:kscreensaver
-auth [success=ok default=die] pam_pkcs11.so
+auth [success=reset default=die] pam_pkcs11.so
 # ... Kerberos/LDAP
 auth optional pam_echo.so Password authentication starts
 auth [success=2 default=ignore] pam_krb5.so minimum_uid=1000
