@@ -25,7 +25,7 @@ custom-conf-install "${PKGNAME}" "/usr/share/${PKGNAME}/config" || exit 1
 # ... indicators
 CUSTOM_CONF_LIGHTDM_INDICATORS=
 for indicator in ${CUSTOM_DEBCONF_LIGHTDM_INDICATORS//,/ }; do
-  CUSTOM_CONF_LIGHTDM_INDICATORS="${CUSTOM_CONF_LIGHTDM_INDICATORS:+;}~${indicator}"
+  CUSTOM_CONF_LIGHTDM_INDICATORS="${CUSTOM_CONF_LIGHTDM_INDICATORS:+${CUSTOM_CONF_LIGHTDM_INDICATORS};}~${indicator}"
 done
 # ... DPMS; BUG: https://devtalk.nvidia.com/default/topic/975538/linux/wakeup-takes-ages-after-dpms-kick-in
 CUSTOM_CONF_LIGHTDM_DPMS='xset dpms 60 180 300'
