@@ -1,3 +1,9 @@
+custom-conf-pam-krb5+opensc (2018.08.24a) UNRELEASED; urgency=low
+
+  * Properly remove PKCS#11 resources from SSH agent on smart card removal
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Fri, 24 Aug 2018 11:32:57 +0200
+
 custom-conf-pam-krb5+opensc (2018.08.17a) UNRELEASED; urgency=low
 
   * Reset PAM stack after PKCS#11 and before password authentication

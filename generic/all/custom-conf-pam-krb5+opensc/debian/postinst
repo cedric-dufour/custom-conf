@@ -18,8 +18,16 @@ db_stop
 # Install files
 custom-conf-install "${PKGNAME}" "/usr/share/${PKGNAME}/config" || exit 1
 
-# Fine-tune (extra) metrics configuration
-gcfg.sed "s/%{CUSTOM_CONF_KRB5_OPENSC_CRLTYPE}/${CUSTOM_CONF_KRB5_OPENSC_CRLTYPE}/g" /etc/pam_pkcs11/pam_pkcs11.conf
+# Fine-tune configuration
+# ... PKCS#11 library
+CUSTOM_CONF_KRB5_OPENSC_PKCS11LIB="$(find /lib /usr/lib -type f -name opensc-pkcs11.so | head -n 1)"
+if [ -z "${CUSTOM_CONF_KRB5_OPENSC_PKCS11LIB}" ]; then
+  echo "WARNING[${PKGNAME}]: Failed to locate OpenSC PKCS#11 library; using default" >&2
+  CUSTOM_CONF_KRB5_OPENSC_PKCS11LIB='/usr/lib/x86_64-linux-gnu/opensc-pkcs11.so'
+fi
+# ... do it
+gcfg.sed "s|%{CUSTOM_CONF_KRB5_OPENSC_PKCS11LIB}|${CUSTOM_CONF_KRB5_OPENSC_PKCS11LIB}|g" /etc/pam_pkcs11/card_eventmgr.conf
+gcfg.sed "s|%{CUSTOM_CONF_KRB5_OPENSC_CRLTYPE}|${CUSTOM_CONF_KRB5_OPENSC_CRLTYPE}|g" /etc/pam_pkcs11/pam_pkcs11.conf
 
 # Additional actions
 if [ -e /etc/pam_ldap.conf -a ! -h /etc/pam_ldap.conf ]; then
