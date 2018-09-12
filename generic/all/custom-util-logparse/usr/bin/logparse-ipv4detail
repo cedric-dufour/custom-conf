@@ -28,7 +28,7 @@ sub ip2country {
 while(<STDIN>) {
   my $sIP;
   my $sDetail;
-  if( /(^|\|)(\d+(\.\d+){3})(\||$)/ ) {
+  if( /(^|\W)(\d+(\.\d+){3})(\W|$)/ ) {
     $sIP = $2;
     if( $sIP =~ /^(10(\.\d+){3})$/ ) {
       $sDetail = ip2hostname( $sIP );
