@@ -1,7 +1,10 @@
 // CUSTOM-CONF: File automatically created/updated [custom-conf-thunderbird]
 
 // Use LANG environment variable to choose locale
+// ... old way
 pref("intl.locale.matchOS", true);
+// ... new way
+pref("intl.locale.requested", "");
 
 // Disable default mail checking (gnome).
 pref("mail.shell.checkDefaultClient", false);
@@ -28,4 +31,7 @@ pref("browser.cache.disk.parent_directory", "~/.cache/thunderbird");
 pref("browser.cache.disk.capacity", 262144);
 pref("browser.cache.offline.parent_directory", "~/.cache/thunderbird");
 pref("browser.cache.offline.capacity", 262144);
+
+// Quirks (to be verified)
+//pref("javascript.options.baselinejit", false);
 
