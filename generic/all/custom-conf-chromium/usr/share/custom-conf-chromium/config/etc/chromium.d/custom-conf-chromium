@@ -1,7 +1,16 @@
 ## CUSTOM-CONF: File automatically created/updated [custom-conf-chromium]
 
+## Flags
+#  REF: https://peter.sh/experiments/chromium-command-line-switches/
+
 # Make sure to use the Gnome Keyring by default
 # WARNING: if anything goes awry when accessing the keyring, Chromium will
 #          SILENTLY revert to its own cleartext (!!!) SQLite database!
-CHROMIUM_FLAGS="${CHROMIUM_FLAGS} --password-store=gnome"
+export CHROMIUM_FLAGS="${CHROMIUM_FLAGS} --password-store=gnome"
+
+# Disable crash reporter
+export CHROMIUM_FLAGS="${CHROMIUM_FLAGS} --disable-breakpad"
+
+# Force cache management to sensible settings
+export CHROMIUM_FLAGS="${CHROMIUM_FLAGS} --disk-cache-size=268435456"
 

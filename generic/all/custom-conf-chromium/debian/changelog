@@ -1,3 +1,9 @@
+custom-conf-chromium (2018.09.17a) UNRELEASED; urgency=low
+
+  * Updated default flags for Chromium 69+
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Mon, 17 Sep 2018 16:09:59 +0200
+
 custom-conf-chromium (2017.08.10a) UNRELEASED; urgency=low
 
   * Post Tenebras Lux
