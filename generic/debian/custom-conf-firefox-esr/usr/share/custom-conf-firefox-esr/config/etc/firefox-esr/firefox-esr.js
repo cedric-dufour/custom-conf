@@ -4,7 +4,10 @@
 pref("extensions.update.enabled", true);
 
 // Use LANG environment variable to choose locale
+// ... old way
 pref("intl.locale.matchOS", true);
+// ... new way
+pref("intl.locale.requested", "");
 
 // Disable default browser checking.
 pref("browser.shell.checkDefaultBrowser", false);
@@ -32,10 +35,22 @@ pref("media.gmp-manager.url.override", "data:text/plain,");
 pref("media.gmp-gmpopenh264.enabled", false);
 
 // Default to classic view for about:newtab
+// ... old way
 sticky_pref("browser.newtabpage.enhanced", false);
+// ... new way
+pref("browser.newtabpage.enhanced", false, sticky);
 
 // Disable health report upload
 lockPref("datareporting.healthreport.uploadEnabled", false);
+
+// Disable all data upload (Telemetry and FHR)
+lockPref("datareporting.policy.dataSubmissionEnabled", false);
+
+// Disable crash reporter
+lockPref("toolkit.crashreporter.enabled", false);
+
+// Let user opt-in to search suggestions
+pref("browser.urlbar.suggest.searches", false);
 
 // Force cache management to sensible settings
 lockPref("browser.cache.disk.smart_size.enabled", false);
