@@ -15,6 +15,10 @@ done
 db_get ${PKGNAME}/crl-type && CUSTOM_CONF_KRB5_OPENSC_CRLTYPE="${RET}"
 db_stop
 
+# Migration
+[ -e /etc/lightdm/Xsession.d/50custom-conf-pam-krb5_opensc ] && gcfg move --batch /etc/lightdm/Xsession.d/{50,45}custom-conf-pam-krb5_opensc
+[ -e /etc/lightdm/session-cleanup.d/50custom-conf-pam-krb5_opensc ] && gcfg move --batch /etc/lightdm/session-cleanup.d/{50,55}custom-conf-pam-krb5_opensc
+
 # Install files
 custom-conf-install "${PKGNAME}" "/usr/share/${PKGNAME}/config" || exit 1
 

@@ -1,0 +1,18 @@
+##!/bin/sh (sourced)
+UMASK="$(umask)"; umask 077
+
+# Launch the smart card's event manager daemon
+if ! pgrep -U "${USER}" -c -x card_eventmgr >/dev/null; then
+  card_eventmgr daemon pidfile="/tmp/.card_eventmgr${DISPLAY%%.*}.pid"
+fi
+
+# Launch the SSH agent
+# (so to have the ad-hoc environment in the X session context)
+if ! pgrep -U "${USER}" -c -x ssh-agent >/dev/null; then
+  eval $(ssh-agent -s)
+  echo "${SSH_AGENT_PID}" > "/tmp/.ssh-agent${DISPLAY%%.*}.pid"
+fi
+
+# Done
+umask ${UMASK}
+

@@ -1,5 +1,11 @@
 #!/bin/sh
 
+# Kill the SSH agent
+if [ -r "/tmp/.ssh-agent${DISPLAY%%.*}.pid" ]; then
+  pkill -U ${USER} -F "/tmp/.ssh-agent${DISPLAY%%.*}.pid" -x ssh-agent \
+  && rm -f "/tmp/.ssh-agent${DISPLAY%%.*}.pid"
+fi
+
 # Kill the smart card's event manager daemon
 if [ -r "/tmp/.card_eventmgr${DISPLAY%%.*}.pid" ]; then
   pkill -U ${USER} -F "/tmp/.card_eventmgr${DISPLAY%%.*}.pid" -x card_eventmgr \

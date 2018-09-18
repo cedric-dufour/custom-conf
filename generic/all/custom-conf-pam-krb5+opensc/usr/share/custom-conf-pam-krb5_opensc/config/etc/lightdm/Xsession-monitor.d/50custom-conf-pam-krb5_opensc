@@ -1,14 +1,27 @@
 #!/bin/sh
-[ "${DBUS_MEMBER}" != 'Unlock' ] && exit
+case "${DBUS_MEMBER}" in
 
-# Rename misnamed Kerberos 5 credential cache (ticket)
-# FIX: https://bugs.launchpad.net/ubuntu/+source/lightdm/+bug/1336663
-/etc/security/pam-script.d/krb5cc_rename "${USER}"
+  'Lock')
+    # Destroy Kerberos 5 ticket
+    kdestroy
 
-# (Re-)Launch the smart card's event manager daemon
-if ! pgrep -U "${USER}" -c -x card_eventmgr >/dev/null; then
-  UMASK="$(umask)"; umask 077
-  card_eventmgr daemon pidfile="/tmp/.card_eventmgr${DISPLAY%%.*}.pid"
-  umask ${UMASK}
-fi
+    # Purge the SSH agent
+    ssh-add -D
+    ssh-add -e '/usr/lib/x86_64-linux-gnu/opensc-pkcs11.so'
+    ;;
+
+  'Unlock')
+    # Rename misnamed Kerberos 5 credential cache (ticket)
+    # FIX: https://bugs.launchpad.net/ubuntu/+source/lightdm/+bug/1336663
+    /etc/security/pam-script.d/krb5cc_rename "${USER}"
+
+    # (Re-)Launch the smart card's event manager daemon
+    if ! pgrep -U "${USER}" -c -x card_eventmgr >/dev/null; then
+      UMASK="$(umask)"; umask 077
+      card_eventmgr daemon pidfile="/tmp/.card_eventmgr${DISPLAY%%.*}.pid"
+      umask ${UMASK}
+    fi
+    ;;
+
+esac
 
