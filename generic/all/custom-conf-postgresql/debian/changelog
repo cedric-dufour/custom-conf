@@ -1,3 +1,9 @@
+custom-conf-postgresql (2018.09.20a) UNRELEASED; urgency=low
+
+  * Fix 'prerm' script for PostgreSQL 9.6 (thanks to S.Gaist @ Idiap)
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Thu, 20 Sep 2018 10:11:44 +0200
+
 custom-conf-postgresql (2018.05.14a) UNRELEASED; urgency=low
 
   * Use 'gcfg.sed' instead of 'gsed' in scripts

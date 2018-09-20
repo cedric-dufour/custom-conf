@@ -8,7 +8,7 @@ for version in 9.{9..0}; do
   [ -e /usr/lib/postgresql/${version}/bin/initdb ] && CUSTOM_CONF_POSTGRESQL_VERSION=${version} && break
 done
 case "${CUSTOM_CONF_POSTGRESQL_VERSION}" in
-  '9.1'|'9.4')
+  '9.1'|'9.4'|'9.6')
     echo "INFO[${PKGNAME}]: Detected supported PostgreSQL version (${CUSTOM_CONF_POSTGRESQL_VERSION})"
     ;;
   *)
