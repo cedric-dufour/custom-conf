@@ -8,6 +8,8 @@ case "${DBUS_MEMBER}" in
     # Purge the SSH agent
     ssh-add -D
     ssh-add -e '/usr/lib/x86_64-linux-gnu/opensc-pkcs11.so'
+    # NOTE: Users with multiple PINs per card MUST use OpenSC "One PIN" alternative
+    ssh-add -e '/usr/lib/x86_64-linux-gnu/onepin-opensc-pkcs11.so'
     ;;
 
   'Unlock')

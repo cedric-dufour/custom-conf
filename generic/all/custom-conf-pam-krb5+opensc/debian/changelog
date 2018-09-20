@@ -1,3 +1,9 @@
+custom-conf-pam-krb5+opensc (2018.09.20a) UNRELEASED; urgency=low
+
+  * Also remove OpenSC "One PIN" PKCS#11 library from the SSH agent
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Thu, 20 Sep 2018 09:26:56 +0200
+
 custom-conf-pam-krb5+opensc (2018.09.18a) UNRELEASED; urgency=low
 
   * Handle the SSH agent as part of the X session
