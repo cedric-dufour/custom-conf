@@ -1,3 +1,9 @@
+custom-conf-apache2-templates (2018.10.19a) UNRELEASED; urgency=low
+
+  * Added ErrorDocument 401 resources
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Fri, 19 Oct 2018 15:39:00 +0200
+
 custom-conf-apache2-templates (2016.07.05a) UNRELEASED; urgency=low
 
   * Post Tenebras Lux
