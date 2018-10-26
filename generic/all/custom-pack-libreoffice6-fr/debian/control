@@ -1,0 +1,12 @@
+Source: custom-pack-libreoffice6-fr
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 4.1.3
+
+Package: custom-pack-libreoffice6-fr
+Architecture: all
+Depends: libreoffice6.0-fr, libreoffice6.0-dict-fr, libobasis6.0-fr-help
+Description: Custom Configuration Framework - LibreOffice 6.0, French language pack (original upstream packages)
+

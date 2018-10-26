@@ -1,0 +1,13 @@
+Source: custom-pack-libreoffice6
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 4.1.3
+
+Package: custom-pack-libreoffice6
+Architecture: all
+Depends: custom-pack-libreoffice6-en-us, libreoffice6.0, libreoffice6.0-calc, libreoffice6.0-draw, libreoffice6.0-impress, libreoffice6.0-math, libreoffice6.0-writer, libreoffice6.0-debian-menus, libobasis6.0-gnome-integration, libobasis6.0-graphicfilter, libobasis6.0-ogltrans, libobasis6.0-ooofonts, libobasis6.0-ooolinguistic
+Suggests: custom-pack-libreoffice6-en-gb, custom-pack-libreoffice6-de, custom-pack-libreoffice6-fr, custom-pack-libreoffice6-it
+Description: Custom Configuration Framework - LibreOffice 6.0 (original upstream packages)
+
