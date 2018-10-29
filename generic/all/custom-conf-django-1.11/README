@@ -1,0 +1,13 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-conf-django-1.11
+
+This package provides standard configuration of Python Django (version 1.11,
+python 2) web applications framework.
+
+In particular, it addresses standard configuration of:
+ - WSGI/Apache or uWSGI integration
+ - installation and update via 'pip' (and a dedicated user/group)
+
+It also provides a default application to catch non-routed URLs elegantly.
+

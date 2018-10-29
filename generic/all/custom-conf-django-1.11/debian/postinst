@@ -1,0 +1,53 @@
+#!/bin/bash
+[ "${1}" != 'configure' ] && exit 0
+PKGNAME='custom-conf-django'
+
+# Install files
+custom-conf-install "${PKGNAME}" "/usr/share/${PKGNAME}/config" || exit 1
+
+# Add dedicated user (for pip usage)
+adduser --system --home /opt/django --no-create-home --shell /bin/false --gecos 'Python/Django Framework' --disabled-login django
+
+# Fine-tune permissions
+chmod 0640 /etc/python/django/settings_*.py
+chown root:www-data /etc/python/django/settings_*.py
+chmod 2370 /var/log/python/django
+chown www-data:adm /var/log/python/django
+chmod 2350 /var/cache/python/django
+chown www-data:www-data /var/cache/python/django
+[ ! -g /opt/django-1.11 ] && find /opt/django-1.11 -type d -exec chmod g+s {} \;
+[ "$(stat -c '%U' /opt/django-1.11)" != 'django' ] && chown -R django:nogroup /opt/django-1.11
+
+# Fine-tune configuration
+# ... secrets
+if ! gcfg flagged /etc/python/django/settings_secrets.py @EDITED; then
+  echo "NOTICE[${PKGNAME}]: Generating secret token; this may take some time..."
+  CUSTOM_CONF_DJANGO_SECRET="$(dd if=/dev/urandom bs=512 count=1 2>/dev/null | sha1sum | awk '{print $1}')"
+  gcfg.sed "s|%{CUSTOM_CONF_DJANGO_SECRET}|${CUSTOM_CONF_DJANGO_SECRET}|g" /etc/python/django/settings_secrets.py
+  gcfg flag --force /etc/python/django/settings_secrets.py @EDITED
+fi
+# ... global
+source /usr/share/custom-conf/custom-conf.defs
+CUSTOM_CONF_ETC_TIMEZONE="$(head -n 1 /etc/timezone)"
+CUSTOM_CONF_ETC_LOCALE="$(echo ${LANG,,} | sed 's|\..*$||;s|_|-|')"
+gcfg.sed "s|%{CUSTOM_CONF_ETC_TIMEZONE}|${CUSTOM_CONF_ETC_TIMEZONE}|g;s|%{CUSTOM_CONF_ETC_LOCALE}|${CUSTOM_CONF_ETC_LOCALE}|g;s|%{CUSTOM_CONF_SMTP_SERVER}|${CUSTOM_CONF_SMTP_SERVER}|g" /etc/python/django/settings_global.py
+
+# Additional actions
+su -l django -s /bin/sh -c "PATH=/opt/django-1.11/bin:${PATH} PYTHONUSERBASE=/opt/django-1.11 pip2 install --user --no-cache --compile --upgrade pip"
+# ... quirk (some permissions are strangely reset by pip on initial installation; BUG?)
+find /opt/django-1.11/ -maxdepth 3 -type d -exec chmod a+rx,g+s {} \;
+find /opt/django-1.11/ -maxdepth 3 -type f -exec chmod a+r {} \;
+
+# Message
+cat << EOF
+NOTICE[${PKGNAME}]: You must now install/update the Django framework MANUALLY; please...
+: django-pip install --upgrade
+NOTICE[${PKGNAME}]: If upgrading an existing installation, please...
+: rm -rf /var/cache/python/django/*
+: service apache2 restart
+
+EOF
+
+# Exit
+exit 0
+

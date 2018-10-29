@@ -1,0 +1,15 @@
+## CUSTOM-CONF: File automatically created/updated [custom-conf-django]
+
+# Rotate Django logs
+/var/log/python/django/*.log {
+	weekly
+	missingok
+	rotate 10
+	compress
+	delaycompress
+	notifempty
+	su www-data adm
+	create 640 www-data adm
+	sharedscripts
+}
+
