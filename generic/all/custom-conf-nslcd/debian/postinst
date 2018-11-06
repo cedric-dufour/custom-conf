@@ -1,0 +1,27 @@
+#!/bin/bash
+[ "${1}" != 'configure' ] && exit 0
+PKGNAME='custom-conf-nslcd'
+
+# Install files
+custom-conf-install "${PKGNAME}" "/usr/share/${PKGNAME}/config" || exit 1
+
+# Fine-tune configuration
+source /usr/share/custom-conf/custom-conf.defs
+# ... user DN (base <-> scope <-> filter)
+CUSTOM_CONF_NSLCD_USERDN_BASE="$(echo "${CUSTOM_CONF_NSS_USERDN}" | sed -n 's|^\([^?]*\).*$|\1|p')"
+CUSTOM_CONF_NSLCD_USERDN_SCOPE="$(echo "${CUSTOM_CONF_NSS_USERDN}" | sed -n 's|^[^?]*?\([^?]*\).*$|\1|p')"
+CUSTOM_CONF_NSLCD_USERDN_FILTER="$(echo "${CUSTOM_CONF_NSS_USERDN}" | sed -n 's|^[^?]*?[^?]*?\([^?]*\).*$|\1|p')"
+# ... group DN (base <-> scope <-> filter)
+CUSTOM_CONF_NSLCD_GROUPDN_BASE="$(echo "${CUSTOM_CONF_NSS_GROUPDN}" | sed -n 's|^\([^?]*\).*$|\1|p')"
+CUSTOM_CONF_NSLCD_GROUPDN_SCOPE="$(echo "${CUSTOM_CONF_NSS_GROUPDN}" | sed -n 's|^[^?]*?\([^?]*\).*$|\1|p')"
+CUSTOM_CONF_NSLCD_GROUPDN_FILTER="$(echo "${CUSTOM_CONF_NSS_GROUPDN}" | sed -n 's|^[^?]*?[^?]*?\([^?]*\).*$|\1|p')"
+# ... do it
+gcfg.sed "s|%{CUSTOM_CONF_NSS_SERVER_URI}|${CUSTOM_CONF_NSS_SERVER_URI}|g;s|%{CUSTOM_CONF_NSS_BINDDN}|${CUSTOM_CONF_NSS_BINDDN}|g;s|%{CUSTOM_CONF_NSS_BINDPW}|${CUSTOM_CONF_NSS_BINDPW}|g;s|%{CUSTOM_CONF_NSS_BASEDN}|${CUSTOM_CONF_NSS_BASEDN}|g;s|%{CUSTOM_CONF_NSLCD_USERDN_BASE}|${CUSTOM_CONF_NSLCD_USERDN_BASE}|g;s|%{CUSTOM_CONF_NSLCD_USERDN_SCOPE}|${CUSTOM_CONF_NSLCD_USERDN_SCOPE}|g;s|%{CUSTOM_CONF_NSLCD_USERDN_FILTER}|${CUSTOM_CONF_NSLCD_USERDN_FILTER}|g;s|%{CUSTOM_CONF_NSLCD_GROUPDN_BASE}|${CUSTOM_CONF_NSLCD_GROUPDN_BASE}|g;s|%{CUSTOM_CONF_NSLCD_GROUPDN_SCOPE}|${CUSTOM_CONF_NSLCD_GROUPDN_SCOPE}|g;s|%{CUSTOM_CONF_NSLCD_GROUPDN_FILTER}|${CUSTOM_CONF_NSLCD_GROUPDN_FILTER}|g" /etc/nslcd.conf
+gcfg.sed 's/^\s*\(binddn\|bindpw\|\(scope\|filter\)\s*\(passwd\|shadow\|group\)\)\s*$/#\1 N\/A/' /etc/nslcd.conf
+
+# Additional actions
+invoke-rc.d nslcd restart
+
+# Exit
+exit 0
+

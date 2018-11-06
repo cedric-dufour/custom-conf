@@ -1,9 +1,10 @@
 Custom Configuration Framework (custom-conf)
 ============================================
-Package: custom-conf-nss-ldap
+Package: custom-conf-nslcd
 
-This package provides standard configuration of Name Services (NSS) along the
-Lightweight Directory Access Protocol (LDAP).
+This package provides standard configuration of the Lightweight Directory Access
+Protocol (LDAP) access daemon for Name Services (NSS) and Pluggable Authentication
+Module (PAM) lookups
 
 In particular, it addresses standard configuration of:
  - LDAP integration

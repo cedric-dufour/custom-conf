@@ -7,9 +7,10 @@ Standards-Version: 4.1.3
 
 Package: custom-conf-pam-krb5+opensc
 Architecture: all
-Depends: custom-conf, custom-conf-krb5, custom-conf-nss-ldap, custom-conf-opensc, libpam-krb5, libpam-ldap, libpam-pkcs11, libpam-script
+Depends: custom-conf, custom-conf-krb5, custom-conf-nss-ldap, custom-conf-opensc, libpam-krb5, libpam-ldap (>= 100) | libpam-ldapd, libpam-pkcs11, libpam-script
 Provides: custom-conf-pam
 Conflicts: custom-conf-pam
 Replaces: custom-conf-pam
+Suggests: custom-conf-nslcd
 Description: Custom Configuration Framework - PAM <-> MIT Kerberos V + OpenSC (PKCS#11)
 

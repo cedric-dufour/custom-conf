@@ -7,11 +7,8 @@ custom-conf-install "${PKGNAME}" "/usr/share/${PKGNAME}/config" || exit 1
 
 # Fine-tune configuration
 source /usr/share/custom-conf/custom-conf.defs
-if [ -n "${CUSTOM_CONF_NSS_BINDDN}" ]; then
-  gcfg.sed "s|%{CUSTOM_CONF_NSS_SERVER_URI}|${CUSTOM_CONF_NSS_SERVER_URI}|g;s|%{CUSTOM_CONF_NSS_BASEDN}|${CUSTOM_CONF_NSS_BASEDN}|g;s|%{CUSTOM_CONF_NSS_BINDDN}|${CUSTOM_CONF_NSS_BINDDN}|g;s|%{CUSTOM_CONF_NSS_BINDPW}|${CUSTOM_CONF_NSS_BINDPW}|g;s|%{CUSTOM_CONF_NSS_USERDN}|${CUSTOM_CONF_NSS_USERDN}|g;s|%{CUSTOM_CONF_NSS_GROUPDN}|${CUSTOM_CONF_NSS_GROUPDN}|g" /etc/ldap.conf
-else
-  gcfg.sed "s|%{CUSTOM_CONF_NSS_SERVER_URI}|${CUSTOM_CONF_NSS_SERVER_URI}|g;s|%{CUSTOM_CONF_NSS_BASEDN}|${CUSTOM_CONF_NSS_BASEDN}|g;s|^binddn.*|#binddn n/a|g;s|^bindpw.*|#bindpw n/a|g;s|%{CUSTOM_CONF_NSS_USERDN}|${CUSTOM_CONF_NSS_USERDN}|g;s|%{CUSTOM_CONF_NSS_GROUPDN}|${CUSTOM_CONF_NSS_GROUPDN}|g" /etc/ldap.conf
-fi
+gcfg.sed "s|%{CUSTOM_CONF_NSS_SERVER_URI}|${CUSTOM_CONF_NSS_SERVER_URI}|g;s|%{CUSTOM_CONF_NSS_BASEDN}|${CUSTOM_CONF_NSS_BASEDN}|g;s|%{CUSTOM_CONF_NSS_BINDDN}|${CUSTOM_CONF_NSS_BINDDN}|g;s|%{CUSTOM_CONF_NSS_BINDPW}|${CUSTOM_CONF_NSS_BINDPW}|g;s|%{CUSTOM_CONF_NSS_USERDN}|${CUSTOM_CONF_NSS_USERDN}|g;s|%{CUSTOM_CONF_NSS_GROUPDN}|${CUSTOM_CONF_NSS_GROUPDN}|g" /etc/ldap.conf
+gcfg.sed 's/^\s*\(binddn\|bindpw\)\s*$/#\1 N\/A/' /etc/ldap.conf
 # ... nss_initgroups_ignoreusers
 CUSTOM_CONF_NSS_IGNOREUSERS="$(cut -d: -f1 /etc/passwd | sort | tr '\n' ',' | sed 's|,$||')"
 gcfg.sed "s|^nss_initgroups_ignoreusers.*|nss_initgroups_ignoreusers ${CUSTOM_CONF_NSS_IGNOREUSERS}|" /etc/ldap.conf

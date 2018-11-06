@@ -7,9 +7,10 @@ Standards-Version: 4.1.3
 
 Package: custom-conf-pam-ldap
 Architecture: all
-Depends: custom-conf, custom-conf-nss-ldap, libpam-ldap
+Depends: custom-conf, custom-conf-nss-ldap, libpam-ldap (>= 100) | libpam-ldapd
 Provides: custom-conf-pam
 Conflicts: custom-conf-pam
 Replaces: custom-conf-pam
+Suggests: custom-conf-nslcd
 Description: Custom Configuration Framework - PAM <-> LDAP
 
