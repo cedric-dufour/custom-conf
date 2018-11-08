@@ -26,6 +26,9 @@ ipv6="$(ip -6 addr 2>/dev/null | fgrep 'scope global')"
 # ... daemon
 [ -e /usr/bin/dockerd ] && CUSTOM_CONF_DOCKER_DAEMON='/usr/bin/dockerd' || CUSTOM_CONF_DOCKER_DAEMON='/usr/bin/docker daemon'
 
+# ... systemd
+[ -e /lib/systemd/system/containerd.service ] && CUSTOM_CONF_DOCKER_SYSTEMD_DEPS='BindsTo=containerd.service' || CUSTOM_CONF_DOCKER_SYSTEMD_DEPS='Requires=docker.socket'
+
 # ... iptables
 CUSTOM_CONF_DOCKER_OPTS='--bip 192.168.213.1/24 --userland-proxy=false'
 CUSTOM_CONF_DOCKER_IPTABLES_AUTO_EXIT='exit 0  # iptables are managed automatically by Docker'
@@ -52,7 +55,7 @@ if [ ${CUSTOM_CONF_USERNS_SHIFT} -ne 0 ]; then
   echo "userns-docker:${CUSTOM_CONF_USERNS_SHIFT}:65536" >> /etc/subuid
   echo "userns-docker:${CUSTOM_CONF_USERNS_SHIFT}:65536" >> /etc/subgid
 fi
-gcfg.sed "s|%{CUSTOM_CONF_DOCKER_DAEMON}|${CUSTOM_CONF_DOCKER_DAEMON}|g;s|%{CUSTOM_CONF_DOCKER_OPTS}|${CUSTOM_CONF_DOCKER_OPTS}|g" /etc/default/docker /etc/systemd/system/docker.service
+gcfg.sed "s|%{CUSTOM_CONF_DOCKER_DAEMON}|${CUSTOM_CONF_DOCKER_DAEMON}|g;s|%{CUSTOM_CONF_DOCKER_OPTS}|${CUSTOM_CONF_DOCKER_OPTS}|g;s|%{CUSTOM_CONF_DOCKER_SYSTEMD_DEPS}|${CUSTOM_CONF_DOCKER_SYSTEMD_DEPS}|g" /etc/default/docker /etc/systemd/system/docker.service
 
 # ... rsyslog
 [ "${SYSLOG_LISTEN}" == 'true' ] && gcfg.sed 's|^#\$|$|' /etc/rsyslog.d/05_custom-conf-docker.conf

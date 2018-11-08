@@ -5,9 +5,10 @@
 [Unit]
 Description=Docker Application Container Engine
 Documentation=https://docs.docker.com
+%{CUSTOM_CONF_DOCKER_SYSTEMD_DEPS}
 Before=rsyslog.service
-After=network.target docker.socket firewalld.service
-Requires=docker.socket
+After=network-online.target firewalld.service
+Wants=network-online.target
 
 [Service]
 Type=notify
@@ -19,21 +20,23 @@ Type=notify
 #    appropriate (non-conflicting) IP range
 # 2. Disable the userland proxy for port mapping (requires kernel > 2.6)
 #    REF: https://github.com/docker/docker/issues/8356
-ExecStart=%{CUSTOM_CONF_DOCKER_DAEMON} -H fd:// %{CUSTOM_CONF_DOCKER_OPTS}
+ExecStart=%{CUSTOM_CONF_DOCKER_DAEMON} -H unix:// %{CUSTOM_CONF_DOCKER_OPTS}
 ExecReload=/bin/kill -s HUP $MAINPID
-MountFlags=slave
-LimitNOFILE=1048576
+TimeoutSec=0
+# restart the docker process if it exits prematurely
+Restart=on-failure
+RestartSec=2
+StartLimitBurst=3
+StartLimitInterval=60s
+# non-zero Limit*s causes performance problems due to accounting overhead in the kernel
+# (if limits are needed, use cgroups accounting instead)
+LimitNOFILE=infinity
 LimitNPROC=infinity
 LimitCORE=infinity
-TimeoutStartSec=0
 # set delegate yes so that systemd does not reset the cgroups of docker containers
 Delegate=yes
 # kill only the docker process, not all processes in the cgroup
 KillMode=process
-# restart the docker process if it exits prematurely
-Restart=on-failure
-StartLimitBurst=3
-StartLimitInterval=60s
 
 [Install]
 WantedBy=multi-user.target

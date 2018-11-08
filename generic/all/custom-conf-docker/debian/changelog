@@ -1,3 +1,9 @@
+custom-conf-docker (2018.11.08a) UNRELEASED; urgency=low
+
+  * Updated systemd service file for changes introduced by Docker's containerd
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Thu, 08 Nov 2018 15:26:00 +0100
+
 custom-conf-docker (2018.07.26a) UNRELEASED; urgency=low
 
   !!! WARNING !!! BREAKING MODIFICATIONS !!! WARNING !!!
