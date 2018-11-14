@@ -1,3 +1,9 @@
+custom-conf-apparmor (2018.11.14a) UNRELEASED; urgency=low
+
+  * Add (upstream Debian-packaged) OpenOffice/LibreOffice to 'custom_sanitized_helper'
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Wed, 14 Nov 2018 10:21:24 +0100
+
 custom-conf-apparmor (2018.05.14a) UNRELEASED; urgency=low
 
   * Use 'gcfg.sed' instead of 'gsed' in scripts
