@@ -1,3 +1,9 @@
+custom-conf-apparmor (2018.11.16a) UNRELEASED; urgency=low
+
+  * Improved (upstream Debian-packaged) OpenOffice/LibreOffice rules
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Fri, 16 Nov 2018 19:08:44 +0100
+
 custom-conf-apparmor (2018.11.14a) UNRELEASED; urgency=low
 
   * Add (upstream Debian-packaged) OpenOffice/LibreOffice to 'custom_sanitized_helper'
