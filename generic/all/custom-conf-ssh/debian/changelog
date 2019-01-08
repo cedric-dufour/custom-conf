@@ -1,3 +1,9 @@
+custom-conf-ssh (2019.01.08a) UNRELEASED; urgency=low
+
+  * Remove (soon) deprecrated 'UsePrivilegeSeparation' option
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Tue, 08 Jan 2019 17:26:44 +0100
+
 custom-conf-ssh (2018.05.14a) UNRELEASED; urgency=low
 
   * Use 'gcfg.sed' instead of 'gsed' in scripts

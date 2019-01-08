@@ -12,7 +12,6 @@ Port 22
 Protocol 2
 HostKey /etc/ssh/ssh_host_rsa_key
 HostKey /etc/ssh/ssh_host_ecdsa_key
-UsePrivilegeSeparation yes
 
 # Logging
 SyslogFacility AUTH
