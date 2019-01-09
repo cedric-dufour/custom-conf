@@ -1,0 +1,15 @@
+Source: custom-conf-msmtp
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 4.1.3
+
+Package: custom-conf-msmtp
+Architecture: all
+Provides: custom-conf-mta
+Replaces: custom-conf-mta
+Conflicts: custom-conf-mta
+Depends: custom-conf, msmtp-mta
+Description: Custom Configuration Framework - mSMTP
+

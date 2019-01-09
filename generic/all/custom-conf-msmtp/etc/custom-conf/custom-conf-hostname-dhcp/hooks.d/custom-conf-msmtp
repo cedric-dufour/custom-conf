@@ -1,0 +1,6 @@
+#!/bin/sh
+## CUSTOM-CONF: File automatically created/updated [custom-conf-msmtp]
+
+# Reconfigure package after hostname DHCP update
+DEBIAN_FRONTEND=noninteractive DEBIAN_PRIORITY=critical dpkg-reconfigure custom-conf-msmtp
+

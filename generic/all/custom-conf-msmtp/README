@@ -1,0 +1,10 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-conf-msmtp
+
+This package provides standard configuration of the m(?) Simple Mail Transfer
+Protocol (msmtp) utility.
+
+In particular, it addresses standard configuration of:
+ - relay SMTP server (<-> 'custom-defs-...')
+

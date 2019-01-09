@@ -1,0 +1,44 @@
+#!/bin/bash
+[ "${1}" != 'configure' ] && exit 0
+PKGNAME='custom-conf-msmtp'
+
+# Debconf
+. /usr/share/debconf/confmodule
+db_get custom-conf/root-email && CUSTOM_CONF_MSMTP_ALIASES_DEFAULT="${RET}"
+db_stop
+
+# Install files
+custom-conf-install "${PKGNAME}" "/usr/share/${PKGNAME}/config" || exit 1
+
+# Fine-tune configuration
+source /usr/share/custom-conf/custom-conf.defs
+ipv6="$(ip -6 addr 2>/dev/null | fgrep 'scope global')"
+server=
+for s in ${CUSTOM_CONF_SMTP_SERVER}; do
+  if [ -n "$(echo "${s}" | grep '^[:a-f0-9]*$')" ]; then
+    [ -z "${ipv6}" ] && continue
+  fi
+  server="${s}"
+  break
+done
+[ -n "${CUSTOM_CONF_SMTP_SERVER}" -a -z "${server}" ] && echo "ERROR[${PKGNAME}]: No IPv4 server found (${CUSTOM_CONF_SMTP_SERVER})" >&2
+CUSTOM_CONF_MSMTP_MAILDOMAIN="$(hostname -f)"
+[ "${CUSTOM_CONF_MSMTP_MAILDOMAIN}" == "${CUSTOM_CONF_MSMTP_MAILDOMAIN%%.*}" ] && CUSTOM_CONF_MSMTP_MAILDOMAIN="${CUSTOM_CONF_MSMTP_MAILDOMAIN}.${CUSTOM_CONF_DOMAIN}"
+gcfg.sed "s|%{CUSTOM_CONF_MSMTP_HOST}|${server}|g;s|%{CUSTOM_CONF_MSMTP_MAILDOMAIN}|${CUSTOM_CONF_MSMTP_MAILDOMAIN}|g" /etc/msmtprc
+gcfg.sed "s|%{CUSTOM_CONF_MSMTP_ALIASES_DEFAULT}|${CUSTOM_CONF_MSMTP_ALIASES_DEFAULT}|g" /etc/msmtp.aliases
+
+# Warning
+cat << EOF
+
+WARNING[${PKGNAME}]: 'auto_from' is enabled!
+: (disable to allow clients to specify their own e-mail address)"
+
+NOTICE[${PKGNAME}]:  If 'postfix' or 'exim4' packages were replaced, please...
+: dpkg --purge postfix
+: dpkg --purge exim4 exim4-base exim4-config exim4-daemon-light
+
+EOF
+
+# Exit
+exit 0
+
