@@ -1,3 +1,9 @@
+custom-conf-ssmtp (2019.01.09a) UNRELEASED; urgency=low
+
+  * Provide 'custom-conf-mta'
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Wed, 09 Jan 2019 17:09:25 +0100
+
 custom-conf-ssmtp (2018.06.12a) UNRELEASED; urgency=low
 
   * Add 'custom-conf-hostname-dhcp' hook
