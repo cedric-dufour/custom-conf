@@ -1,3 +1,9 @@
+custom-conf-hostname-static (2019.01.10a) UNRELEASED; urgency=low
+
+  * Provide 'custom-conf-hostname'
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Thu, 10 Jan 2019 11:46:11 +0100
+
 custom-conf-hostname-static (2017.03.16a) UNRELEASED; urgency=low
 
   * Post Tenebras Lux
