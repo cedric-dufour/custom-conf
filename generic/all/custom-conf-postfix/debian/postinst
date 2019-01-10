@@ -45,15 +45,6 @@ fi
 newaliases
 invoke-rc.d postfix restart
 
-# Warning
-cat << EOF
-
-NOTICE[${PKGNAME}]:  If 'ssmtp' or 'exim4' packages were replaced, please...
-: dpkg --purge ssmtp
-: dpkg --purge exim4 exim4-base exim4-config exim4-daemon-light
-
-EOF
-
 # Exit
 exit 0
 

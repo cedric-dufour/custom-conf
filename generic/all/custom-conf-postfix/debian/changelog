@@ -1,3 +1,9 @@
+custom-conf-postfix (2019.01.10a) UNRELEASED; urgency=low
+
+  * Be a little more quiet during installation
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Thu, 10 Jan 2019 14:28:04 +0100
+
 custom-conf-postfix (2019.01.09a) UNRELEASED; urgency=low
 
   * Provide 'custom-conf-mta'

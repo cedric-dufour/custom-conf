@@ -28,18 +28,6 @@ CUSTOM_CONF_SSMTP_REWRITEDOMAIN="$(hostname -f)"
 [ "${CUSTOM_CONF_SSMTP_REWRITEDOMAIN}" == "${CUSTOM_CONF_SSMTP_REWRITEDOMAIN%%.*}" ] && CUSTOM_CONF_SSMTP_REWRITEDOMAIN="${CUSTOM_CONF_SSMTP_REWRITEDOMAIN}.${CUSTOM_CONF_DOMAIN}"
 gcfg.sed "s|%{CUSTOM_CONF_SSMTP_MAILHUB}|${server}|g;s|%{CUSTOM_CONF_SSMTP_REWRITEDOMAIN}|${CUSTOM_CONF_SSMTP_REWRITEDOMAIN}|g;s|%{CUSTOM_CONF_SSMTP_ROOT}|${CUSTOM_CONF_SSMTP_ROOT}|g" /etc/ssmtp/ssmtp.conf
 
-# Warning
-cat << EOF
-
-WARNING[${PKGNAME}]: 'FromLineOverride' is disabled!
-: (Enable to allow clients to specify their own e-mail address)"
-
-NOTICE[${PKGNAME}]:  If 'postfix' or 'exim4' packages were replaced, please...
-: dpkg --purge postfix
-: dpkg --purge exim4 exim4-base exim4-config exim4-daemon-light
-
-EOF
-
 # Exit
 exit 0
 
