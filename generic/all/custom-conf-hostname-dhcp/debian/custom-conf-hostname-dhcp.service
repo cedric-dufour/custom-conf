@@ -1,8 +1,9 @@
 ## CUSTOM-CONF: File automatically created/updated [custom-conf-hostname-dhcp]
 
 [Unit]
-Description=Update hostname after Dynamic Host Configuration (DHCP)
+Description=Update hostname (and dependencies) after DHCP
 After=network.target
+Before=systemd-user-sessions.service nscd.service
 
 [Service]
 Type=oneshot
@@ -10,5 +11,6 @@ RemainAfterExit=true
 ExecStart=/usr/share/custom-conf-hostname-dhcp/scripts/update_hostname.sh
 
 [Install]
+WantedBy=multi-user.target
 WantedBy=network-online.target
 

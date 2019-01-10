@@ -5,8 +5,8 @@
 MY_HOSTNAME="${1}"
 
 # Retrieve host name based on its IP address / RDNS pointer
-# ... clear previous settings
-gcfg.sed '/##HOSTNAME##DO-NOT-ERASE-THIS-ANCHOR##/d' /etc/hosts
+# ... disable previous settings
+gcfg.sed 's|^\([^#].*##HOSTNAME##DO-NOT-ERASE-THIS-ANCHOR##\).*$|#\1|' /etc/hosts
 # ... retrieve default gateway
 MY_DFLTGW="$(ip -6 route | grep '^default')"
 [ -z "${MY_DFLTGW}" ] && MY_DFLTGW="$(ip -4 route | grep '^default')"
@@ -41,11 +41,12 @@ cat << EOF > /etc/mailname
 ${MY_HOSTNAME_FULL}
 EOF
 # ... hosts
-[ -n "${MY_IP4ADDR}" ] && cat << EOF | tee -a /etc/hosts
-${MY_IP4ADDR} ${MY_HOSTNAME_FULL} ${MY_HOSTNAME_SUFFIXED} lanhost  ##HOSTNAME##DO-NOT-ERASE-THIS-ANCHOR##
+gcfg.sed '/##HOSTNAME##DO-NOT-ERASE-THIS-ANCHOR##/d' /etc/hosts
+cat << EOF | tee -a /etc/hosts
+${MY_IP4ADDR:-127.0.1.1} ${MY_HOSTNAME_FULL} ${MY_HOSTNAME_SUFFIXED} lanhost  ##HOSTNAME##DO-NOT-ERASE-THIS-ANCHOR##
 EOF
-[ -n "${MY_IP6ADDR}" ] && cat << EOF | tee -a /etc/hosts
-${MY_IP6ADDR} ${MY_HOSTNAME_FULL} ${MY_HOSTNAME_SUFFIXED} ip6-lanhost  ##HOSTNAME##DO-NOT-ERASE-THIS-ANCHOR##
+cat << EOF | tee -a /etc/hosts
+${MY_IP6ADDR:-#IPv6:} ${MY_HOSTNAME_FULL} ${MY_HOSTNAME_SUFFIXED} ip6-lanhost  ##HOSTNAME##DO-NOT-ERASE-THIS-ANCHOR##
 EOF
 
 # Run hooks

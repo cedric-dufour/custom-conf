@@ -1,3 +1,9 @@
+custom-conf-hostname-dhcp (2019.01.10a) UNRELEASED; urgency=low
+
+  * Add proper SysV init script
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Thu, 10 Jan 2019 11:47:53 +0100
+
 custom-conf-hostname-dhcp (2018.06.12a) UNRELEASED; urgency=low
 
   * Add the 'hooks.d' configuration directory, to allow any other package to

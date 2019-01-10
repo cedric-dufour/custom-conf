@@ -4,9 +4,7 @@ PKGNAME='custom-conf-hostname-dhcp'
 
 # TRANSITIONAL
 [ -e /etc/rc.local.d/10-hostname ] && gcfg move --batch /etc/rc.local.d/10-hostname /etc/rc.local.d/10-custom-conf-hostname-dhcp
-
-# Install files
-custom-conf-install "${PKGNAME}" "/usr/share/${PKGNAME}/config" || exit 1
+[ -e /etc/rc.local.d/10-custom-conf-hostname-dhcp ] && ! gcfg flagged /etc/rc.local.d/10-custom-conf-hostname-dhcp @EDITED && gcfg remove --batch /etc/rc.local.d/10-custom-conf-hostname-dhcp
 
 # Debhelpers
 #DEBHELPER#
