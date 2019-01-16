@@ -1,3 +1,10 @@
+custom-conf-firefox-esr (2019.01.16a) UNRELEASED; urgency=low
+
+  * Use (JavaScript-enable) auto-configuration file
+  - provision system-wide installation of Gecko Media Plugins (GMP)
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Wed, 16 Jan 2019 16:34:04 +0100
+
 custom-conf-firefox-esr (2018.09.17a) UNRELEASED; urgency=low
 
   * Updated default preferences for Firefox 60+
