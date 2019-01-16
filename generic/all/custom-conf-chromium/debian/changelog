@@ -1,3 +1,9 @@
+custom-conf-chromium (2019.01.14a) UNRELEASED; urgency=low
+
+  * Install 'chromium-sandbox' when available
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Mon, 14 Jan 2019 17:47:22 +0100
+
 custom-conf-chromium (2018.09.17a) UNRELEASED; urgency=low
 
   * Updated default flags for Chromium 69+
