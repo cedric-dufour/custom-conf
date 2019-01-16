@@ -1,3 +1,10 @@
+custom-conf-thunderbird (2019.01.14a) UNRELEASED; urgency=low
+
+  * Added (horrible) AppArmor hack to prevent conflict with Debian/Buster
+    'ubuntu-browsers' abstractions
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Mon, 14 Jan 2019 17:10:13 +0100
+
 custom-conf-thunderbird (2018.11.14a) UNRELEASED; urgency=low
 
   * Allow (upstream Debian-packaged) OpenOffice/LibreOffice to be launched

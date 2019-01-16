@@ -5,8 +5,14 @@ PKGNAME='custom-conf-thunderbird'
 # Install files
 custom-conf-install "${PKGNAME}" "/usr/share/${PKGNAME}/config" || exit 1
 
-# Quirk
+# Quirks
+# ... https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=884191
 /etc/cron.daily/custom-conf-thunderbird
+# ... Debian/Buster
+if ! gcfg flagged /etc/apparmor.d/usr.bin.thunderbird @EDITED && \
+   grep -q '/usr/bin/chromium{,-browser}' /etc/apparmor.d/abstractions/ubuntu-browsers; then
+  gcfg.sed 's|^\(\s*\)\(/usr/bin/chromium\)|\1## -> ubuntu-browsers # \2|' /etc/apparmor.d/usr.bin.thunderbird
+fi
 
 # Additional actions
 invoke-rc.d apparmor reload >/dev/null
