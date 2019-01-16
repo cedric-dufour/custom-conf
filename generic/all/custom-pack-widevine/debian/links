@@ -1,0 +1,5 @@
+/usr/lib/custom-pack-widevine/chromium/libwidevinecdm.so /usr/lib/chromium/libwidevinecdm.so
+/usr/lib/custom-pack-widevine/firefox/libwidevinecdm.so /usr/lib/firefox/gmp-widevinecdm/custom/libwidevinecdm.so
+/usr/lib/custom-pack-widevine/firefox/manifest.json /usr/lib/firefox/gmp-widevinecdm/custom/manifest.json
+/usr/lib/custom-pack-widevine/firefox/libwidevinecdm.so /usr/lib/firefox-esr/gmp-widevinecdm/custom/libwidevinecdm.so
+/usr/lib/custom-pack-widevine/firefox/manifest.json /usr/lib/firefox-esr/gmp-widevinecdm/custom/manifest.json

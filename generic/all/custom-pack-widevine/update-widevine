@@ -1,0 +1,138 @@
+#!/bin/bash
+
+
+## Usage
+function __USAGE() {
+cat << EOF
+USAGE: ${0##*/} -C <google-chrome.deb> -F <google-chrome.deb> [-D <dpkg-directory>]
+
+SYNOPSIS:
+  Extract the Google Widevine CDM library from the given Google Chrome (Debian)
+  package and update the Debian packaging directory structure accordingly.
+
+  Google Chrome package(s) download:
+    https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+
+  Integration test:
+    https://integration.widevine.com/player
+
+OPTIONS:
+  -C, --chromium <google-chrome.deb>
+    Path to the Google Chrome (Debian) package to extract the Google Widevine CDM library
+    from, for (Google) Chromium web browser
+
+  -F, --firefox <google-chrome.deb>
+    Path to the Google Chrome (Debian) package to extract the Google Widevine CDM library
+    from, for (Mozilla) Firefox web browser
+    WARNING: (Mozilla) Firefox might need an older version of the library to work!
+
+  -D, --debian <dpkg-directory>
+    Path to the Debian packaging directory
+EOF
+}
+
+# Arguments
+CHROMIUM_DEB=
+DPKG_DIR=.
+while [ -n "${1}" ]; do
+  case "${1}" in
+    '-h'|'--help')
+      __USAGE
+      exit 0
+      ;;
+    '-C'|'--chromium')
+      [ -z "${2}" ] && echo "ERROR: Missing option argument (${1} ...)" >&2 && exit 1
+      CHROMIUM_DEB="${2}"
+      shift
+      ;;
+    '-F'|'--firefox')
+      [ -z "${2}" ] && echo "ERROR: Missing option argument (${1} ...)" >&2 && exit 1
+      FIREFOX_DEB="${2}"
+      shift
+      ;;
+    '-D'|'--debian')
+      [ -z "${2}" ] && echo "ERROR: Missing option argument (${1} ...)" >&2 && exit 1
+      DPKG_DIR="${2}"
+      shift
+      ;;
+    *)
+      echo "ERROR: Invalid option/argument (${1})" >&2 && __USAGE && exit 1
+      ;;
+  esac
+  shift
+done
+
+# Validation
+[ -z "${CHROMIUM_DEB}" -a -z "${FIREFOX_DEB}" ] && echo "ERROR: You must supply at least one package (for Chromium or Firefox)" >&2 && exit 1
+[ ! -d "${DPKG_DIR}/usr/lib/custom-pack-widevine" ] && echo "ERROR: Invalid Debian packaging directory (${DPKG_DIR})" >&2 && exit 1
+
+
+## (Google) Chromium
+if [ -n "${CHROMIUM_DEB}" ]; then
+  [ ! -r "${CHROMIUM_DEB}" ] && echo "ERROR: Missing/unreadable Google Chrome package (${CHROMIUM_DEB})" >&2 && exit 1
+  echo "INFO: Processing Google Chrome package for Chromium (${CHROMIUM_DEB})"
+
+  # Clean-up
+  find "${DPKG_DIR}/usr" -not -type d -path "*/chromium/*" -not -name '.gitplaceholder' -delete
+
+  # Locate Widevine CDM library
+  CHROMIUM_LIB="$(dpkg -c "${CHROMIUM_DEB}" | sed -n 's|^.* \([^ ]*/libwidevinecdm.so\).*$|\1|p')"
+  [ -z "${CHROMIUM_LIB}" ] && echo "ERROR: Failed to locate Widevine CDM library (libwidevinecdm.so) in given Google Chrome package (${CHROMIUM_DEB})" >&2 && exit 1
+
+  # Extract package content
+  dpkg --fsys-tarfile "${CHROMIUM_DEB}" | tar -xO "${CHROMIUM_LIB}" > "${DPKG_DIR}/usr/lib/custom-pack-widevine/chromium/libwidevinecdm.so"; e=$?
+  [ ${e} -ne 0 ] && echo "ERROR: Failed to extract Widevine CDM library from given Google Chrome package (${CHROMIUM_DEB})" >&2 && exit 1
+
+  # Retrieve version
+  CHROMIUM_VER="$(strings "${DPKG_DIR}/usr/lib/custom-pack-widevine/chromium/libwidevinecdm.so" | egrep '^[0-9]{1,}(\.[0-9]{1,}){2,}')"
+
+  # Retrieve copyright stuff
+  wget -q 'https://www.google.com/chrome/intl/en/eula_text.html' -O"${DPKG_DIR}/usr/share/doc/custom-pack-widevine/chromium/eula_text.html"
+
+  # Done
+  echo "INFO: Google Chrome Widevine CDM library for Chromium successfully updated; version=${CHROMIUM_VER}"
+fi
+
+
+## (Mozilla) Firefox
+if [ -n "${FIREFOX_DEB}" ]; then
+  [ ! -r "${FIREFOX_DEB}" ] && echo "ERROR: Missing/unreadable Google Chrome package (${FIREFOX_DEB})" >&2 && exit 1
+  echo "INFO: Processing Google Chrome package for Firefox (${FIREFOX_DEB})"
+
+  # Clean-up
+  find "${DPKG_DIR}/usr" -not -type d -path "*/firefox/*" -not -name '.gitplaceholder' -delete
+
+  # Locate Widevine CDM library
+  FIREFOX_LIB="$(dpkg -c "${FIREFOX_DEB}" | sed -n 's|^.* \([^ ]*/libwidevinecdm.so\).*$|\1|p')"
+  [ -z "${FIREFOX_LIB}" ] && echo "ERROR: Failed to locate Widevine CDM library (libwidevinecdm.so) in given Google Chrome package (${FIREFOX_DEB})" >&2 && exit 1
+
+  # Extract package content
+  dpkg --fsys-tarfile "${FIREFOX_DEB}" | tar -xO "${FIREFOX_LIB}" > "${DPKG_DIR}/usr/lib/custom-pack-widevine/firefox/libwidevinecdm.so"; e=$?
+  [ ${e} -ne 0 ] && echo "ERROR: Failed to extract Widevine CDM library from given Google Chrome package (${FIREFOX_DEB})" >&2 && exit 1
+
+  # Retrieve version
+  FIREFOX_VER="$(strings "${DPKG_DIR}/usr/lib/custom-pack-widevine/firefox/libwidevinecdm.so" | egrep '^[0-9]{1,}(\.[0-9]{1,}){2,}')"
+
+  # Create manifest
+  sed "s|%{VERSION}|${FIREFOX_VER}|g" manifest.json > "${DPKG_DIR}/usr/lib/custom-pack-widevine/firefox/manifest.json"
+
+  # Retrieve copyright stuff
+  wget -q 'https://www.google.com/chrome/intl/en/eula_text.html' -O"${DPKG_DIR}/usr/share/doc/custom-pack-widevine/firefox/eula_text.html"
+
+  # Done
+  echo "INFO: Google Chrome Widevine CDM library for Firefox successfully updated; version=${FIREFOX_VER}"
+fi
+
+
+## Done
+cat << EOF
+INFO: You can now edit the changelog and build the Debian package
+  cd '${DPKG_DIR}'
+  ${EDITOR:-vi} ./debian/changelog
+  dpkg-buildpackage -us -uc -b
+WARNING: Do not forget to CLEAN-UP aftewards!
+  dpkg-buildpackage -T clean
+  ./cleanup-widevine
+EOF
+exit 0
+

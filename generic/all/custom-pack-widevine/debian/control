@@ -1,0 +1,13 @@
+Source: custom-pack-widevine
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 4.1.3
+Build-Depends: binutils
+
+Package: custom-pack-widevine
+Architecture: amd64
+Depends: custom-conf
+Description: Custom Configuration Framework - Winevine CDM component (original upstream packages)
+

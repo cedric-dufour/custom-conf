@@ -1,0 +1,16 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-pack-widevine
+
+This package installs Google Widevine CDM (Content Decryption Module) as
+an additional component to (Google) Chromium or (Mozilla) Firefox.
+
+The source package does NOT include the actual (GPL-incompatible) binary
+resources, which MUST be downloaded directly from Google (Chrome):
+  https://www.google.com/chrome/
+before updating the source package tree:
+  ./update-widevine
+
+PLEASE DO NOT REDISTRIBUTE THIS PACKAGE SOURCE TREE WHITOUT CLEANING-UP
+GOOGLE BINARY RESOURCES BEFOREHANDS.
+
