@@ -4,14 +4,27 @@
 ## Usage
 function __USAGE() {
 cat << EOF
-USAGE: ${0##*/} -N <NPAPI-tarball> -P <PPAPI-tarball> [-D <DPKG-directory>]
+USAGE: ${0##*/} -N <NPAPI-tarball> -P <PPAPI-tarball> [-D <dpkg-directory>]
 
-SYSNOPSIS:
+SYNOPSIS:
   Extract the Flash NPAPI/PPAPI resources from the given tarballs
   and update the Debian packaging directory structure accordingly.
 
-  Please visit https://get.adobe.com/flashplayer/otherversions/ to
-  obtain the required tarballs
+  Flash NPAPI/PPAPI resources download:
+    https://get.adobe.com/flashplayer/otherversions/
+
+  Integration test:
+    https://helpx.adobe.com/flash-player.html
+
+OPTIONS:
+  -N, --npapi <NPAPI-tarball>
+    Path to the Flash NPAPI tarball (for Mozilla browsers)
+
+  -P, --ppapi <PPAPI-tarball>
+    Path to the Flash PPAPI tarball (for Google browsers)
+
+  -D, --debian <dpkg-directory>
+    Path to the Debian packaging directory
 EOF
 }
 
@@ -26,19 +39,19 @@ while [ -n "${1}" ]; do
       exit 0
       ;;
     '-N'|'--npapi')
+      [ -z "${2}" ] && echo "ERROR: Missing option argument (${1} ...)" >&2 && exit 1
+      NPAPI_TAR="${2}"
       shift
-      [ -z "${1}" ] && echo "ERROR: Missing option argument (<NPAPI-tarball>)" >&2 && exit 1
-      NPAPI_TAR="${1}"
       ;;
     '-P'|'--ppapi')
+      [ -z "${2}" ] && echo "ERROR: Missing option argument (${1} ...)" >&2 && exit 1
+      PPAPI_TAR="${2}"
       shift
-      [ -z "${1}" ] && echo "ERROR: Missing option argument (<PPAPI-tarball>)" >&2 && exit 1
-      PPAPI_TAR="${1}"
       ;;
     '-D'|'--debian')
+      [ -z "${2}" ] && echo "ERROR: Missing option argument (${1} ...)" >&2 && exit 1
+      DPKG_DIR="${2}"
       shift
-      [ -z "${1}" ] && echo "ERROR: Missing option argument (<DPKG-directory>)" >&2 && exit 1
-      DPKG_DIR="${1}"
       ;;
     *)
       echo "ERROR: Invalid option/argument (${1})" >&2 && __USAGE && exit 1
@@ -66,7 +79,7 @@ if [ -n "${NPAPI_TAR}" ]; then
   echo "INFO: Processing NPAPI Flash tarball (${NPAPI_TAR})"
 
   # Clean-up
-  find "${DPKG_DIR}/usr" -not -type d -not -path "*/npapi/*" -not -name '.gitplaceholder' -delete
+  find "${DPKG_DIR}/usr" -not -type d -path "*/npapi/*" -not -name '.gitplaceholder' -delete
 
   # Extract tarball content
   tar -C "${SRC_DIR}/npapi" -xzf "${NPAPI_TAR}"; e=$?
