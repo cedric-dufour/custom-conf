@@ -9,7 +9,7 @@ ResultAny=no
 
 [DisableRestart]
 Identity=unix-user:*
-Action=org.freedesktop.consolekit.system.restart;org.freedesktop.consolekit.system.restart-multiple-users;org.freedesktop.login1.reboot;org.freedesktop.login1.reboot-multiple-sessions
+Action=org.freedesktop.consolekit.system.restart;org.freedesktop.consolekit.system.restart-multiple-users;org.freedesktop.login1.reboot;org.freedesktop.login1.reboot-multiple-sessions;org.freedesktop.login1.set-reboot-to-firmware-setup
 ResultActive=no
 ResultAny=no
 
