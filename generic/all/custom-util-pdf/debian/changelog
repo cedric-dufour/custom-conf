@@ -1,3 +1,9 @@
+custom-util-pdf (2019.01.28a) UNRELEASED; urgency=low
+
+  * Added 'pdf-downsample' utility
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Mon, 28 Jan 2019 10:12:24 +0100
+
 custom-util-pdf (2018.02.10a) UNRELEASED; urgency=low
 
   * Added '--from <device|dir|file>' option to 'scan-easy'

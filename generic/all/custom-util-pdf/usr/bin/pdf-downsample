@@ -1,0 +1,68 @@
+#!/bin/bash
+
+
+## Usage
+[ $# -lt 2 -o "${1##*-}" == 'help' ] && cat << EOF && exit 1
+USAGE: ${0##*/} [<options>] <input.pdf> <output.pdf>
+
+SYNOPSIS:
+  Downsample the given PDF file.
+  This is achieved by:
+   - downsampling images
+   - optimizing images color space
+   - (not) embedding fonts
+  PDF (textual) structure remains untouched.
+
+OPTIONS:
+  -p, --profile {screen|ebook|printer|prepress} [default:ebook]
+      Ghostscript conversion profile (-dPDFSETTING):
+       screen:    72/300dpi,  sRGB, common fonts not embedded
+       ebook:    150/300dpi,  sRGB, common fonts not embedded
+       printer:  300/1200dpi, dev.independent, all fonts embedded
+       prepress: 300/1200dpi, unchanged, all fonts embedded
+
+  -q, --query
+      Display ghostcript conversion profile details
+
+AUTHOR:
+  Cédric Dufour - http://cedric.dufour.name
+EOF
+
+# Arguments
+GS_PROFILE='ebook'
+GS_QUERY=
+PDF_IN=
+PDF_OUT=
+while [ -n "${1}" ]; do
+  case "${1}" in
+    '-p'|'--profile') [ -z "${2}" ] && echo "ERROR: Missing option parameter (${1})" >&2 && exit 1; GS_PROFILE="${2}"; shift;;
+    '-q'|'--query') GS_QUERY='yes';;
+    -*) echo "ERROR: Invalid option (${1})" >&2 && exit 1;;
+    *)
+      if [ -z "${PDF_IN}" ]; then PDF_IN="${1}"
+      elif [ -z "${PDF_OUT}" ]; then PDF_OUT="${1}"
+      else echo 'ERROR: Invalid (extra) argument' >&2 && exit 1
+      fi
+      ;;
+  esac
+  shift
+done
+
+
+## Check dependencies
+[ -z "$(which gs)" ] && echo "ERROR: 'gs' (ghostscript) cannot be found" >&2 && exit 1
+
+
+## Query (?)
+if [ -n "${GS_QUERY}" ]; then
+  gs -dNODISPLAY -q -c ".distillersettings /${GS_PROFILE} get {exch ==only ( ) print ===} forall quit" | sort
+  exit 0
+fi
+
+
+## Downsample
+[ -z "${PDF_IN}" ] && echo 'ERROR: Missing input file argument (<input.pdf>)' >&2 && exit 1
+[ -z "${PDF_OUT}" ] && echo 'ERROR: Missing output file argument (<output.pdf>)' >&2 && exit 1
+[ ! -f "${PDF_IN}" ] && echo "ERROR: Missing/invalid input file (${PDF_IN})" >&2 && exit 1
+gs -dNOPAUSE -dBATCH -dPDFSETTINGS=/${GS_PROFILE} -sDEVICE=pdfwrite -sOutputFile="${PDF_OUT}" "${PDF_IN}"
+
