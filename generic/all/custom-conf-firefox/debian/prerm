@@ -5,6 +5,12 @@ PKGNAME='custom-conf-firefox'
 # Uninstall files
 custom-conf-uninstall "${PKGNAME}" "/usr/share/${PKGNAME}/config" || exit 1
 
+# Ubuntu quirk
+if [ -e /etc/firefox/syspref.js.ubuntu ]; then
+  rm /etc/firefox/syspref.js
+  mv /etc/firefox/syspref.js.ubuntu /etc/firefox/syspref.js
+fi
+
 # Exit
 exit 0
 

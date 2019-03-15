@@ -1,3 +1,9 @@
+custom-conf-firefox (2019.03.15a) UNRELEASED; urgency=low
+
+  * Make the package Ubuntu-friendly
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Fri, 15 Mar 2019 16:17:42 +0100
+
 custom-conf-firefox (2019.01.16a) UNRELEASED; urgency=low
 
   * Use (JavaScript-enable) auto-configuration file

@@ -5,6 +5,12 @@ PKGNAME='custom-conf-firefox'
 # Install files
 custom-conf-install "${PKGNAME}" "/usr/share/${PKGNAME}/config" || exit 1
 
+# Ubuntu quirk
+if [ -e /etc/firefox/syspref.js -a ! -h /etc/firefox/syspref.js ]; then
+  mv /etc/firefox/syspref.js /etc/firefox/syspref.js.ubuntu
+  ln -s firefox.js /etc/firefox/syspref.js
+fi
+
 # Exit
 exit 0
 
