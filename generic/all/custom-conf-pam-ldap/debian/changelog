@@ -1,3 +1,9 @@
+custom-conf-pam-ldap (2019.04.03a) UNRELEASED; urgency=low
+
+  * Harden Unix password hashing
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Wed, 03 Apr 2019 13:41:46 +0200
+
 custom-conf-pam-ldap (2018.11.06a) UNRELEASED; urgency=low
 
   * Add LDAP NSS+PAM daemon support
