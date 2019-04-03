@@ -1,0 +1,10 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-conf-pam-unix
+
+This package provides standard configuration of the Pluggable Authentication
+Modules (PAM) stack, for local Unix authentication only (/etc/passwd).
+
+In particular, it addresses standard configuration of:
+ - strong password hashing (SHA-512 and iterations)
+

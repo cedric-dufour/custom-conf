@@ -1,0 +1,8 @@
+## CUSTOM-CONF: File automatically created/updated [custom-conf-pam-unix]
+
+## PAM Configuration
+
+# Non-interactive session management
+session required pam_unix.so
+session optional pam_umask.so
+

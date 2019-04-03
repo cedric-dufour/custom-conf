@@ -1,0 +1,13 @@
+## CUSTOM-CONF: File automatically created/updated [custom-conf-pam-unix]
+
+## PAM Configuration
+
+# Account policies
+account [success=ok default=1] pam_localuser.so
+account [success=2 default=die] pam_unix.so
+account requisite pam_deny.so
+account required pam_permit.so
+
+# Limit access according to /etc/security/access.conf
+account required pam_access.so
+

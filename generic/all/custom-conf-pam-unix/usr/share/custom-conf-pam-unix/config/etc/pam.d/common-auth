@@ -1,0 +1,13 @@
+## CUSTOM-CONF: File automatically created/updated [custom-conf-pam-unix]
+
+## PAM Configuration
+
+# Thwart password brute-forcing attempts
+auth required pam_faildelay.so delay=3000000
+
+# User authentication
+auth [success=ok default=1] pam_localuser.so
+auth [success=done default=die] pam_unix.so
+auth requisite pam_deny.so
+auth required pam_permit.so
+

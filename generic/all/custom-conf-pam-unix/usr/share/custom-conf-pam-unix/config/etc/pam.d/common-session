@@ -1,0 +1,14 @@
+## CUSTOM-CONF: File automatically created/updated [custom-conf-pam-unix]
+
+## PAM Configuration
+
+# (Interactive) session management
+session required pam_unix.so 
+session optional pam_umask.so
+
+# systemd
+-session optional pam_systemd.so
+
+# consolekit
+-session optional pam_ck_connector.so nox11
+
