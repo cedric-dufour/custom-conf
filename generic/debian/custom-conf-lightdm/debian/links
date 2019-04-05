@@ -1,0 +1,3 @@
+/etc/X11/Xsession.d/20dbus_xdg-runtime /etc/lightdm/Xsession.d/20dbus_xdg-runtime
+/etc/X11/Xsession.d/95dbus_update-activation-env /etc/lightdm/Xsession.d/95dbus_update-activation-env
+
