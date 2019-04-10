@@ -1,3 +1,9 @@
+custom-conf-pam-ldap (2019.04.10a) UNRELEASED; urgency=low
+
+  * Do not bail out of 'common-*'; allow including resources to have their words
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Wed, 10 Apr 2019 11:03:03 +0200
+
 custom-conf-pam-ldap (2019.04.03a) UNRELEASED; urgency=low
 
   * Harden Unix password hashing

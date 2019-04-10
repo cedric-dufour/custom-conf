@@ -8,11 +8,11 @@ auth required pam_faildelay.so delay=3000000
 # User authentication
 # NOTE: We first try local account (exclusive), then Kerberos and LDAP (simple bind)
 auth [success=ok default=1] pam_localuser.so
-auth [success=done default=die] pam_unix.so
+auth [success=4 default=die] pam_unix.so
 auth [success=2 default=ignore] pam_krb5.so minimum_uid=1000
-auth [success=1 default=ignore] pam_ldap.so use_first_pass
+auth [success=2 default=ignore] pam_ldap.so use_first_pass
 auth requisite pam_deny.so
-# ... FIX: https://bugs.launchpad.net/ubuntu/+source/lightdm/+bug/1336663
+# ... FIX(pam_krb5): https://bugs.launchpad.net/ubuntu/+source/lightdm/+bug/1336663
 auth optional pam_script.so dir=/etc/security/pam-script.d
 auth required pam_permit.so
 

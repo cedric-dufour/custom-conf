@@ -4,7 +4,7 @@
 
 # Account policies
 account [success=ok default=1] pam_localuser.so
-account [success=2 default=die] pam_unix.so
+account [success=1 default=die] pam_unix.so
 account requisite pam_deny.so
 account required pam_permit.so
 
