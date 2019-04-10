@@ -1,0 +1,12 @@
+Source: custom-pack-sysutils
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 4.1.3
+
+Package: custom-pack-sysutils
+Architecture: all
+Depends: custom-pack-base, arc, arj, asciidoc, bc, bsd-mailx, bmon, dc, dialog, dnsutils, gnupg, hdparm, htop, iftop, lm-sensors, lshw, lsof, moreutils, msort, p7zip-rar, pbzip2, pigz, pixz, plzip, psutils, tofrodos, tree, sharutils, sudo, unace, unalz, uni2ascii, units, unrar, usbutils, wget
+Description: Custom Configuration Framework - System utilities (command line)
+
