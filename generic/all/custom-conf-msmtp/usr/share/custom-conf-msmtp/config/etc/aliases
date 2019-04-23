@@ -1,5 +1,5 @@
 ## CUSTOM-CONF: File automatically created/updated [custom-conf-msmtp]
 
-# Catch-all
+# mSMTP default (catch-all) account
 default: %{CUSTOM_CONF_MSMTP_ALIASES_DEFAULT}
 
