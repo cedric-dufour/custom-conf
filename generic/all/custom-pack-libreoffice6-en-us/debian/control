@@ -3,10 +3,10 @@ Section: admin
 Priority: optional
 Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
 Homepage: https://github.com/cedric-dufour/custom-conf
-Standards-Version: 3.9.7
+Standards-Version: 4.3.0
 
 Package: custom-pack-libreoffice6-en-us
 Architecture: all
-Depends: libreoffice6.0-en-us, libreoffice6.0-dict-en, libobasis6.0-en-us-help
-Description: Custom Configuration Framework - LibreOffice 6.0, Engligh (US) language pack (original upstream packages)
+Depends: libreoffice6.1-en-us, libreoffice6.1-dict-en, libobasis6.1-en-us-help
+Description: Custom Configuration Framework - LibreOffice 6.1, Engligh (US) language pack (original upstream packages)
 

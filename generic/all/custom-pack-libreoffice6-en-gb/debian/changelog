@@ -1,3 +1,9 @@
+custom-pack-libreoffice6-en-gb (2019.05.07a) UNRELEASED; urgency=low
+
+  * New upstream "Still" version: 6.1
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Tue, 07 May 2019 15:05:46 +0200
+
 custom-pack-libreoffice6-en-gb (2018.10.26a) UNRELEASED; urgency=low
 
   * New upstream "Still" version: 6.0
