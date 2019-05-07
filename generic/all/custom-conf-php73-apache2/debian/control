@@ -1,0 +1,13 @@
+Source: custom-conf-php73-apache2
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 4.1.3
+
+Package: custom-conf-php73-apache2
+Architecture: all
+Provides: custom-conf-php-apache
+Depends: custom-conf, custom-conf-apache2, libapache2-mod-php7.3
+Description: Custom Configuration Framework - PHP 7.3 <-> Apache2
+
