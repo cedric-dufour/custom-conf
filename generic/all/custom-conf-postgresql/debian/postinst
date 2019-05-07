@@ -18,11 +18,11 @@ db_stop
 
 # Retrieve PostgreSQL version
 CUSTOM_CONF_POSTGRESQL_VERSION='unsupported'
-for version in 9.{9..0}; do
+for version in 11 9.{9..0}; do
   [ -e /usr/lib/postgresql/${version}/bin/initdb ] && CUSTOM_CONF_POSTGRESQL_VERSION=${version} && break
 done
 case "${CUSTOM_CONF_POSTGRESQL_VERSION}" in
-  '9.1'|'9.4'|'9.6')
+  '9.1'|'9.4'|'9.6'|'11')
     echo "INFO[${PKGNAME}]: Detected supported PostgreSQL version (${CUSTOM_CONF_POSTGRESQL_VERSION})"
     ;;
   *)
@@ -34,7 +34,7 @@ esac
 # Configuration upgrade
 /usr/share/${PKGNAME}/postgresql-upgrade detect && cat << EOF && exit 0
 WARNING[${PKGNAME}]: Old PostgreSQL configuration detected! Please upgrade and re-configure.
-: /usr/share/${PKGNAME}/upgrade-config.postgresql
+: /usr/share/${PKGNAME}/postgresql-upgrade
 : dpkg-reconfigure ${PKGNAME}
 EOF
 

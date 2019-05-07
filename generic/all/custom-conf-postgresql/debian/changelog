@@ -1,3 +1,9 @@
+custom-conf-postgresql (2019.05.07a) UNRELEASED; urgency=low
+
+  * Hail PostgreSQL 11 !
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Tue, 07 May 2019 12:43:07 +0200
+
 custom-conf-postgresql (2018.09.20a) UNRELEASED; urgency=low
 
   * Fix 'prerm' script for PostgreSQL 9.6 (thanks to S.Gaist @ Idiap)

@@ -15,7 +15,7 @@ ACTION="${1}"
 
 
 ## Detect versions
-VERSIONS="$(ls -1d /etc/postgresql/9.[0-9] 2>/dev/null | sed 's|^.*/||' | sort -rn)"
+VERSIONS="$(ls -1d /etc/postgresql/[0-9]* 2>/dev/null | sed 's|^.*/||' | sort -rn)"
 [ -z "${VERSIONS}" ] && echo "ERROR: No PostreSQL version detected" && exit 1
 VERSIONS_COUNT=$(echo "${VERSIONS}" | wc -l)
 [ ${VERSIONS_COUNT} -eq 1 ] && exit 1  # Nothing to upgrade (let's be silent about it)
@@ -51,19 +51,22 @@ EOF
   # Upgrade previous cluster
   echo "INFO: Upgrading PostgreSQL database: ${VERSION_SRC} -> ${VERSION_DST}"
   echo "      (this may take a lot of time, depending on the size of the cluster)"
+  cp -a /etc/postgresql/${VERSION_SRC}/main{,.upgrade}
   invoke-rc.d postgresql stop
   iptables -I INPUT --protocol tcp --dport 5432 -j DROP
   invoke-rc.d postgresql start
-  pg_upgradecluster ${${VERSION_SRC}} main
+  pg_upgradecluster ${VERSION_SRC} main
 
   # Drop previous cluster
-  cp -rp /etc/postgresql/${VERSION_SRC}/main{,.upgrade}
   echo "INFO: Dropping PostgreSQL database: ${VERSION_SRC}"
   pg_dropcluster ${VERSION_SRC} main --stop
-  mv /etc/postgresql/${VERSION_SRC}/main{.upgrade,}
+  mkdir -p /etc/postgresql/${VERSION_SRC}/main
+  rsync -aH /etc/postgresql/${VERSION_SRC}/main{.upgrade,}/
+  rm -rf /etc/postgresql/${VERSION_SRC}/main.upgrade
 
   # Move configuration files
   source gcfg.config "${PKGNAME}"
+  gcfg verify
   for file in \
     /etc/postgresql/${VERSION_SRC}/main/postgresql.conf:/etc/postgresql/${VERSION_DST}/main/postgresql.conf \
     /etc/postgresql/${VERSION_SRC}/main/pg_hba.conf:/etc/postgresql/${VERSION_DST}/main/pg_hba.conf \
