@@ -1,3 +1,9 @@
+custom-conf-thunderbird (2019.05.27a) UNRELEASED; urgency=low
+
+  * AppArmor: allow opening links via 'gio-launch-desktop'
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Mon, 27 May 2019 10:14:40 +0200
+
 custom-conf-thunderbird (2019.01.14a) UNRELEASED; urgency=low
 
   * Added (horrible) AppArmor hack to prevent conflict with Debian/Buster
