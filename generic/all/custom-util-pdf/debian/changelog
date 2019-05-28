@@ -1,3 +1,9 @@
+custom-util-pdf (2019.05.28a) UNRELEASED; urgency=low
+
+  * scan-easy: handle transient USB errors gracefully
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Tue, 28 May 2019 11:27:07 +0200
+
 custom-util-pdf (2019.01.28a) UNRELEASED; urgency=low
 
   * Added 'pdf-downsample' utility

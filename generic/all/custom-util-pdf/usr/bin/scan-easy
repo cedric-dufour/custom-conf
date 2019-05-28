@@ -177,6 +177,7 @@ fi
 # Scan/import page(s)
 p=0
 if [ "${MY_SOURCE}" == 'scanner' ]; then
+
   while true; do
     let p1=p+1
     P="000${p}"; P=${P:${#P}-3}
@@ -192,12 +193,18 @@ if [ "${MY_SOURCE}" == 'scanner' ]; then
       esac
     done
     echo "Scanning page N°${p1}..."
-    scanimage ${MY_INPUT:+--device-name ${MY_INPUT}} --progress --mode Color -x ${MY_WIDTH} -y ${MY_HEIGHT} --resolution ${MY_RESOLUTION} --format tiff ${MY_OPTIONS_SCAN} \
-    | convert - -contrast-stretch "${MY_BLACK}%x${MY_WHITE}%" ${MY_CONVERT} -compress zip ${MY_OPTIONS_IMAGE} "${MY_FILETMP}.${P}.tif"
-    [ $? -ne 0 ] && echo 'ERROR: Failed to scan page' >&2 && exit 1
+    while true; do
+      scanimage ${MY_INPUT:+--device-name ${MY_INPUT}} --progress --mode Color -x ${MY_WIDTH} -y ${MY_HEIGHT} --resolution ${MY_RESOLUTION} --format tiff ${MY_OPTIONS_SCAN} \
+      | convert - -contrast-stretch "${MY_BLACK}%x${MY_WHITE}%" ${MY_CONVERT} -compress zip ${MY_OPTIONS_IMAGE} "${MY_FILETMP}.${P}.tif"
+      [ $? -eq 0 ] && break
+      echo 'ERROR: Failed to scan page' >&2
+      echo -n 'Press <ENTER> to retry (or <CTRL-C) to abort)' && read answer
+    done
     p=${p1}
   done
+
 elif [ "${MY_SOURCE}" == 'dir' ]; then
+
   while read input_file; do
     let p1=p+1
     P="000${p}"; P=${P:${#P}-3}
@@ -206,7 +213,9 @@ elif [ "${MY_SOURCE}" == 'dir' ]; then
     [ $? -ne 0 ] && echo 'ERROR: Failed to import file' >&2 && exit 1
     p=${p1}
   done < <(find -L "${MY_INPUT}" -maxdepth 1 -type f -not -name '.*' | sort)
+
 elif [ "${MY_SOURCE}" == 'file' ]; then
+
   case "${MY_INPUT##*.}" in
     'pdf'|'PDF')
       [ -z "$(which pdftoppm)" ] && echo "ERROR: 'pdftoppm' was not found" >&2 && exit 1
@@ -232,8 +241,11 @@ elif [ "${MY_SOURCE}" == 'file' ]; then
     [ $? -ne 0 ] && echo 'ERROR: Failed to import file' >&2 && exit 1
     p=${p1}
   done < <(find "${MY_DIRTMP}" -maxdepth 1 -type f -name 'input.*' | sort)
+
 else
+
   echo "ERROR: Invalid source type (${MY_SOURCE})" >&2 && exit 1
+
 fi
 unset p
 
