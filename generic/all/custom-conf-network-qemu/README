@@ -1,0 +1,18 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-conf-network-qemu
+
+This package provides standard configuration of a QEMU/KVM dedicated bridge
+and corresponding TAP interfaces, for (direct) use by the QEMU command-line
+emulator.
+
+In particular, it addresses standard configuration of:
+ - bridge routing (Layer-2 bridge, Layer-3 NAT or no routing)
+ - along corresponding IP tables rules
+ - and utilities to seamlessly add/delete all corresponding
+   networking resources
+
+Please note this is NOT intended as a production tool/environment and aims
+at providing developers a fast and easy mean to setup QEMU (minimalistic)
+networking, e.g. on one's laptop.
+

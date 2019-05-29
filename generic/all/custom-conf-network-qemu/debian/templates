@@ -1,0 +1,52 @@
+Template: custom-conf-network-qemu/bridge-mode
+Type: select
+Choices: nat, bridge, none
+Default: nat
+Description: Bridge "uplink" mode ?
+ How to connect QEMU/KVM dedicated bridge (qemu) to the network (uplink).
+ Available choices are:
+ .
+  - nat:    Layer-3 Network Address Translation (NAT)
+  - bridge: Layer-2 bridging (DANGEROUS! Know what you are doing!)
+  - none:   no network connectivity (guests can only "talk" one to another)
+
+Template: custom-conf-network-qemu/bridge-uplink
+Type: string
+Default: eth0
+Description: Bridge "uplink" interface ?
+ Space-separated interface(s) to use as the QEMU/KVM bridge "uplink",
+ in 'nat' or 'bridge' mode.
+
+Template: custom-conf-network-qemu/bridge-ipv4
+Type: string
+Default: 192.168.215.1/24
+Description: Bridge IPv4 address/netmask ?
+ IPv4 address and netmask of the bridge (QEMU/KVM guests gateway).
+
+Template: custom-conf-network-qemu/bridge-ipv6
+Type: string
+Default: fec0:c0a8:d600::c0ff:fea8:d701/120
+Description: Bridge IPv6 address/netmask ?
+ IPv6 address and netmask of the bridge (QEMU/KVM guests gateway).
+
+Template: custom-conf-network-qemu/authz-group
+Type: string
+Default: kvm
+Description: Authorized group ?
+ Group whose users are allowed to if-up/down the QEMU/KVM dedicated
+ bridge (qemu) and use its TAP interfaces (qemu{0..N}).
+
+Template: custom-conf-network-qemu/tap-count
+Type: string
+Default: 1
+Description: TAP interfaces quantity ?
+ Quantity of TAP interfaces (qemu{0..N}) to create.
+
+Template: custom-conf-network-qemu/setup-auto
+Type: boolean
+Default: false
+Description: Automatic setup ?
+ Whether to automatically setup the QEMU/KVM network (bridge and TAP
+ interfaces) at boot or let the authorized users (group) control it
+ (thanks to sudo-ed 'qemu-ifup' and 'qemu-ifdown' scripts).
+

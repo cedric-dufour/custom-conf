@@ -1,0 +1,64 @@
+#!/bin/bash
+[ "${1}" != 'configure' ] && exit 0
+PKGNAME='custom-conf-network-qemu'
+
+# Debconf
+. /usr/share/debconf/confmodule
+# ... preseed
+for var_priority in bridge-mode:high bridge-uplink:high bridge-ipv4:high bridge-ipv6:high authz-group:high tap-count:high setup-auto:high; do
+  var="${var_priority%:*}"
+  priority="${var_priority#*:}"
+  db_input ${priority} ${PKGNAME}/${var}
+  db_go
+done
+# ... get
+db_get ${PKGNAME}/bridge-mode && CUSTOM_CONF_NETWORK_QEMU_MODE="${RET}"
+db_get ${PKGNAME}/bridge-uplink && CUSTOM_CONF_NETWORK_QEMU_UPLINK="${RET}"
+db_get ${PKGNAME}/bridge-ipv4 && CUSTOM_CONF_NETWORK_QEMU_IPV4="${RET}"
+db_get ${PKGNAME}/bridge-ipv6 && CUSTOM_CONF_NETWORK_QEMU_IPV6="${RET}"
+db_get ${PKGNAME}/authz-group && CUSTOM_CONF_NETWORK_QEMU_GROUP="${RET}"
+db_get ${PKGNAME}/tap-count && CUSTOM_CONF_NETWORK_QEMU_TAP_COUNT="${RET}"
+db_get ${PKGNAME}/setup-auto && CUSTOM_CONF_NETWORK_QEMU_AUTO="${RET}"
+db_stop
+
+# Stop bridge
+ifquery --state qemu >/dev/null 2>&1 && ifdown qemu
+
+# Install files
+custom-conf-install "${PKGNAME}" "/usr/share/${PKGNAME}/config" || exit 1
+
+
+## Fine-tuning
+CUSTOM_CONF_NETWORK_QEMU_FORWARD_PORTS=''
+CUSTOM_CONF_NETWORK_QEMU_BRIDGE_PORTS='none'
+if [ "${CUSTOM_CONF_NETWORK_QEMU_MODE}" == 'nat' ]; then
+  CUSTOM_CONF_NETWORK_QEMU_ISNAT='true'
+  CUSTOM_CONF_NETWORK_QEMU_FORWARD_PORTS="${CUSTOM_CONF_NETWORK_QEMU_UPLINK}"
+elif [ "${CUSTOM_CONF_NETWORK_QEMU_MODE}" == 'bridge' ]; then
+  CUSTOM_CONF_NETWORK_QEMU_BRIDGE_PORTS="${CUSTOM_CONF_NETWORK_QEMU_UPLINK}"
+fi
+CUSTOM_CONF_NETWORK_QEMU_TAP_COUNT0=$(( ${CUSTOM_CONF_NETWORK_QEMU_TAP_COUNT} - 1 ))
+CUSTOM_CONF_NETWORK_QEMU_IFACE_AUTO='# NO auto qemu'
+[ "${CUSTOM_CONF_NETWORK_QEMU_AUTO}" == 'true' ] && CUSTOM_CONF_NETWORK_QEMU_IFACE_AUTO='auto qemu'
+
+# Configure...
+# ... bridge
+gcfg.sed "s|%{CUSTOM_CONF_NETWORK_QEMU_IFACE_AUTO}|${CUSTOM_CONF_NETWORK_QEMU_IFACE_AUTO}|g;s|%{CUSTOM_CONF_NETWORK_QEMU_BRIDGE_PORTS}|${CUSTOM_CONF_NETWORK_QEMU_BRIDGE_PORTS}|g;s|%{CUSTOM_CONF_NETWORK_QEMU_IPV4_ADDR}|${CUSTOM_CONF_NETWORK_QEMU_IPV4%/*}|g;s|%{CUSTOM_CONF_NETWORK_QEMU_IPV4_MASK}|${CUSTOM_CONF_NETWORK_QEMU_IPV4#*/}|g;s|%{CUSTOM_CONF_NETWORK_QEMU_IPV6_ADDR}|${CUSTOM_CONF_NETWORK_QEMU_IPV6%/*}|g;s|%{CUSTOM_CONF_NETWORK_QEMU_IPV6_MASK}|${CUSTOM_CONF_NETWORK_QEMU_IPV6#*/}|g" /etc/network/interfaces.d/qemu
+# ... TAPs and forwarding
+gcfg.sed "s|%{CUSTOM_CONF_NETWORK_QEMU_TAP_COUNT0}|${CUSTOM_CONF_NETWORK_QEMU_TAP_COUNT0}|g;s|%{CUSTOM_CONF_NETWORK_QEMU_GROUP}|${CUSTOM_CONF_NETWORK_QEMU_GROUP}|g;s|%{CUSTOM_CONF_NETWORK_QEMU_ISNAT}|${CUSTOM_CONF_NETWORK_QEMU_ISNAT}|g;s|%{CUSTOM_CONF_NETWORK_QEMU_FORWARD_PORTS}|${CUSTOM_CONF_NETWORK_QEMU_FORWARD_PORTS}|g" /etc/network/if-{up,down}.d/qemu
+# ... IP tables
+gcfg.sed "s|%{CUSTOM_CONF_NETWORK_QEMU_ISNAT}|${CUSTOM_CONF_NETWORK_QEMU_ISNAT}|g;s|%{CUSTOM_CONF_NETWORK_QEMU_IPV4}|${CUSTOM_CONF_NETWORK_QEMU_IPV4}|g;s|%{CUSTOM_CONF_NETWORK_QEMU_IPV6}|${CUSTOM_CONF_NETWORK_QEMU_IPV6}|g" /etc/iptables/rules.d/ipv{4,6}/{nat,filter}.d/50_qemu
+# ... sudoers
+gcfg.sed "s|%{CUSTOM_CONF_NETWORK_QEMU_GROUP}|${CUSTOM_CONF_NETWORK_QEMU_GROUP}|g" /etc/sudoers.d/qemu
+
+# Permissions
+chmod a+x /etc/network/if-{up,down}.d/qemu /etc/iptables/rules.d/ipv{4,6}/{nat,filter}.d/50_qemu
+
+# Warning
+echo "WARNING[${PKGNAME}]: You MUST (re)start IP tables and the QEMU/KVM bridge to enforce changes!"
+echo " > custom-conf-iptables restart"
+echo " > ifup qemu"
+
+# Exit
+exit 0
+

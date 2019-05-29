@@ -1,0 +1,16 @@
+#!/bin/sh
+## CUSTOM-CONF: File automatically created/updated [custom-conf-network-qemu]
+
+## QEMU/KVM bridge rules
+
+# NAT enabled ?
+# (Please use 'dpkg-reconfigure custom-conf-network-qemu' to change this setting)
+%{CUSTOM_CONF_NETWORK_QEMU_ISNAT} || exit 0
+
+# Masquerade (SNAT) outgoing traffic from bridge
+"${IPTABLES}" --table nat --append POSTROUTING --source %{CUSTOM_CONF_NETWORK_QEMU_IPV6} ! --out-interface qemu --jump MASQUERADE
+
+# DNAT incoming traffic to bridge
+# (Example! Please use a separate file in the '/etc/iptables/rules.d/ipv6/nat.d' folder)
+#"${IPTABLES}" --table nat --append PREROUTING --protocol tcp --dport 4567 --jump NAT --to-destination fec0:c0a8:d600::c0ff:fea8:d77b:4567
+

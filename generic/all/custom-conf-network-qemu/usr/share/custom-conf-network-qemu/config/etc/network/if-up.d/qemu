@@ -1,0 +1,38 @@
+#!/bin/bash
+## CUSTOM-CONF: File automatically created/updated [custom-conf-network-qemu]
+
+## QEMU/KVM bridge
+[ "${IFACE}" != 'qemu' ] && exit 0
+
+# TAP interfaces
+# (use IPv4 configuration as bridge configuration trigger)
+if [ "${ADDRFAM}" == 'inet' ]; then
+  for tap in $(seq -f 'qemu%.0f' 0 %{CUSTOM_CONF_NETWORK_QEMU_TAP_COUNT0}); do
+    ip tuntap add dev ${tap} mode tap group %{CUSTOM_CONF_NETWORK_QEMU_GROUP}
+    ip link set ${tap} up
+    brctl addif qemu ${tap}
+  done
+fi
+
+# Forwarding (routing)
+if %{CUSTOM_CONF_NETWORK_QEMU_ISNAT}; then
+  # ... IPv4
+  if [ "${ADDRFAM}" == 'inet' ]; then
+    echo 1 > /proc/sys/net/ipv4/conf/qemu/forwarding
+    for port in %{CUSTOM_CONF_NETWORK_QEMU_FORWARD_PORTS}; do
+      echo 1 > "/proc/sys/net/ipv4/conf/${port}/forwarding"
+    done
+  fi
+  # ... IPv6
+  if [ "${ADDRFAM}" == 'inet6' ]; then
+    echo 1 > /proc/sys/net/ipv6/conf/qemu/forwarding
+    for port in %{CUSTOM_CONF_NETWORK_QEMU_FORWARD_PORTS}; do
+      echo 1 > "/proc/sys/net/ipv6/conf/${port}/forwarding"
+    done
+  fi
+fi
+
+
+## Done
+exit 0
+

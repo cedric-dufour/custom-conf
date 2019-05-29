@@ -1,0 +1,14 @@
+#!/bin/bash
+[ "${1}" != 'remove' ] && exit 0
+PKGNAME='custom-conf-network-qemu'
+
+# Uninstall files
+custom-conf-uninstall "${PKGNAME}" "/usr/share/${PKGNAME}/config" || exit 1
+
+# Message
+echo "NOTICE[${PKGNAME}]: You MAY want to reload IP tables to enforce changes!"
+echo "> custom-conf-iptables restart"
+
+# Exit
+exit 0
+

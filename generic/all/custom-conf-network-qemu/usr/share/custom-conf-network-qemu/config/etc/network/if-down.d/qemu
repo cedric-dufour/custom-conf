@@ -1,0 +1,20 @@
+#!/bin/bash
+## CUSTOM-CONF: File automatically created/updated [custom-conf-network-qemu]
+
+## QEMU/KVM bridge
+[ "${IFACE}" != 'qemu' ] && exit 0
+
+# TAP interfaces
+# (use IPv4 configuration as bridge configuration trigger)
+if [ "${ADDRFAM}" == 'inet' ]; then
+  for tap in $(seq -f 'qemu%.0f' 0 %{CUSTOM_CONF_NETWORK_QEMU_TAP_COUNT0}); do
+    brctl delif qemu ${tap}
+    ip link set ${tap} down
+    ip tuntap del dev ${tap} mode tap
+  done
+fi
+
+
+## Done
+exit 0
+

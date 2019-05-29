@@ -1,0 +1,19 @@
+## CUSTOM-CONF: File automatically created/updated [custom-conf-network-qemu]
+
+## QEMU/KVM bridge
+# (Please use 'dpkg-reconfigure custom-conf-network-qemu' to change those settings)
+%{CUSTOM_CONF_NETWORK_QEMU_IFACE_AUTO}
+iface qemu inet static
+  # ... bridge parameters
+  bridge-ports %{CUSTOM_CONF_NETWORK_QEMU_BRIDGE_PORTS}
+  bridge-maxwait 0
+  bridge-stp off
+  bridge-fd 0
+  # ... IPv4
+  address %{CUSTOM_CONF_NETWORK_QEMU_IPV4_ADDR}
+  netmask %{CUSTOM_CONF_NETWORK_QEMU_IPV4_MASK}
+iface qemu inet6 static
+  # ... IPv6
+  address %{CUSTOM_CONF_NETWORK_QEMU_IPV6_ADDR}
+  netmask %{CUSTOM_CONF_NETWORK_QEMU_IPV6_MASK}
+

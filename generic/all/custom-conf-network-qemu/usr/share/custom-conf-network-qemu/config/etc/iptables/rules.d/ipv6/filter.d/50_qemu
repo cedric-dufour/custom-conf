@@ -1,0 +1,20 @@
+#!/bin/sh
+## CUSTOM-CONF: File automatically created/updated [custom-conf-network-qemu]
+
+## QEMU/KVM bridge filter rules
+modprobe br_netfilter 2>/dev/null
+
+# Allow internal traffic within bridge
+"${IPTABLES}" --table filter --append FORWARD --in-interface qemu --out-interface qemu --jump ACCEPT
+
+# NAT enabled ?
+# (Please use 'dpkg-reconfigure custom-conf-network-qemu' to change this setting)
+%{CUSTOM_CONF_NETWORK_QEMU_ISNAT} || exit 0
+
+# Allow outgoing traffic from bridge
+"${IPTABLES}" --table filter --append FORWARD --in-interface qemu ! --out-interface qemu --jump ACCEPT
+
+# Allow DNAT-ted incoming traffic to bridge
+# (Please add service-specific rules in '/etc/iptables/rules.d/ipv4/nat.d')
+"${IPTABLES}" --table filter --append FORWARD ! --in-interface qemu --out-interface qemu --match conntrack --ctstate DNAT --jump ACCEPT
+

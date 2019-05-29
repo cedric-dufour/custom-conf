@@ -1,0 +1,12 @@
+Source: custom-conf-network-qemu
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 4.1.3
+
+Package: custom-conf-network-qemu
+Architecture: all
+Depends: custom-conf, custom-conf-iptables, bridge-utils
+Description: Custom Configuration Framework - QEMU/KVM network bridge
+
