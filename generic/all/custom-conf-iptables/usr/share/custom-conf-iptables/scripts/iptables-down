@@ -19,5 +19,5 @@ EOF
 [ -n "${ADDRFAM}" -a "${ADDRFAM}" != 'inet' ] && exit 0
 [ ! -e /var/lock/iptables.lock ] && exit 0
 [ -n "$(ifquery --state)" ] && exit 0
-iptables-control stop
+/usr/share/custom-conf-iptables/scripts/iptables-control stop
 

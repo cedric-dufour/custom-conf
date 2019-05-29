@@ -1,0 +1,19 @@
+# custom-conf-iptables completion
+
+[ -z "$(type custom-conf-iptables 2>/dev/null)" ] && return
+_custom_conf_iptables()
+{
+  local cur
+
+  COMPREPLY=()
+  cur=`_get_cword`
+
+  _expand || return 0
+
+  if [ $COMP_CWORD -eq 1 ]; then
+    COMPREPLY=( $( compgen -W 'start stop restart status save' -- "$cur" ) )
+  fi
+  return 0
+} &&
+complete -F _custom_conf_iptables custom-conf-iptables
+

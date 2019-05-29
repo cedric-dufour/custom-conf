@@ -16,5 +16,5 @@ EOF
 [ "${1##*-}" == 'help' ] && _help && exit 1
 [ -n "${ADDRFAM}" -a "${ADDRFAM}" != 'inet6' ] && exit 0
 [ -e /var/lock/ip6tables.lock ] && exit 0
-ip6tables-control start
+/usr/share/custom-conf-iptables/scripts/ip6tables-control start
 

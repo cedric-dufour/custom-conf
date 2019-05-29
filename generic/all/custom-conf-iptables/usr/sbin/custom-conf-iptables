@@ -1,0 +1,43 @@
+#!/bin/bash
+
+
+## Usage
+[ $# -lt 1 -o "${1##*-}" == 'help' ] && cat << EOF && exit 1
+USAGE: ${0##*/} [<options>] {start|stop|restart|status|save}
+
+SYNOPSIS:
+  Set (start) or clear (stop) IP tables (firewall) rules.
+
+OPTIONS:
+  -4  Operate on IPv4 tables
+  -6  Operate on IPv6 tables
+EOF
+
+
+## Arguments
+MY_IPV4=
+MY_IPV6=
+MY_ACTION=
+while [ -n "${1}" ]; do
+  case "${1}" in
+    '-4') MY_IPV4='yes';;
+    '-6') MY_IPV6='yes';;
+    'start'|'stop'|'restart'|'status'|'save')
+      [ -n "${MY_ACTION}" ] && echo "ERROR: Too many arguments" && exit 1
+      MY_ACTION="${1}"
+      ;;
+    -*) echo "ERROR: Invalid option (${1})" && exit 1;;
+    *) echo "ERROR: Invalid argument (${1})" && exit 1;;
+  esac
+  shift
+done
+if [ -z "${MY_IPV4}" -a -z "${MY_IPV6}" ]; then
+  MY_IPV4='yes'
+  MY_IPV6='yes'
+fi
+
+
+## Action
+[ -n "${MY_IPV4}" ] && /usr/share/custom-conf-iptables/scripts/iptables-control ${MY_ACTION}
+[ -n "${MY_IPV6}" ] && /usr/share/custom-conf-iptables/scripts/ip6tables-control ${MY_ACTION}
+

@@ -1,0 +1,4 @@
+/usr/share/custom-conf-iptables/scripts/iptables-up /etc/network/if-pre-up.d/iptables-up
+/usr/share/custom-conf-iptables/scripts/ip6tables-up /etc/network/if-pre-up.d/ip6tables-up
+/usr/share/custom-conf-iptables/scripts/iptables-down /etc/network/if-post-down.d/iptables-down
+/usr/share/custom-conf-iptables/scripts/ip6tables-down /etc/network/if-post-down.d/ip6tables-down

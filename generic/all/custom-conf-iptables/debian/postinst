@@ -37,14 +37,17 @@ for segment in ${CUSTOM_CONF_IPTABLES_BLACKLIST_IPV6S}; do
 done
 gcfg.sed "s|%{CUSTOM_CONF_IPTABLES_BLACKLIST_IPV6S}|${segments}|g;s|%NL;|\n|g" /etc/iptables/rules.d/ipv6/filter.blacklist
 
+# Permissions
+chmod a+x /usr/share/custom-conf-iptables/scripts/*
+
 # Enable IP tables
 if [ -n "$(ifconfig | fgrep 'inet ')" ]; then
-  iptables-control stop
-  iptables-control start
+  /usr/share/custom-conf-iptables/scripts/iptables-control stop
+  /usr/share/custom-conf-iptables/scripts/iptables-control start
 fi
 if [ -n "$(ifconfig | fgrep 'inet6 ')" ]; then
-  ip6tables-control stop
-  ip6tables-control start
+  /usr/share/custom-conf-iptables/scripts/ip6tables-control stop
+  /usr/share/custom-conf-iptables/scripts/ip6tables-control start
 fi
 
 # Exit

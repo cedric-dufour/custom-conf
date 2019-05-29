@@ -1,3 +1,10 @@
+custom-conf-iptables (2019.05.29a) UNRELEASED; urgency=low
+
+  * Introduce 'custom-conf-iptables' as (sole user accessible) script
+    to control IP tables
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Wed, 29 May 2019 16:05:34 +0200
+
 custom-conf-iptables (2018.05.14a) UNRELEASED; urgency=low
 
   * Use 'gcfg.sed' instead of 'gsed' in scripts
