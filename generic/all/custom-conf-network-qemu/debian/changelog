@@ -1,3 +1,9 @@
+custom-conf-network-qemu (2019.06.03a) UNRELEASED; urgency=low
+
+  * Be friendly to hotplug-able uplink interfaces
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Mon, 03 Jun 2019 14:41:54 +0200
+
 custom-conf-network-qemu (2019.05.29a) UNRELEASED; urgency=low
 
   * Post Tenebras Lux

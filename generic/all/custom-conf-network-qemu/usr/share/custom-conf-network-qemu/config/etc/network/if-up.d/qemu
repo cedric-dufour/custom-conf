@@ -20,6 +20,7 @@ if %{CUSTOM_CONF_NETWORK_QEMU_ISNAT}; then
   if [ "${ADDRFAM}" == 'inet' ]; then
     echo 1 > /proc/sys/net/ipv4/conf/qemu/forwarding
     for port in %{CUSTOM_CONF_NETWORK_QEMU_FORWARD_PORTS}; do
+      [ ! -e "/proc/sys/net/ipv4/conf/${port}/forwarding" ] && continue
       echo 1 > "/proc/sys/net/ipv4/conf/${port}/forwarding"
     done
   fi
@@ -27,6 +28,7 @@ if %{CUSTOM_CONF_NETWORK_QEMU_ISNAT}; then
   if [ "${ADDRFAM}" == 'inet6' ]; then
     echo 1 > /proc/sys/net/ipv6/conf/qemu/forwarding
     for port in %{CUSTOM_CONF_NETWORK_QEMU_FORWARD_PORTS}; do
+      [ ! -e "/proc/sys/net/ipv6/conf/${port}/forwarding" ] && continue
       echo 1 > "/proc/sys/net/ipv6/conf/${port}/forwarding"
     done
   fi
