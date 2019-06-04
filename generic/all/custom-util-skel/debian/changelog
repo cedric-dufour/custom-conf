@@ -1,3 +1,9 @@
+custom-util-skel (2019.06.04a) UNRELEASED; urgency=low
+
+  * Added some cache directory relocation (for Adobe Flash and nVidia OpenGL)
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Tue, 04 Jun 2019 08:39:23 +0200
+
 custom-util-skel (2018.08.14a) UNRELEASED; urgency=low
 
   * Copy rather than symlink PKCS#11 configuration into Firefox/Thunderbird profiles
