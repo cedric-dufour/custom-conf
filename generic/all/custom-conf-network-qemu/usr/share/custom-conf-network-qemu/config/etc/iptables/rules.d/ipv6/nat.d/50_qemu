@@ -12,5 +12,5 @@
 
 # DNAT incoming traffic to bridge
 # (Example! Please use a separate file in the '/etc/iptables/rules.d/ipv6/nat.d' folder)
-#"${IPTABLES}" --table nat --append PREROUTING --protocol tcp --dport 4567 --jump NAT --to-destination fec0:c0a8:d600::c0ff:fea8:d77b:4567
+#"${IPTABLES}" --table nat --append PREROUTING --protocol tcp --dport 4567 --jump NAT --to-destination fec0::c0ff:fea8:d77b:4567
 

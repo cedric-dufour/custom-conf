@@ -25,7 +25,7 @@ Description: Bridge IPv4 address/netmask ?
 
 Template: custom-conf-network-qemu/bridge-ipv6
 Type: string
-Default: fec0:c0a8:d600::c0ff:fea8:d701/120
+Default: fec0::c0ff:fea8:d701/120
 Description: Bridge IPv6 address/netmask ?
  IPv6 address and netmask of the bridge (QEMU/KVM guests gateway).
 
