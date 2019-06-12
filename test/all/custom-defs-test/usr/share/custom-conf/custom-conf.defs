@@ -1,0 +1,61 @@
+#!/bin/bash
+# This file defines site-wide parameters and must follow BASH syntax
+
+# Domain
+CUSTOM_CONF_DOMAIN='test'
+
+# Network segment settings
+CUSTOM_CONF_NETWORK_GATEWAY_IPV4='192.168.169.1/24'
+CUSTOM_CONF_NETWORK_GATEWAY_IPV6='fec0::c0ff:fea8:a901/120'
+
+# Iptables settings
+CUSTOM_CONF_IPTABLES_WHITELIST_IPV4S='192.168.169.0/24'
+CUSTOM_CONF_IPTABLES_BLACKLIST_IPV4S=
+CUSTOM_CONF_IPTABLES_WHITELIST_IPV6S='fec0::c0ff:fea8:a900/120'
+CUSTOM_CONF_IPTABLES_BLACKLIST_IPV6S=
+
+# DNS settings
+CUSTOM_CONF_DNS_SERVERS='fec0::c0ff:fea8:a902 192.168.169.2'
+
+# NTP settings
+CUSTOM_CONF_NTP_SERVERS='ntp.test'
+CUSTOM_CONF_NTP_OPTIONS='iburst minpoll 6 maxpoll 8'
+
+# LDAP settings
+CUSTOM_CONF_LDAP_SERVER_URI='ldap://ldap.test'
+CUSTOM_CONF_LDAP_BASEDN='dc=test'
+
+# NSS settings
+CUSTOM_CONF_NSS_SERVER_URI='ldap://ldap.test'
+CUSTOM_CONF_NSS_BASEDN='dc=test'
+CUSTOM_CONF_NSS_BINDDN=
+CUSTOM_CONF_NSS_BINDPW=
+CUSTOM_CONF_NSS_USERDN='ou=users,dc=test'
+CUSTOM_CONF_NSS_GROUPDN='ou=groups,dc=test'
+
+# Kerberos settings
+CUSTOM_CONF_KRB5_REALM='TEST'
+CUSTOM_CONF_KRB5_SERVER_ADMIN='krb5.test'
+CUSTOM_CONF_KRB5_SERVERS_KDC='krb5.test'
+
+# SSH settings
+CUSTOM_CONF_SSH_ALLOWSEGMENTS=
+
+# SMTP settings
+CUSTOM_CONF_SMTP_SERVER='smtp.test'
+
+# Samba settings
+CUSTOM_CONF_SAMBA_DOMAIN='TEST'
+
+# CUPS settings
+CUSTOM_CONF_CUPS_SERVER='cups.test'
+
+# Syslog settings
+CUSTOM_CONF_SYSLOG_SERVER='fec0::c0ff:fea8:a902 192.168.169.2'
+
+# Nagios settings
+CUSTOM_CONF_NAGIOS_SERVERS=
+
+# AppArmor settings
+CUSTOM_CONF_APPARMOR_HOMEDIRS=
+

@@ -1,0 +1,7 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-certificates
+
+This dummy package is required to satisfy other packages dependencies
+in the TEST environment (for which a valid PKI can not be provided).
+

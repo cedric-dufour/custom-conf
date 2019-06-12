@@ -1,0 +1,7 @@
+## CUSTOM-CONF: File automatically created/updated [custom-conf-apt]
+
+# Multimedia (Christian Marillat)
+# KEY: apt-get install deb-multimedia-keyring
+#deb http://www.deb-multimedia.org/ buster main non-free
+#deb-src http://www.deb-multimedia.org/ buster main non-free
+

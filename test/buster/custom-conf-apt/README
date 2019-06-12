@@ -1,0 +1,12 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-conf-apt
+
+This package provides standard configuration of the TEST environment
+APT repositories.
+
+In particular, it addresses standard configuration of:
+ - custom APT repositories and preferences hierarchy
+ - disabling installation of recommended and translation packages
+ - checking available updates on a regular basis
+

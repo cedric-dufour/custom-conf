@@ -1,0 +1,10 @@
+Template: custom-conf-apt/debian-multimedia
+Type: boolean
+Default: false
+Description: Use (unofficial) Deb(ian) Mutimedia packages ?
+
+Template: custom-conf-apt/debian-backports
+Type: boolean
+Default: false
+Description: Use (official) Debian Backports packages ?
+

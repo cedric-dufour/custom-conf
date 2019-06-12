@@ -1,0 +1,39 @@
+# CUSTOM-CONF: File automatically created/updated [custom-conf-apt]
+
+# Prioritize packages
+Package: *
+Pin: release o=Local, n=stretch-custom, c=test-staging
+Pin-Priority: 1191
+
+Package: *
+Pin: release o=Local, n=stretch-custom, c=test-override
+Pin-Priority: 1091
+
+Package: *
+Pin: release o=Local, n=stretch-custom, c=generic-override
+Pin-Priority: 1090
+
+Package: *
+Pin: release o=Local, n=stretch-custom, c=test
+Pin-Priority: 891
+
+Package: *
+Pin: release o=Local, n=stretch-custom, c=generic
+Pin-Priority: 890
+
+Package: *
+Pin: release o=Local, n=debian-custom, c=test
+Pin-Priority: 791
+
+Package: *
+Pin: release o=Local, n=debian-custom, c=generic
+Pin-Priority: 790
+
+Package: *
+Pin: release o=Local, n=all-custom, c=test
+Pin-Priority: 691
+
+Package: *
+Pin: release o=Local, n=all-custom, c=generic
+Pin-Priority: 690
+
