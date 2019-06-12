@@ -26,6 +26,11 @@
 "${IPTABLES}" --table filter --append LOGWATCHER_DROP --jump LOG --log-level warning --log-prefix '[IPTABLES:LOGWATCHER_DROP] '
 "${IPTABLES}" --table filter --append LOGWATCHER_DROP --match recent --name LOGWATCHER_DROP --set --jump DROP
 
+# ... WHITELIST
+# ... (1h)
+"${IPTABLES}" --table filter --new-chain LOGWATCHER_WL1H
+"${IPTABLES}" --table filter --append LOGWATCHER_WL1H --match recent --name LOGWATCHER_WL1H --set --jump ACCEPT
+
 # ... BLACKLIST
 # ... (24h)
 "${IPTABLES}" --table filter --new-chain LOGWATCHER_BL24H
@@ -41,6 +46,8 @@
 
 # ... DETECT and DROP
 "${IPTABLES}" --table filter --new-chain LOGWATCHER
+# ... (whitelist)
+"${IPTABLES}" --table filter --append LOGWATCHER --match recent --name LOGWATCHER_WL1H --rcheck --seconds 3600 --reap --jump ACCEPT
 # ... (blacklist)
 "${IPTABLES}" --table filter --append LOGWATCHER --match recent --name LOGWATCHER_BL24H --rcheck --seconds 86400 --reap --jump LOGWATCHER_DROP
 "${IPTABLES}" --table filter --append LOGWATCHER --match recent --name LOGWATCHER_BL1H --rcheck --seconds 3600 --reap --jump LOGWATCHER_DROP

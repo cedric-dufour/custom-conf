@@ -56,8 +56,7 @@ cat << EOF
 !!! WARNING !!! WARNING !!! WARNING !!! WARNING !!! WARNING !!! WARNING !!!
 
   You MUST restart iptables and logwatcherd manually to enforce changes!
-   > iptables-control restart
-   > ip6tables-control restart
+   > custom-conf-iptables restart
    > service logwatcherd restart
 
 !!! WARNING !!! WARNING !!! WARNING !!! WARNING !!! WARNING !!! WARNING !!!
