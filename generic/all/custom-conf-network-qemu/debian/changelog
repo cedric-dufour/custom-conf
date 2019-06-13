@@ -1,3 +1,10 @@
+custom-conf-network-qemu (2019.06.13a) UNRELEASED; urgency=low
+
+  * Renamed sudo-ed scripts to 'qemu-br{up,down}'
+    (prevent potential conflict with existing upstream scripts)
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Thu, 13 Jun 2019 16:22:08 +0200
+
 custom-conf-network-qemu (2019.06.07a) UNRELEASED; urgency=low
 
   * Use a leaner IPv6 prefix

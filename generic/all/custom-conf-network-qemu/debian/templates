@@ -48,5 +48,5 @@ Default: false
 Description: Automatic setup ?
  Whether to automatically setup the QEMU/KVM network (bridge and TAP
  interfaces) at boot or let the authorized users (group) control it
- (thanks to sudo-ed 'qemu-ifup' and 'qemu-ifdown' scripts).
+ (thanks to sudo-ed 'qemu-brup' and 'qemu-brdown' scripts).
 

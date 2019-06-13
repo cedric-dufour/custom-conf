@@ -2,5 +2,5 @@
 ## CUSTOM-CONF: File automatically created/updated [custom-conf-network-qemu]
 
 ## QEMU/KVM bridge control
-%%{CUSTOM_CONF_NETWORK_QEMU_GROUP} ALL=(ALL:ALL) /usr/sbin/qemu-ifup, /usr/sbin/qemu-ifdown
+%%{CUSTOM_CONF_NETWORK_QEMU_GROUP} ALL=(ALL:ALL) /usr/sbin/qemu-brup, /usr/sbin/qemu-brdown
 
