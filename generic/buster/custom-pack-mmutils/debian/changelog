@@ -1,9 +1,10 @@
-custom-pack-mmutils (2019.01.10a) UNRELEASED; urgency=low
+custom-pack-mmutils (2019.07.02a) UNRELEASED; urgency=low
 
   * Debian/Buster forward-port
+  - RIP: gif2png (#930858)
   - RIP: vlc-nox
 
- -- Cédric Dufour <cedric.dufour@ced-network.net>  Thu, 10 Jan 2019 15:08:45 +0100
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Tue, 02 Jul 2019 04:49:33 +0200
 
 custom-pack-mmutils (2017.08.16a) UNRELEASED; urgency=low
 
