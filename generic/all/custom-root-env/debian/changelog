@@ -1,3 +1,9 @@
+custom-root-env (2019.07.25a) UNRELEASED; urgency=low
+
+  * Some esthetics improvements in the command prompt and VIM
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Thu, 25 Jul 2019 08:51:44 +0200
+
 custom-root-env (2018.05.14a) UNRELEASED; urgency=low
 
   * Use 'gcfg.sed' instead of 'gsed' in scripts

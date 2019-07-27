@@ -21,7 +21,7 @@ export REMOTEHOST=$(who am i | grep '.*(\([^:)]*\).*' | sed 's/.*(\([^:)]*\).*/\
 [ ! "${PS1}" ] && return
 
 # Command prompt
-export PS1="\[\e[35m\]* \[\e[33m\]\D{%Y-%m-%d %H:%M:%S %z}\[\e[35m\]\n\n* \[\e[31m\]\u@$(hostname -f):\[\e[36m\]\w\[\e[35m\]\n#\[\e[0m\] "
+export PS1="\[\e[35m\]@ \[\e[33m\]\D{%Y-%m-%d %H:%M:%S %z}\[\e[35m\]\n\n* \[\e[31m\]\u@$(hostname -f):\[\e[36m\]\w\[\e[35m\]\n#\[\e[0m\] "
 
 # Shell timeout (we're root, after all...)
 export TMOUT=900
