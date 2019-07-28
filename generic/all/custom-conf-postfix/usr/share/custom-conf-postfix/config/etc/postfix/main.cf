@@ -2,6 +2,7 @@
 
 
 ## Postfix Configuration
+compatibility_level = 2
 
 # Server settings
 smtpd_banner = $myhostname ESMTP
@@ -12,13 +13,28 @@ biff = no
 # Host/network settings
 mydomain = %{CUSTOM_CONF_POSTFIX_MYDOMAIN}
 myhostname = %{CUSTOM_CONF_POSTFIX_MYHOSTNAME}
+#[DFLT]myorigin = $myhostname
+#[DFLT]mydestination = $myhostname, localhost.$mydomain, localhost
 mynetworks = %{CUSTOM_CONF_POSTFIX_MYNETWORKS}
 
-# Delivery settings: local delivery
+# Restrictions
+smtpd_delay_reject = no
+# ... client connection
+smtpd_client_restrictions = permit_mynetworks, reject
+# ... HELO
+smtpd_helo_required = no
+# ... MAIL FROM
+smtpd_sender_restrictions = permit_mynetworks, reject
+# ... RCPT TO
+smtpd_relay_restrictions = permit_mynetworks, reject
+
+# Delivery settings: local delivery ($mydestination)
 recipient_delimiter =
 # Honor local aliases (local delivery MUST be enabled in master.cf)
 alias_maps = hash:/etc/aliases
 alias_database = hash:/etc/aliases
+# Redirect un-aliased users to 'root'
+virtual_alias_maps = inline:{@$myhostname=root, @localhost.$mydomain=root, @localhost=root}
 # Prevent local handling of ~/.forward file
 forward_path =
 # NO delivery into local mailbox -> MUST be handled by central server

@@ -1,3 +1,9 @@
+custom-conf-postfix (2019.07.28a) UNRELEASED; urgency=low
+
+  * Bump Postfix compatibility level (-> 2)
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Sun, 28 Jul 2019 14:26:05 +0200
+
 custom-conf-postfix (2019.01.10a) UNRELEASED; urgency=low
 
   * Be a little more quiet during installation
