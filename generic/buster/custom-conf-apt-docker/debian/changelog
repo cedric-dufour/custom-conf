@@ -1,0 +1,12 @@
+custom-conf-apt-docker (2019.07.08a) UNRELEASED; urgency=low
+
+  * Debian/Buster forward-port
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Mon, 08 Jul 2019 10:36:31 +0200
+
+custom-conf-apt-docker (2017.10.19a) UNRELEASED; urgency=low
+
+  * Post Tenebras Lux
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Thu, 19 Oct 2017 11:47:46 +0200
+
