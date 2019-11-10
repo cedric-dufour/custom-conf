@@ -13,6 +13,11 @@ highlight CustomMatchTrailing ctermbg=Red
 if has("autocmd")
   autocmd Syntax * syntax match CustomMatchTrailing /\s\+$/ containedIn=ALL
 endif
+" ... 80-chars (limit)
+highlight Custom80Chars ctermbg=Red
+if has("autocmd")
+  autocmd Syntax * syntax match Custom80Chars /\%81v./ containedIn=ALL
+endif
 
 " Automatic indentation
 if has("autocmd")

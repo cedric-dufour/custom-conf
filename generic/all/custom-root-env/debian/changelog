@@ -1,3 +1,9 @@
+custom-root-env (2019.08.18a) UNRELEASED; urgency=low
+
+  * Consolidating ~/.basrhc and ~/.vimrc
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Sun, 18 Aug 2019 12:14:04 +0200
+
 custom-root-env (2019.07.25a) UNRELEASED; urgency=low
 
   * Some esthetics improvements in the command prompt and VIM

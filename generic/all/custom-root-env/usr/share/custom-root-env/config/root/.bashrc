@@ -34,31 +34,30 @@ if [ ! "${DISPLAY}" ]; then
   [ ! "${REMOTEHOST}" -o "${REMOTEHOST}" == "${SHORTHOSTNAME}" -o "${REMOTEHOST}" == "${HOSTNAME}" ] &&  export DISPLAY=:0.0 || export DISPLAY=${REMOTEHOST}:0.0
 fi
 
+# Environment
+export EDITOR=vim
+
 # Terminal size
 shopt -s checkwinsize
 export COLUMNS LINES
 
-# Friendly less for non-text input files
-[ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
+# Shell settings
+shopt -s cdspell
+shopt -s dirspell
+shopt -s extglob
 
-# Completion
-[ -r /etc/bash_completion ] && . /etc/bash_completion
-
-# History (ignore duplicate lines)
-HISTIGNORE='&'
-
-# Coloring
-eval "$(dircolors -b)"
-alias ls='ls --color=auto'
-alias grep='grep --color=auto'
-alias fgrep='fgrep --color=auto'
-alias egrep='egrep --color=auto'
+# History settings
+shopt -s cmdhist
+shopt -s histappend
+HISTCONTROL=ignoreboth
+HISTSIZE=1000
 
 # Aliases
 # ... cd
 alias cd..='cd ..'
 alias cd-='cd -'
 # ... ls
+alias l1='ls -1'
 alias ll='ls -l'
 alias lh='ls -lh'
 alias la='ls -la'
@@ -75,12 +74,27 @@ alias _gd='gcfg delta'
 alias _dm='dmesg | tail -n 25'
 alias _sl='tail -n 25 /var/log/syslog'
 
-# Environment
-export EDITOR=vim
+# Coloring
+if [ -n "$(which dircolors)" ]; then
+  eval "$(dircolors -b)"
+  alias ls='ls --color=auto'
+  alias grep='grep --color=auto'
+  alias fgrep='fgrep --color=auto'
+  alias egrep='egrep --color=auto'
+fi
 
-# Additonal local settings
-[ -e ~/.bashrc_local ] && source ~/.bashrc_local
-[ -d ~/.bashrc.d ] && for file in ~/.bashrc.d/*; do source ${file}; done
+# Helpers
+[ -n "$(which lesspipe)" ] && eval "$(SHELL=/bin/sh lesspipe)"
+
+# Completions
+[ -r /etc/bash_completion ] && . /etc/bash_completion
+
+# Additional settings
+[ -r ~/.bashrc_local ] && . ~/.bashrc_local
+[ -d ~/.bashrc.d ] && for file in ~/.bashrc.d/*; do [ -r "${file}" ] && source ${file}; done
+
+# Cleanup
+unset file
 
 # Switch to home directory
 cd
