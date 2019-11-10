@@ -34,9 +34,12 @@ LAME_OPTS='--preset standard'
 LAME_COMMENT='#AUTO#'
 while [ -n "${1}" ]; do
   case "${1}" in
-    '-b'|'--kbitrate') shift; [ -z "${1}" ] && echo 'ERROR: Missing option value (--kbitrate)' >&2 && exit 1; TARGET_KBS="${1}";;
-    '-l'|'--lameopts') shift; [ -z "${1}" ] && echo 'ERROR: Missing option value (--lameopts)' >&2 && exit 1; LAME_OPTS="${1}";;
-    '-c'|'--comment') shift; [ -z "${1}" ] && echo 'ERROR: Missing option value (--comment)' >&2 && exit 1; LAME_COMMENT="${1}";;
+    '-b'|'--kbitrate')
+      [ -z "${2}" ] && echo "ERROR: Missing option value (${1})" >&2 && exit 1; TARGET_KBS="${2}"; shift;;
+    '-l'|'--lameopts')
+      [ -z "${2}" ] && echo "ERROR: Missing option value (${1})" >&2 && exit 1; LAME_OPTS="${2}"; shift;;
+    '-c'|'--comment')
+      [ -z "${2}" ] && echo "ERROR: Missing option value (${1})" >&2 && exit 1; LAME_COMMENT="${2}"; shift;;
     *)
       if [ -z "${SRC_DIR}" ]; then SRC_DIR="${1}"
       elif [ -z "${DST_DIR}" ]; then DST_DIR="${1}"
@@ -57,6 +60,23 @@ METAFLAC_INCL='yes'; [ -z "$(which metaflac)" ] && echo "WARNING[$$]: 'metaflac'
 
 
 ## Check directories and files
+# ... files
+SRC_FILE=
+if [ -f "${SRC_DIR}" ]; then
+  [ ! -r "${SRC_DIR}" ] && echo "ERROR[$$]: Invalid source file (${SRC_DIR})" >&2 && exit 1
+  SRC_FILE="$(basename "${SRC_DIR}")"
+  SRC_DIR="$(dirname "${SRC_DIR}")"
+fi
+DST_FILE=
+if [ -n "${SRC_FILE}" ]; then
+  if [ -d "${DST_DIR}" ]; then
+    DST_FILE="$(dirname "${DST_DIR}")/${SRC_FILE}"
+  else
+    DST_FILE="$(basename "${DST_DIR}")"
+    DST_DIR="$(dirname "${DST_DIR}")"
+  fi
+fi
+# ... directories
 SRC_DIR=${SRC_DIR%%/}
 DST_DIR=${DST_DIR%%/}
 [ ! -d "${SRC_DIR}" ] && echo "ERROR[$$]: Invalid source directory (${SRC_DIR})" >&2 && exit 1
@@ -96,12 +116,16 @@ echo "INFO[$$]: Looking for files to transcode..."
 IFS=$'\n'; for p_src in $(eval "find '${SRC_DIR}' \( -type f -o -type l \) \( -iname '*.wav' -o -iname '*.mp3' ${AAC_INCL:+-o -iname '*.aac' -o -iname '*.m4a' -o -iname '*.mp4'} ${FLAC_INCL:+-o -iname '*.flac'} \)" | sort); do
   # Compute source parameters
   d_src="$(dirname ${p_src})"
-  [ -e "${d_src}/.nodownsample" ] && continue
+  [ -z "${DST_FILE}" -a -e "${d_src}/.nodownsample" ] && continue
   e_src="${p_src##*.}"
 
   # Compute destination parameters
-  p_dst="${p_src%.*}.mp3"
-  p_dst="${DST_DIR}/${p_dst#${SRC_DIR}/}"
+  if [ -z "${DST_FILE}" ]; then
+    p_dst="${p_src%.*}.mp3"
+    p_dst="${DST_DIR}/${p_dst#${SRC_DIR}/}"
+  else
+    p_dst="${DST_DIR}/${DST_FILE}"
+  fi
   d_dst="$(dirname ${p_dst})"
   f_dst="$(basename ${p_dst})"
 

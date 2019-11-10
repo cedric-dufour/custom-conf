@@ -1,3 +1,15 @@
+custom-util-multimedia (2019.11.10a) UNRELEASED; urgency=low
+
+  * Allow {lame|imagick}-downsampling a single file
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Sun, 10 Nov 2019 10:28:42 +0100
+
+custom-util-multimedia (2019.10.03a) UNRELEASED; urgency=low
+
+  * Added chroma subsampling (4:2:0) to imagick-downsample
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Thu, 03 Oct 2019 22:12:34 +0200
+
 custom-util-multimedia (2016.01.23a) UNRELEASED; urgency=low
 
   * Post Tenebras Lux

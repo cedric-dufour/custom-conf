@@ -18,6 +18,10 @@ OPTIONS:
   -q, --quality <integer> [default:80]
       JPEG encoding quality
 
+  -s, --subsampling <string> [default:'4:2:0']
+      JPEG chroma subsampling
+      (REF: https://calendar.perfplanet.com/2015/why-arent-your-images-using-chroma-subsampling/)
+
 AUTHOR:
   Cédric Dufour - http://cedric.dufour.name
 EOF
@@ -26,12 +30,15 @@ EOF
 ## Arguments
 SIZE_GAUGE=1024
 JPEG_QUALITY=80
+JPEG_SUBSAMPLING='4:2:0'
 while [ -n "${1}" ]; do
   case "${1}" in
-    '-g'|'--gauge')  
-      shift; [ -z "${1}" ] && echo 'ERROR: Missing option value (--gauge)' >&2 && exit 1; SIZE_GAUGE="${1}";;
+    '-g'|'--gauge')
+      [ -z "${2}" ] && echo "ERROR: Missing option value (${1})" >&2 && exit 1; SIZE_GAUGE="${2}"; shift;;
     '-q'|'--quality')
-      shift; [ -z "${1}" ] && echo 'ERROR: Missing option value (--quality)' >&2 && exit 1; JPEG_QUALITY="${1}";;
+      [ -z "${2}" ] && echo "ERROR: Missing option value (${1})" >&2 && exit 1; JPEG_QUALITY="${2}"; shift;;
+    '-s'|'--subsampling')
+      [ -z "${2}" ] && echo "ERROR: Missing option value (${1})" >&2 && exit 1; JPEG_SUBSAMPLING="${2}"; shift;;
     *)
       if [ -z "${SRC_DIR}" ]; then SRC_DIR="${1}"
       elif [ -z "${DST_DIR}" ]; then DST_DIR="${1}"
@@ -48,6 +55,23 @@ done
 
 
 ## Check directories and files
+# ... files
+SRC_FILE=
+if [ -f "${SRC_DIR}" ]; then
+  [ ! -r "${SRC_DIR}" ] && echo "ERROR[$$]: Invalid source file (${SRC_DIR})" >&2 && exit 1
+  SRC_FILE="$(basename "${SRC_DIR}")"
+  SRC_DIR="$(dirname "${SRC_DIR}")"
+fi
+DST_FILE=
+if [ -n "${SRC_FILE}" ]; then
+  if [ -d "${DST_DIR}" ]; then
+    DST_FILE="$(dirname "${DST_DIR}")/${SRC_FILE}"
+  else
+    DST_FILE="$(basename "${DST_DIR}")"
+    DST_DIR="$(dirname "${DST_DIR}")"
+  fi
+fi
+# ... directories
 SRC_DIR=${SRC_DIR%%/}
 DST_DIR=${DST_DIR%%/}
 [ ! -d "${SRC_DIR}" ] && echo "ERROR[$$]: Invalid source directory (${SRC_DIR})" >&2 && exit 1
@@ -80,15 +104,19 @@ trap 'echo "INTERRUPT[$$]: Cleaning and aborting" >&2; rm -f "${DST_LOCK}" "${p_
 
 ## Loop through image files
 echo "INFO[$$]: Looking for files to transcode..."
-IFS=$'\n'; for p_src in $(eval "find '${SRC_DIR}' \( -type f -o -type l \) \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' -o -iname '*.gif' -o -iname '*.tif' -o -iname '*.tiff'  \)" | sort); do
+IFS=$'\n'; for p_src in $(eval "find '${SRC_DIR}${SRC_FILE:+/${SRC_FILE}}' \( -type f -o -type l \) \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' -o -iname '*.gif' -o -iname '*.tif' -o -iname '*.tiff'  \)" | sort); do
   # Compute source parameters
   d_src="$(dirname ${p_src})"
-  [ -e "${d_src}/.nodownsample" ] && continue
+  [ -z "${DST_FILE}" -a -e "${d_src}/.nodownsample" ] && continue
   e_src="${p_src##*.}"
 
   # Compute destination parameters
-  p_dst="${p_src%.*}.jpg"
-  p_dst="${DST_DIR}/${p_dst#${SRC_DIR}/}"
+  if [ -z "${DST_FILE}" ]; then
+    p_dst="${p_src%.*}.jpg"
+    p_dst="${DST_DIR}/${p_dst#${SRC_DIR}/}"
+  else
+    p_dst="${DST_DIR}/${DST_FILE}"
+  fi
   d_dst="$(dirname ${p_dst})"
   f_dst="$(basename ${p_dst})"
 
@@ -107,9 +135,9 @@ IFS=$'\n'; for p_src in $(eval "find '${SRC_DIR}' \( -type f -o -type l \) \( -i
   echo "INFO[$$]: Transcoding ${p_src} -> ${p_dst}"
 
   # Downsample/transcode image file
-  eval "convert \"${p_src}\" -resize '${SIZE_GAUGE}x${SIZE_GAUGE}>' -quality ${JPEG_QUALITY} +profile '*' \"${p_dst}\""
+  eval "convert \"${p_src}\" -resize '${SIZE_GAUGE}x${SIZE_GAUGE}>' -sampling-factor '${JPEG_SUBSAMPLING}' -quality ${JPEG_QUALITY} +profile '*' \"${p_dst}\""
   [ $? -ne 0 ] && echo "WARNING[$$]: An error occured while transcoding (${p_aux} -> ${p_dst}); skipping..." >&2 && continue
-   
+
 done
 
 
