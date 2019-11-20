@@ -1,3 +1,9 @@
+custom-conf-thunderbird (2019.11.20a) UNRELEASED; urgency=low
+
+  * Update AppArmor profile for Thunderbird 68+
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Wed, 20 Nov 2019 19:18:34 +0100
+
 custom-conf-thunderbird (2019.05.27a) UNRELEASED; urgency=low
 
   * AppArmor: allow opening links via 'gio-launch-desktop'

@@ -61,7 +61,7 @@ profile thunderbird @{thunderbird_executable} {
 
   # For Xubuntu to launch the browser
   /usr/bin/exo-open ixr,
-  /usr/lib/@{multiarch}/xfce4/exo-1/exo-helper-1 ixr,
+  /usr/lib/@{multiarch}/xfce4/exo-[1-9]/exo-helper-[1-9] ixr,
   /etc/xdg/xdg-xubuntu/xfce4/helpers.rc r,
   /etc/xdg/xfce4/helpers.rc r,
   # [CUSTOM-CONF:BEGIN]
@@ -124,7 +124,8 @@ profile thunderbird @{thunderbird_executable} {
   /etc/xdg/*buntu/applications/defaults.list    r, # for all derivatives
   /etc/xfce4/defaults.list r,
   /usr/share/xubuntu/applications/defaults.list r,
-  owner /dev/shm/org.chromium.* rw, # for Chromium IPC [CUSTOM-CONF:<-> "WebExtension" (themes) ?]
+  owner /dev/shm/org.chromium.* rw, # for Chromium IPC
+  owner /dev/shm/org.mozilla.ipc.[0-9]*.[0-9]* rw, # for Chromium IPC
   owner @{HOME}/.cache/fontconfig/*.cache-* rwk,
   owner @{HOME}/.local/share/applications/defaults.list r,
   owner @{HOME}/.local/share/applications/mimeapps.list r,
