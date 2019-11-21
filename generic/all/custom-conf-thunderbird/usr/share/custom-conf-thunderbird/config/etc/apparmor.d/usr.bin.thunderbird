@@ -166,8 +166,8 @@ profile thunderbird @{thunderbird_executable} {
   owner @{HOME}/.Xauthority r,
 
   # SQL-backed NSS DB (NSS_DEFAULT_DB_TYPE=sql)
-  owner @{HOME}/**/cert9.db rwk,
-  owner @{HOME}/**/key4.db rwk,
+  owner @{HOME}/**/cert9.db{,-journal} rwk,
+  owner @{HOME}/**/key4.db{,-journal} rwk,
   owner @{HOME}/**/pkcs11.txt rwk,
 
   # Access to PKCS#11 modules (and "Security Devices")
