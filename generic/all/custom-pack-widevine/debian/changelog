@@ -1,3 +1,9 @@
+custom-pack-widevine (2019.11.23a) UNRELEASED; urgency=low
+
+  * New version: Chromium/Mozilla 4.10.1582.1
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Sat, 23 Nov 2019 15:37:55 +0100
+
 custom-pack-widevine (2019.01.16a) UNRELEASED; urgency=low
 
   * Post Tenebras Lux

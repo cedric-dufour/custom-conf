@@ -76,15 +76,19 @@ if [ -n "${CHROMIUM_DEB}" ]; then
   find "${DPKG_DIR}/usr" -not -type d -path "*/chromium/*" -not -name '.gitplaceholder' -delete
 
   # Locate Widevine CDM library
-  CHROMIUM_LIB="$(dpkg -c "${CHROMIUM_DEB}" | sed -n 's|^.* \([^ ]*/libwidevinecdm.so\).*$|\1|p')"
+  CHROMIUM_LIB="$(dpkg -c "${CHROMIUM_DEB}" | sed -n 's|^.* \([^ ]*widevine[^ ]*/libwidevinecdm.so\).*$|\1|ip')"
   [ -z "${CHROMIUM_LIB}" ] && echo "ERROR: Failed to locate Widevine CDM library (libwidevinecdm.so) in given Google Chrome package (${CHROMIUM_DEB})" >&2 && exit 1
+  CHROMIUM_MAN="$(dpkg -c "${CHROMIUM_DEB}" | sed -n 's|^.* \([^ ]*widevine[^ ]*/manifest.json\).*$|\1|ip')"
+  [ -z "${CHROMIUM_MAN}" ] && echo "ERROR: Failed to locate Widevine CDM library manifest (manifest.json) in given Google Chrome package (${CHROMIUM_DEB})" >&2 && exit 1
 
   # Extract package content
   dpkg --fsys-tarfile "${CHROMIUM_DEB}" | tar -xO "${CHROMIUM_LIB}" > "${DPKG_DIR}/usr/lib/custom-pack-widevine/chromium/libwidevinecdm.so"; e=$?
   [ ${e} -ne 0 ] && echo "ERROR: Failed to extract Widevine CDM library from given Google Chrome package (${CHROMIUM_DEB})" >&2 && exit 1
+  dpkg --fsys-tarfile "${CHROMIUM_DEB}" | tar -xO "${CHROMIUM_MAN}" > "${DPKG_DIR}/usr/lib/custom-pack-widevine/chromium/manifest.json"; e=$?
+  [ ${e} -ne 0 ] && echo "ERROR: Failed to extract Widevine CDM library manifest from given Google Chrome package (${CHROMIUM_DEB})" >&2 && exit 1
 
   # Retrieve version
-  CHROMIUM_VER="$(strings "${DPKG_DIR}/usr/lib/custom-pack-widevine/chromium/libwidevinecdm.so" | egrep '^[0-9]{1,}(\.[0-9]{1,}){2,}')"
+  CHROMIUM_VER="$(jq -r '.version' ${DPKG_DIR}/usr/lib/custom-pack-widevine/chromium/manifest.json)"
 
   # Retrieve copyright stuff
   wget -q 'https://www.google.com/chrome/intl/en/eula_text.html' -O"${DPKG_DIR}/usr/share/doc/custom-pack-widevine/chromium/eula_text.html"
@@ -103,18 +107,19 @@ if [ -n "${FIREFOX_DEB}" ]; then
   find "${DPKG_DIR}/usr" -not -type d -path "*/firefox/*" -not -name '.gitplaceholder' -delete
 
   # Locate Widevine CDM library
-  FIREFOX_LIB="$(dpkg -c "${FIREFOX_DEB}" | sed -n 's|^.* \([^ ]*/libwidevinecdm.so\).*$|\1|p')"
+  FIREFOX_LIB="$(dpkg -c "${FIREFOX_DEB}" | sed -n 's|^.* \([^ ]*widevine[^ ]*/libwidevinecdm.so\).*$|\1|ip')"
   [ -z "${FIREFOX_LIB}" ] && echo "ERROR: Failed to locate Widevine CDM library (libwidevinecdm.so) in given Google Chrome package (${FIREFOX_DEB})" >&2 && exit 1
+  FIREFOX_MAN="$(dpkg -c "${FIREFOX_DEB}" | sed -n 's|^.* \([^ ]*widevine[^ ]*/manifest.json\).*$|\1|ip')"
+  [ -z "${FIREFOX_MAN}" ] && echo "ERROR: Failed to locate Widevine CDM library manifest (manifest.json) in given Google Chrome package (${FIREFOX_DEB})" >&2 && exit 1
 
   # Extract package content
   dpkg --fsys-tarfile "${FIREFOX_DEB}" | tar -xO "${FIREFOX_LIB}" > "${DPKG_DIR}/usr/lib/custom-pack-widevine/firefox/libwidevinecdm.so"; e=$?
   [ ${e} -ne 0 ] && echo "ERROR: Failed to extract Widevine CDM library from given Google Chrome package (${FIREFOX_DEB})" >&2 && exit 1
+  dpkg --fsys-tarfile "${FIREFOX_DEB}" | tar -xO "${FIREFOX_MAN}" > "${DPKG_DIR}/usr/lib/custom-pack-widevine/firefox/manifest.json"; e=$?
+  [ ${e} -ne 0 ] && echo "ERROR: Failed to extract Widevine CDM library manifest from given Google Chrome package (${FIREFOX_DEB})" >&2 && exit 1
 
   # Retrieve version
-  FIREFOX_VER="$(strings "${DPKG_DIR}/usr/lib/custom-pack-widevine/firefox/libwidevinecdm.so" | egrep '^[0-9]{1,}(\.[0-9]{1,}){2,}')"
-
-  # Create manifest
-  sed "s|%{VERSION}|${FIREFOX_VER}|g" manifest.json > "${DPKG_DIR}/usr/lib/custom-pack-widevine/firefox/manifest.json"
+  FIREFOX_VER="$(jq -r '.version' ${DPKG_DIR}/usr/lib/custom-pack-widevine/firefox/manifest.json)"
 
   # Retrieve copyright stuff
   wget -q 'https://www.google.com/chrome/intl/en/eula_text.html' -O"${DPKG_DIR}/usr/share/doc/custom-pack-widevine/firefox/eula_text.html"

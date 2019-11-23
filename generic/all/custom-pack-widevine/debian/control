@@ -4,7 +4,7 @@ Priority: optional
 Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
 Homepage: https://github.com/cedric-dufour/custom-conf
 Standards-Version: 4.1.3
-Build-Depends: binutils
+Build-Depends: binutils, jq
 
 Package: custom-pack-widevine
 Architecture: amd64
