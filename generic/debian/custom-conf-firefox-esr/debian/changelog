@@ -1,3 +1,9 @@
+custom-conf-firefox-esr (2019.11.23a) UNRELEASED; urgency=low
+
+  * Let Firefox manage/download Gecko Media Plugins (GMP) resources
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Sat, 23 Nov 2019 16:00:18 +0100
+
 custom-conf-firefox-esr (2019.01.16a) UNRELEASED; urgency=low
 
   * Use (JavaScript-enable) auto-configuration file
