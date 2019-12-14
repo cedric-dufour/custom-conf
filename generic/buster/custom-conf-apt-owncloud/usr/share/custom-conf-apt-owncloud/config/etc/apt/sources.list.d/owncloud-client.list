@@ -1,0 +1,7 @@
+## CUSTOM-CONF: File automatically created/updated [custom-conf-apt-owncloud]
+
+# ownCloud Client repository
+# (Please use 'dpkg-reconfigure custom-conf-apt-owncloud' to enable/disable)
+# KEY: wget https://download.opensuse.org/repositories/isv:ownCloud:desktop/Debian_10/Release.key -O- | apt-key add -
+#deb https://download.opensuse.org/repositories/isv:/ownCloud:/desktop/Debian_10/ /
+

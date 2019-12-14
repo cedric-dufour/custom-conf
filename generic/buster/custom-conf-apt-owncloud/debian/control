@@ -1,0 +1,12 @@
+Source: custom-conf-apt-owncloud
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 4.1.3
+
+Package: custom-conf-apt-owncloud
+Architecture: all
+Depends: custom-conf, custom-conf-apt, apt-transport-https
+Description: Custom Configuration Framework - ownCloud (Server and Client) APT repositories
+

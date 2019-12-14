@@ -1,0 +1,24 @@
+custom-conf-apt-owncloud (2019.12.14a) UNRELEASED; urgency=low
+
+  * Hail Debian 10 packaging!
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Sat, 14 Dec 2019 19:34:15 +0100
+
+custom-conf-apt-owncloud (2018.05.14a) UNRELEASED; urgency=low
+
+  * Use 'gcfg.sed' instead of 'gsed' in scripts
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Mon, 14 May 2018 14:39:32 +0200
+
+custom-conf-apt-owncloud (2018.02.11a) UNRELEASED; urgency=low
+
+  * Switch to HTTPS and add 'apt-transport-https' dependency
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Sun, 11 Feb 2018 13:25:18 +0100
+
+custom-conf-apt-owncloud (2017.10.19a) UNRELEASED; urgency=low
+
+  * Post Tenebras Lux
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Thu, 19 Oct 2017 11:46:21 +0200
+
