@@ -1,3 +1,9 @@
+custom-pack-sysutils (2020.01.07a) UNRELEASED; urgency=low
+
+  * Added 'zstd' compression utility
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Tue, 07 Jan 2020 19:53:08 +0100
+
 custom-pack-sysutils (2019.01.10a) UNRELEASED; urgency=low
 
   * Debian/Buster forward-port
