@@ -7,6 +7,6 @@ Standards-Version: 4.1.3
 
 Package: custom-pack-mmutils
 Architecture: all
-Depends: deb-multimedia-keyring, exif, exiv2, ffmpeg, flac, giftrans, imagemagick, jpeginfo, lame, mencoder, mplayer, mkvtoolnix, pngcheck, resample, sox, x264, x265
+Depends: deb-multimedia-keyring, exif, exiftran, exiv2, ffmpeg, flac, giftrans, imagemagick, jpeginfo, lame, mencoder, mplayer, mkvtoolnix, pngcheck, resample, sox, x264, x265
 Description: Custom Configuration Framework - Multimedia utilities (command line)
 
