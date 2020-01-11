@@ -1,6 +1,0 @@
-## CUSTOM-CONF: File automatically created/updated [custom-conf-symfony]
-
-#app:
-#  resource: '@AppBundle/Controller/'
-#  type: annotation
-
