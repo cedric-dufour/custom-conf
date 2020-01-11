@@ -1,3 +1,9 @@
+custom-conf-apache2 (2020.01.11a) UNRELEASED; urgency=low
+
+  * CHG: allow client to choose SSL cipher (best suited to its platform performances)
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Sat, 11 Jan 2020 21:29:42 +0100
+
 custom-conf-apache2 (2019.11.10a) UNRELEASED; urgency=low
 
   * CHG: Use only TLSv1.2 (and add AES-GCM ciphers)
