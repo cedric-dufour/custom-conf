@@ -1,3 +1,9 @@
+custom-conf-thunderbird (2020.01.17a) UNRELEASED; urgency=low
+
+  * AppArmor: Add lock permission on ~/.cache/thunderbird sub-directories
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Fri, 17 Jan 2020 12:05:10 +0100
+
 custom-conf-thunderbird (2019.11.21a) UNRELEASED; urgency=low
 
   * Update AppArmor profile for Thunderbird 68+ [bis]

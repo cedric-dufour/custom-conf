@@ -241,7 +241,10 @@ profile thunderbird @{thunderbird_executable} {
   owner @{HOME}/.{icedove,thunderbird}/plugins/** rm,
   owner @{HOME}/.{icedove,thunderbird}/**/plugins/** rm,
   owner @{HOME}/.cache/thunderbird/ rw,
-  owner @{HOME}/.cache/thunderbird/** rw,
+  # [CUSTOM-CONF:BEGIN]
+  # Add lock permission
+  owner @{HOME}/.cache/thunderbird/** rwk,
+  # [CUSTOM-CONF:END]
 
   # system emails
   owner /var/mail/* rwlk,
