@@ -1,3 +1,9 @@
+custom-pack-libreoffice6-de (2020.02.29a) UNRELEASED; urgency=low
+
+  * New upstream "Still" version: 6.3
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Sat, 29 Feb 2020 19:21:08 +0100
+
 custom-pack-libreoffice6-de (2019.05.07a) UNRELEASED; urgency=low
 
   * New upstream "Still" version: 6.1

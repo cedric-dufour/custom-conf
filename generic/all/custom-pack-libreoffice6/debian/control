@@ -7,7 +7,7 @@ Standards-Version: 4.3.0
 
 Package: custom-pack-libreoffice6
 Architecture: all
-Depends: custom-pack-libreoffice6-en-us, libreoffice6.1, libreoffice6.1-calc, libreoffice6.1-draw, libreoffice6.1-impress, libreoffice6.1-math, libreoffice6.1-writer, libreoffice6.1-debian-menus, libobasis6.1-gnome-integration, libobasis6.1-graphicfilter, libobasis6.1-ogltrans, libobasis6.1-ooofonts, libobasis6.1-ooolinguistic
+Depends: custom-pack-libreoffice6-en-us, libreoffice6.3, libreoffice6.3-calc, libreoffice6.3-draw, libreoffice6.3-impress, libreoffice6.3-math, libreoffice6.3-writer, libreoffice6.3-debian-menus, libobasis6.3-gnome-integration, libobasis6.3-graphicfilter, libobasis6.3-ogltrans, libobasis6.3-ooofonts, libobasis6.3-ooolinguistic
 Suggests: custom-pack-libreoffice6-en-gb, custom-pack-libreoffice6-de, custom-pack-libreoffice6-fr, custom-pack-libreoffice6-it
-Description: Custom Configuration Framework - LibreOffice 6.1 (original upstream packages)
+Description: Custom Configuration Framework - LibreOffice 6.3 (original upstream packages)
 
