@@ -1,3 +1,9 @@
+custom-conf-thunderbird (2020.03.14a) UNRELEASED; urgency=low
+
+  * AppArmor: Add read permission on @{HOME}/.local/share/xfce4/helpers/*
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Sat, 14 Mar 2020 20:10:14 +0100
+
 custom-conf-thunderbird (2020.01.17a) UNRELEASED; urgency=low
 
   * AppArmor: Add lock permission on ~/.cache/thunderbird sub-directories

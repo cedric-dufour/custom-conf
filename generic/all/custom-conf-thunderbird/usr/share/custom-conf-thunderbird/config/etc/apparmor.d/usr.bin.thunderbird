@@ -66,6 +66,7 @@ profile thunderbird @{thunderbird_executable} {
   /etc/xdg/xfce4/helpers.rc r,
   # [CUSTOM-CONF:BEGIN]
   owner @{HOME}/.config/xfce4/helpers.rc r,
+  owner @{HOME}/.local/share/xfce4/helpers/* r,
   # [CUSTOM-CONF:END]
 
   # for crash reports?
