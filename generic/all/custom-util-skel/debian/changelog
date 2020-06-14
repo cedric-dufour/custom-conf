@@ -1,3 +1,10 @@
+custom-util-skel (2020.06.09a) UNRELEASED; urgency=low
+
+  * Added some cache directory relocation (for Chromium/Google Chrome)
+  * Removed deprecated relocations (mostly for Mozilla Firefox/Thunderbird)
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Tue, 09 Jun 2020 14:52:50 +0200
+
 custom-util-skel (2019.06.04a) UNRELEASED; urgency=low
 
   * Added some cache directory relocation (for Adobe Flash and nVidia OpenGL)

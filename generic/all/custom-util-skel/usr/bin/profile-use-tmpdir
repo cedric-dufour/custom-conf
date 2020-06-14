@@ -88,7 +88,7 @@ chmod go= "${TMPDIR}"
 
 
 ## Generic relocate function
-function _relocate_resource {  # <home-relative-directory>:<type=dir|file>
+function _relocate_resource {  # <home-relative-directory>:<type=dir|file|delete>
   # Arguments
   resource="${1%:*}"
   resource_type="${1#*:}"
@@ -98,12 +98,27 @@ function _relocate_resource {  # <home-relative-directory>:<type=dir|file>
   resource_tmp_path="${TMPDIR}/${resource}"
   resource_tmp_dir="$(dirname "${resource_tmp_path}")"
   [ -n "${VERBOSE}" ] && echo "DEBUG: Checking resource (${resource_home_path})"
+  [ -n "${DRYRUN}" ] && echo "DRY-RUN: NOT relocating resource (${resource_home_path})" && return 0
+
+  # Delete resource
+  if [ "${resource_type}" == 'delete' ]; then
+    if [ -e "${resource_home_path}" ]; then
+      echo "INFO: Deleting deprecated resource (${resource_home_path})"
+      rm -rf "${resource_home_path}"
+    fi
+    if [ -e "${resource_tmp_path}" ]; then
+      echo "INFO: Deleting deprecated relocated resource (${resource_tmp_path})"
+      rm -rf "${resource_tmp_path}"
+    fi
+
+    # Done
+    return 0
+  fi
 
   # Initial check
   [ -h "${resource_home_path}" -a -e "${resource_home_path}" ] && return 0
-  [ -n "${DRYRUN}" ] && echo "DRY-RUN: NOT relocating resource (${resource_home_path})" && return 0
   echo "INFO: Relocating resource (${resource_home_path})"
-  
+
   # Check (parent) directory
   # ... home
   [ ! -e "${resource_home_dir}" ] && mkdir -p "${resource_home_dir}"
@@ -147,7 +162,7 @@ function _relocate_resource {  # <home-relative-directory>:<type=dir|file>
     esac
     [ $? -ne 0 ] && echo "ERROR: Failed to create resource (${resource_tmp_path}:${resource_type})" >&2 && return 1
     echo "INFO: Resource successfully created (${resource_tmp_path}:${resource_type})"
-  fi  
+  fi
   ln -s "${resource_tmp_path}" "${resource_home_path}"
   [ $? -ne 0 ] && echo "ERROR: Failed to symlink resource (${resource_home_path} -> ${resource_tmp_path})" >&2 && return 1
   echo "INFO: Resource successfully symlinked (${resource_home_path})"
@@ -166,72 +181,83 @@ IFS=$'\n'
 for resource in \
   '.adobe/Flash_Player/AssetCache:dir' \
   '.cache:dir' \
+  '.config/chromium/Crash Reports:dir' \
+  '.config/chromium/GrShaderCache:dir' \
   '.config/chromium/ShaderCache:dir' \
   '.config/chromium/Temp:dir' \
+  '.config/google-chrome/Crash Reports:dir' \
+  '.config/google-chrome/GrShaderCache:dir' \
   '.config/google-chrome/ShaderCache:dir' \
   '.config/google-chrome/Temp:dir' \
   '.config/libreoffice/4/cache:dir' \
   '.config/libreoffice/4/user/uno_packages/cache:dir' \
   '.config/libreoffice/4/user/extensions/bundled:dir' \
   '.config/libreoffice/4/user/extensions/tmp:dir' \
-  '.mozilla/firefox/custom.default/startupCache:dir' \
-  '.mozilla/firefox/custom.default/thumbnails:dir' \
-  '.mozilla/firefox/custom.default/netpredictions.sqlite:file' \
-  '.mozilla/firefox/custom.default/urlclassifier3.sqlite:file' \
-  '.mozilla/firefox/custom.default/urlclassifier.pset:file' \
-  '.mozilla/firefox/custom.default/XPC.mfasl:file' \
-  '.mozilla/firefox/custom.default/XUL.mfasl:file' \
+  '.mozilla/firefox/Crash Reports:dir' \
   '.nv/GLCache:dir' \
   '.openoffice/4/user/temp:dir' \
   '.openoffice/4/user/uno_packages/cache:dir' \
   '.openoffice/4/user/extensions/bundled:dir' \
   '.openoffice/4/user/extensions/tmp:dir' \
-  '.thumbnails:dir' \
-  '.thunderbird/custom.default/ImapMail:dir' \
-  '.thunderbird/custom.default/urlclassifier3.sqlite:file' \
-  '.thunderbird/custom.default/urlclassifier.pset:file' \
-  '.thunderbird/custom.default/XPC.mfasl:file' \
-  '.thunderbird/custom.default/XUL.mfasl:file' \
+  '.thumbnails:delete' \
+  '.thunderbird/Crash Reports:dir' \
 ; do
   _relocate_resource "${resource}"
 done
 
 # Shitty ones
-# ... Thunderbird; thanks Mozilla for its sensible approach to storage management...
-for profile in $(find '.thunderbird/' -maxdepth 2 -type f -name 'prefs.js'); do
+
+# ... Chromium/Chrome; thanks Google for its sensible approach to storage management...
+for profile in $(find '.config/chromium/' '.config/google-chrome' -maxdepth 2 -type f -name 'Preferences'); do
   profile="$(dirname "${profile}")"
   for resource in \
-  "${profile}/ImapMail:dir" \
-  "${profile}/urlclassifier3.sqlite:file" \
-  "${profile}/urlclassifier.pset:file" \
-  "${profile}/XPC.mfasl:file" \
-  "${profile}/XUL.mfasl:file" \
+    "${profile}/Application Cache:dir" \
+    "${profile}/GPUCache:dir" \
+    "${profile}/Service Worker:dir" \
   ; do
     _relocate_resource "${resource}"
   done
 done
-for resource in $(find '.thunderbird/' "${TMPDIR}/.thunderbird/" -maxdepth 2 -type d \( -name 'Cache' -o -name 'OfflineCache' \) ); do
-  # (those resources are relocated via /etc/thunderbird/pref/thunderbird.js)
-  rm -rf "${resource}"
-  [ $? -ne 0 ] && echo "ERROR: Failed to delete resource (${resource})" >&2 && continue
-  echo "INFO: Resource successfully deleted (${resource})"
-done
+
 # ... Firefox; thanks Mozilla for its sensible approach to storage management...
 for profile in $(find '.mozilla/firefox/' -maxdepth 2 -type f -name 'prefs.js'); do
   profile="$(dirname "${profile}")"
   for resource in \
-    "${profile}/startupCache:dir" \
-    "${profile}/netpredictions.sqlite:file" \
-    "${profile}/urlclassifier3.sqlite:file" \
-    "${profile}/urlclassifier.pset:file" \
-    "${profile}/XPC.mfasl:file" \
-    "${profile}/XUL.mfasl:file" \
+    "${profile}/datareporting:dir" \
+    "${profile}/netpredictions.sqlite:delete" \
+    "${profile}/startupCache:delete" \
+    "${profile}/thumbnails:delete" \
+    "${profile}/urlclassifier3.sqlite:delete" \
+    "${profile}/urlclassifier.pset:delete" \
+    "${profile}/XPC.mfasl:delete" \
+    "${profile}/XUL.mfasl:delete" \
   ; do
     _relocate_resource "${resource}"
   done
 done
 for resource in $(find '.mozilla/firefox/' "${TMPDIR}/.mozilla/firefox/" -maxdepth 2 -type d \( -name 'Cache' -o -name 'OfflineCache' \) ); do
   # (those resources are relocated via /etc/firefox/pref/firefox.js)
+  rm -rf "${resource}"
+  [ $? -ne 0 ] && echo "ERROR: Failed to delete resource (${resource})" >&2 && continue
+  echo "INFO: Resource successfully deleted (${resource})"
+done
+
+# ... Thunderbird; thanks Mozilla for its sensible approach to storage management...
+for profile in $(find '.thunderbird/' -maxdepth 2 -type f -name 'prefs.js'); do
+  profile="$(dirname "${profile}")"
+  for resource in \
+    "${profile}/saved-telemetry-pings:dir" \
+    "${profile}/ImapMail:dir" \
+    "${profile}/urlclassifier3.sqlite:delete" \
+    "${profile}/urlclassifier.pset:delete" \
+    "${profile}/XPC.mfasl:delete" \
+    "${profile}/XUL.mfasl:delete" \
+  ; do
+    _relocate_resource "${resource}"
+  done
+done
+for resource in $(find '.thunderbird/' "${TMPDIR}/.thunderbird/" -maxdepth 2 -type d \( -name 'Cache' -o -name 'OfflineCache' \) ); do
+  # (those resources are relocated via /etc/thunderbird/pref/thunderbird.js)
   rm -rf "${resource}"
   [ $? -ne 0 ] && echo "ERROR: Failed to delete resource (${resource})" >&2 && continue
   echo "INFO: Resource successfully deleted (${resource})"
