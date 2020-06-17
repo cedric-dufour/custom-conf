@@ -21,7 +21,7 @@ export REMOTEHOST=$(who am i | grep '.*(\([^:)]*\).*' | sed 's/.*(\([^:)]*\).*/\
 [ ! "${PS1}" ] && return
 
 # Command prompt
-export PS1="\[\e[35m\]@ \[\e[33m\]\D{%Y-%m-%d %H:%M:%S %z}\[\e[35m\]\n\n* \[\e[31m\]\u@$(hostname -f):\[\e[36m\]\w\[\e[35m\]\n#\[\e[0m\] "
+export PS1="\[\e[35m\]@ \[\e[33m\]\D{%Y-%m-%d %H:%M:%S %z}\[\e[35m\]\n\n* \[\e[01;31m\]\u@$(hostname -f)\[\e[00;35m\]:\[\e[36m\]\w\[\e[35m\]\n#\[\e[0m\] "
 
 # Shell timeout (we're root, after all...)
 export TMOUT=900
@@ -71,7 +71,7 @@ alias _gl='gcfg list @FLAGS'
 alias _go='gcfg original'
 alias _gd='gcfg delta'
 # ... misc
-alias _dm='dmesg | tail -n 25'
+alias _dm='dmesg --time-format=iso | tail -n 25'
 alias _sl='tail -n 25 /var/log/syslog'
 
 # Coloring
