@@ -50,7 +50,7 @@ shopt -s extglob
 shopt -s cmdhist
 shopt -s histappend
 HISTCONTROL=ignoreboth
-HISTSIZE=1000
+HISTSIZE=10000
 
 # Aliases
 # ... cd
@@ -65,6 +65,13 @@ alias la='ls -la'
 alias rm='rm --one-file-system'
 # ... ps
 alias _psl='ps wwaxf -o user,tty,pid,state,start,time,%cpu,nlwp,ni,pri,%mem,vsz,rsz,command | less -S'
+# ... systemctl
+alias _ss='systemctl status'
+alias _sa='systemctl start'
+alias _so='systemctl stop'
+alias _sr='systemctl restart'
+alias _sl='systemctl reload'
+alias _sj='journalctl -u'
 # ... gcfg
 alias _ge='gcfg edit'
 alias _gl='gcfg list @FLAGS'
@@ -72,7 +79,7 @@ alias _go='gcfg original'
 alias _gd='gcfg delta'
 # ... misc
 alias _dm='dmesg --time-format=iso | tail -n 25'
-alias _sl='tail -n 25 /var/log/syslog'
+alias _sy='tail -n 25 /var/log/syslog'
 
 # Coloring
 if [ -n "$(which dircolors)" ]; then
@@ -88,6 +95,17 @@ fi
 
 # Completions
 [ -r /etc/bash_completion ] && . /etc/bash_completion
+# ... systemctl
+function _mycomp_systemctl_units {
+  local cur=`_get_cword`
+  COMPREPLY=( $( systemctl list-units --no-legend --no-pager --all --full --type=target,service,timer,mount,path "${cur}*" | awk '{print $1}' ) )
+}
+complete -F _mycomp_systemctl_units _ss
+complete -F _mycomp_systemctl_units _sa
+complete -F _mycomp_systemctl_units _so
+complete -F _mycomp_systemctl_units _sr
+complete -F _mycomp_systemctl_units _sl
+complete -F _mycomp_systemctl_units _sj
 
 # Additional settings
 [ -r ~/.bashrc_local ] && . ~/.bashrc_local

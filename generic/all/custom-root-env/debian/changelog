@@ -1,3 +1,9 @@
+custom-root-env (2020.07.22a) UNRELEASED; urgency=low
+
+  * Add systemctl aliases
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Thu, 23 Jul 2020 09:09:27 +0200
+
 custom-root-env (2020.06.17a) UNRELEASED; urgency=low
 
   * Minor enhancements (prompt and dmesg time format)
