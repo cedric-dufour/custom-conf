@@ -1,0 +1,5 @@
+## CUSTOM-CONF: File automatically created/updated [custom-conf-wireguard]
+
+## WireGuard interface (wg0) configuration
+WIREGUARD_ADDRESS=%{CUSTOM_CONF_WIREGUARD_ADDRESS}
+

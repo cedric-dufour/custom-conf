@@ -1,0 +1,10 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-conf-wireguard
+
+This package provides standard configuration of WireGuard VPN interfaces
+(wg0, wg1, etc.).
+
+In particular, it addresses standard configuration of:
+ - systemd service to automatically start WireGuard interface(s) at boot
+

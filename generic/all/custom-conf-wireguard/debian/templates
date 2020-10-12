@@ -1,0 +1,12 @@
+Template: custom-conf-wireguard/wg0-port
+Type: string
+Default: 51820
+Description: WireGuard interface (wg0) listening port ?
+ Please specify which UDP port to use for the WireGuard interface
+
+Template: custom-conf-wireguard/wg0-address
+Type: string
+Default: 192.168.177.1/24
+Description: WireGuard interface (wg0) IP address ?
+ Please specify which address/mask to use for the WireGuard interface
+

@@ -1,0 +1,48 @@
+#!/bin/bash
+[ "${1}" != 'configure' ] && exit 0
+PKGNAME='custom-conf-wireguard'
+
+# Debconf
+. /usr/share/debconf/confmodule
+# ... preseed
+for var_priority in wg0-port:high wg0-address:high; do
+  var="${var_priority%:*}"
+  priority="${var_priority#*:}"
+  db_input ${priority} ${PKGNAME}/${var}
+  db_go
+done
+# ... get
+db_get ${PKGNAME}/wg0-port && CUSTOM_CONF_WIREGUARD_PORT="${RET}"
+db_get ${PKGNAME}/wg0-address && CUSTOM_CONF_WIREGUARD_ADDRESS="${RET}"
+db_stop
+
+# Fine-tune configuration
+
+# ... private/public keys
+if [ -e /etc/wireguard/wg0.conf ]; then
+  CUSTOM_CONF_WIREGUARD_PRIVATE_KEY="$(sed -n 's|^\s*PrivateKey\s*=\s*||p' /etc/wireguard/wg0.conf)"
+fi
+
+# Install files
+custom-conf-install "${PKGNAME}" "/usr/share/${PKGNAME}/config" || exit 1
+
+# Fine-tune configuration
+
+# ... private/public keys
+if [ -z "${CUSTOM_CONF_WIREGUARD_PRIVATE_KEY}" -o "${CUSTOM_CONF_WIREGUARD_PRIVATE_KEY:0:1}" == '%' ] ; then
+  CUSTOM_CONF_WIREGUARD_PRIVATE_KEY="$(wg genkey)"
+fi
+CUSTOM_CONF_WIREGUARD_PUBLIC_KEY="$(echo "${CUSTOM_CONF_WIREGUARD_PRIVATE_KEY}" | wg pubkey)"
+
+# ... do it
+gcfg.sed "s|%{CUSTOM_CONF_WIREGUARD_ADDRESS}|${CUSTOM_CONF_WIREGUARD_ADDRESS}|g" /etc/default/wireguard@wg0
+gcfg.sed "s|%{CUSTOM_CONF_WIREGUARD_PORT}|${CUSTOM_CONF_WIREGUARD_PORT}|g;s|%{CUSTOM_CONF_WIREGUARD_ADDRESS}|${CUSTOM_CONF_WIREGUARD_ADDRESS}|g;s|%{CUSTOM_CONF_WIREGUARD_PRIVATE_KEY}|${CUSTOM_CONF_WIREGUARD_PRIVATE_KEY}|g;s|%{CUSTOM_CONF_WIREGUARD_PUBLIC_KEY}|${CUSTOM_CONF_WIREGUARD_PUBLIC_KEY}|g" /etc/wireguard/wg0.conf
+
+
+# Info
+echo "INFO[${PKGNAME}]: Configured interfaces must be enabled via systemd"
+echo " > systemctl enable wireguard@wg0"
+
+# Exit
+exit 0
+
