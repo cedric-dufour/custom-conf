@@ -202,7 +202,10 @@ profile thunderbird @{thunderbird_executable} {
   /etc/fstab r,
 
   # Needed for the crash reporter
-  owner @{PROC}/[0-9]*/environ r,
+  # [CUSTOM-CONF:BEGIN]
+  # No way!!!
+  #owner @{PROC}/[0-9]*/environ r,
+  # [CUSTOM-CONF:END]
   owner @{PROC}/[0-9]*/auxv r,
   owner @{PROC}/[0-9]*/status r,
   # [CUSTOM-CONF:BEGIN]
