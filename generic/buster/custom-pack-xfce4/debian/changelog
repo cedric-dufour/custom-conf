@@ -1,3 +1,9 @@
+custom-pack-xfce4 (2020.12.16a) UNRELEASED; urgency=low
+
+  * Add 'tumbler' (thumbnailer) dependency
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Wed, 16 Dec 2020 22:23:30 +0100
+
 custom-pack-xfce4 (2019.01.14a) UNRELEASED; urgency=low
 
   * Debian/Buster forward-port
