@@ -7,6 +7,6 @@ Standards-Version: 4.3.0
 
 Package: custom-pack-libreoffice6-de
 Architecture: all
-Depends: libreoffice6.3-de, libreoffice6.3-dict-de, libobasis6.3-de-help
-Description: Custom Configuration Framework - LibreOffice 6.3, German language pack (original upstream packages)
+Depends: libreoffice6.4-de, libreoffice6.4-dict-de, libobasis6.4-de-help
+Description: Custom Configuration Framework - LibreOffice 6.4, German language pack (original upstream packages)
 

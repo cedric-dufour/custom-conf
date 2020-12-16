@@ -7,6 +7,6 @@ Standards-Version: 4.3.0
 
 Package: custom-pack-libreoffice6-fr
 Architecture: all
-Depends: libreoffice6.3-fr, libreoffice6.3-dict-fr, libobasis6.3-fr-help
-Description: Custom Configuration Framework - LibreOffice 6.3, French language pack (original upstream packages)
+Depends: libreoffice6.4-fr, libreoffice6.4-dict-fr, libobasis6.4-fr-help
+Description: Custom Configuration Framework - LibreOffice 6.4, French language pack (original upstream packages)
 
