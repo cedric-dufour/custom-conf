@@ -1,3 +1,9 @@
+custom-pack-sysutils (2021.01.14a) UNRELEASED; urgency=low
+
+  * Added 'lz4' compression utility
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Thu, 14 Jan 2021 18:38:47 +0100
+
 custom-pack-sysutils (2020.01.07a) UNRELEASED; urgency=low
 
   * Added 'zstd' compression utility
