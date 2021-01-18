@@ -5,6 +5,7 @@
 
 override_dh_install:
 	dh_install
+	#dh_installalternatives  # starting debhelper >= 13
 	find debian -type f -name .gitplaceholder -delete
 
 override_dh_installdocs:
