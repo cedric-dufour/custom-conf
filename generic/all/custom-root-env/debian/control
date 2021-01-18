@@ -3,10 +3,10 @@ Section: admin
 Priority: optional
 Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
 Homepage: https://github.com/cedric-dufour/custom-conf
-Standards-Version: 4.1.3
+Standards-Version: 4.5.1
 
 Package: custom-root-env
 Architecture: all
-Depends: gcfg (>= 2.0.20180514a), bash, bash-completion, vim
+Depends: gcfg, bash, bash-completion, vim-tiny
 Description: Custom Configuration Framework - 'root' Environment
 

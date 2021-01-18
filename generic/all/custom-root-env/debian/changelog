@@ -1,3 +1,9 @@
+custom-root-env (2021.01.18a) UNRELEASED; urgency=low
+
+  * Prefer 'vim-tiny' over 'vim' (no 'asound' dependencies)
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Mon, 18 Jan 2021 19:36:50 +0100
+
 custom-root-env (2020.07.22a) UNRELEASED; urgency=low
 
   * Add systemctl aliases
