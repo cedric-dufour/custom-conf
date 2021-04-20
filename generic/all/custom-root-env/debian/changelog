@@ -1,3 +1,9 @@
+custom-root-env (2021.04.20a) UNRELEASED; urgency=low
+
+  * Do not attempt vim syntax highlighting if unavailable
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Tue, 20 Apr 2021 20:48:18 +0200
+
 custom-root-env (2021.01.18a) UNRELEASED; urgency=low
 
   * Prefer 'vim-tiny' over 'vim' (no 'asound' dependencies)
