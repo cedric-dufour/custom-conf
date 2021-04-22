@@ -1,3 +1,9 @@
+custom-pack-flash (2021.04.22a) UNRELEASED; urgency=low
+
+  * Adobe Flash has reached its EOL (2020.12.31) -> Uninstall
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Thu, 22 Apr 2021 19:56:38 +0200
+
 custom-pack-flash (2020.03.22a) UNRELEASED; urgency=low
 
   * New version: NPAPI/PPAPI 32.0.0.344

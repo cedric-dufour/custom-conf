@@ -2,15 +2,11 @@ Custom Configuration Framework (custom-conf)
 ============================================
 Package: custom-pack-flash
 
-This package installs Adobe Flash (original upstream) plugins, both NPAPI
+This package used to install Adobe Flash (original upstream) plugins, both NPAPI
 and PPAPI version.
 
-The source package does NOT include the actual (GPL-incompatible) binary
-resources, which MUST be downloaded directly from Adobe:
-  http://www.adobe.com
-before updating the source package tree:
-  ./update-flash
+Adobe Flash has reached its End-of-Life (EOL) on December 31st, 2020 and it is
+recommended to uninstall it to keep hosts secure. Consequently:
 
-PLEASE DO NOT REDISTRIBUTE THIS PACKAGE SOURCE TREE WHITOUT CLEANING-UP
-ADOBE BINARY RESOURCES BEFOREHANDS.
+THIS PACKAGE UNINSTALLS ADOBE FLASH AND IS NOW AN EMPTY PLACEHOLDER.
 
