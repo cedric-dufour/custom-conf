@@ -1,3 +1,9 @@
+custom-root-env (2021.05.04a) UNRELEASED; urgency=low
+
+  * Fix vim not remembering last position
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Tue, 04 May 2021 14:56:53 +0200
+
 custom-root-env (2021.04.20a) UNRELEASED; urgency=low
 
   * Do not attempt vim syntax highlighting if unavailable
