@@ -10,6 +10,7 @@ START_DAEMON=true
 DAEMON_OPTIONS="--syslog"
 
 # Redundancy check
+AUTOSCAN=true
 # WARNING: this is useless on RAID-1 arrays (and consumes a lot of resources when happening)
 AUTOCHECK=%{CUSTOM_CONF_MDADM_AUTOCHECK}
 
