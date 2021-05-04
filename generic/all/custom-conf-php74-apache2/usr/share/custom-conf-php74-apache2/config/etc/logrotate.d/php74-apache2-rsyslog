@@ -1,0 +1,16 @@
+## CUSTOM-CONF: File automatically created/updated [custom-conf-php74-apache2]
+
+# Rotate rsyslog-redirected PHP 7.4 logs
+/var/log/php7.4-apache2.rsyslog {
+	weekly
+	missingok
+	rotate 10
+	compress
+	delaycompress
+	notifempty
+	create 640 %{CUSTOM_CONF_PHP74_APACHE2_LOGOWNER} adm
+	sharedscripts
+	postrotate
+		invoke-rc.d rsyslog rotate >/dev/null
+	endscript
+}
