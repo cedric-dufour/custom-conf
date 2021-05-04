@@ -20,4 +20,3 @@ Type: string
 Default: 443
 Description: Bind to a specific port(s) ?
  Space-separated list of HTTPS port(s) to bind the service to
-

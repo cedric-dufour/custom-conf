@@ -2,7 +2,7 @@ Custom Configuration Framework (custom-conf)
 ============================================
 Package: custom-conf-apache2
 
-This package provides standard configuration of Apache2, version 2.2 and 2.4
+This package provides standard configuration of Apache2, version 2.4
 (automatically detected).
 
 In particular, it addresses standard configuration of:
@@ -14,4 +14,3 @@ In particular, it addresses standard configuration of:
 
 Apache2 mod_macro is used to allow the user to easily include the relevant
 LDAP or SSL configuration where it's needed.
-

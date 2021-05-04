@@ -1,3 +1,9 @@
+custom-conf-apache2 (2021.05.04a) UNRELEASED; urgency=low
+
+  * CHG: Drop version 2.2 support
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Tue, 04 May 2021 13:19:50 +0200
+
 custom-conf-apache2 (2020.01.11a) UNRELEASED; urgency=low
 
   * CHG: allow client to choose SSL cipher (best suited to its platform performances)

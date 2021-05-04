@@ -20,7 +20,7 @@ db_stop
 # Retrieve Apache version
 CUSTOM_CONF_APACHE2_VERSION="$(apachectl -v | fgrep 'Apache/2' | sed 's/^.*Apache\/\([0-9]*\).\([0-9]*\).*$/\1.\2/')"
 case "${CUSTOM_CONF_APACHE2_VERSION}" in
-  '2.2'|'2.4')
+  '2.4')
     echo "INFO[${PKGNAME}]: Detected supported Apache version (${CUSTOM_CONF_APACHE2_VERSION})"
     ;;
   *)
@@ -164,9 +164,6 @@ CUSTOM_CONF_APACHE2_ALIAS_IPV6="$(getent ahosts ${CUSTOM_CONF_APACHE2_HOSTNAME} 
 
 # ... do it
 case "${CUSTOM_CONF_APACHE2_VERSION}" in
-  '2.2')
-    gcfg.sed "s|%{CUSTOM_CONF_DOMAIN}|${CUSTOM_CONF_DOMAIN}|g;s|%{CUSTOM_CONF_APACHE2_LISTEN_ALL}|${CUSTOM_CONF_APACHE2_LISTEN_ALL}|g;s|%{CUSTOM_CONF_APACHE2_LISTEN_IPV4}|${CUSTOM_CONF_APACHE2_LISTEN_IPV4}|g;s|%{CUSTOM_CONF_APACHE2_LISTEN_IPV6}|${CUSTOM_CONF_APACHE2_LISTEN_IPV6}|g;s|%{CUSTOM_CONF_APACHE2_LISTEN_ALL_SSL}|${CUSTOM_CONF_APACHE2_LISTEN_ALL_SSL}|g;s|%{CUSTOM_CONF_APACHE2_LISTEN_IPV4_SSL}|${CUSTOM_CONF_APACHE2_LISTEN_IPV4_SSL}|g;s|%{CUSTOM_CONF_APACHE2_LISTEN_IPV6_SSL}|${CUSTOM_CONF_APACHE2_LISTEN_IPV6_SSL}|g;s|%{CUSTOM_CONF_APACHE2_ALIAS_IPV4}|${CUSTOM_CONF_APACHE2_ALIAS_IPV4}|g;s|%{CUSTOM_CONF_APACHE2_ALIAS_IPV6}|${CUSTOM_CONF_APACHE2_ALIAS_IPV6}|g;s|%NL;|\n|g" /etc/apache2/ports.conf /etc/apache2/sites-available/default{,-ssl}
-    ;;
   '2.4')
     gcfg.sed "s|%{CUSTOM_CONF_DOMAIN}|${CUSTOM_CONF_DOMAIN}|g;s|%{CUSTOM_CONF_APACHE2_LISTEN_ALL}|${CUSTOM_CONF_APACHE2_LISTEN_ALL}|g;s|%{CUSTOM_CONF_APACHE2_LISTEN_IPV4}|${CUSTOM_CONF_APACHE2_LISTEN_IPV4}|g;s|%{CUSTOM_CONF_APACHE2_LISTEN_IPV6}|${CUSTOM_CONF_APACHE2_LISTEN_IPV6}|g;s|%{CUSTOM_CONF_APACHE2_LISTEN_ALL_SSL}|${CUSTOM_CONF_APACHE2_LISTEN_ALL_SSL}|g;s|%{CUSTOM_CONF_APACHE2_LISTEN_IPV4_SSL}|${CUSTOM_CONF_APACHE2_LISTEN_IPV4_SSL}|g;s|%{CUSTOM_CONF_APACHE2_LISTEN_IPV6_SSL}|${CUSTOM_CONF_APACHE2_LISTEN_IPV6_SSL}|g;s|%{CUSTOM_CONF_APACHE2_ALIAS_IPV4}|${CUSTOM_CONF_APACHE2_ALIAS_IPV4}|g;s|%{CUSTOM_CONF_APACHE2_ALIAS_IPV6}|${CUSTOM_CONF_APACHE2_ALIAS_IPV6}|g;s|%NL;|\n|g" /etc/apache2/ports.conf /etc/apache2/sites-available/{000-default,default-ssl}.conf
     ;;
@@ -175,10 +172,7 @@ esac
 # ... logrotate
 CUSTOM_CONF_APACHE2_LOGOWNER='root'
 [ "$(lsb_release -si)" == 'Ubuntu' ] && CUSTOM_CONF_APACHE2_LOGOWNER='syslog'
-CUSTOM_CONF_APACHE2_LOGROTATE='invoke-rc.d rsyslog rotate >/dev/null'
-[ "$(lsb_release -si)" == 'Debian' -a $(lsb_release -sr | cut -d. -f1) -lt 7 ] && CUSTOM_CONF_APACHE2_LOGROTATE='invoke-rc.d rsyslog reload >/dev/null'
-[ "$(lsb_release -si)" == 'Ubuntu' -a $(lsb_release -sr | cut -d. -f1) -lt 14 ] && CUSTOM_CONF_APACHE2_LOGROTATE='reload rsyslog >/dev/null 2>\&1 \|\| true'
-gcfg.sed "s|%{CUSTOM_CONF_APACHE2_LOGOWNER}|${CUSTOM_CONF_APACHE2_LOGOWNER}|g;s|%{CUSTOM_CONF_APACHE2_LOGROTATE}|${CUSTOM_CONF_APACHE2_LOGROTATE}|g" /etc/logrotate.d/apache2-rsyslog
+gcfg.sed "s|%{CUSTOM_CONF_APACHE2_LOGOWNER}|${CUSTOM_CONF_APACHE2_LOGOWNER}|g" /etc/logrotate.d/apache2-rsyslog
 # ... SSL
 [ ! -e /etc/apache2/ssl/cachain.pem ] && ln -sf /etc/ssl/local/localhost-cachain.pem /etc/apache2/ssl/cachain.pem
 [ ! -e /etc/apache2/ssl/key.pem ] && ln -sf /etc/ssl/local/localhost-key.pem /etc/apache2/ssl/key.pem
@@ -201,10 +195,6 @@ done
 chmod 710 /etc/apache2/ssl
 chown root:www-data /etc/apache2/ssl
 case "${CUSTOM_CONF_APACHE2_VERSION}" in
-  '2.2')
-    chown root:root /etc/apache2/sites-available/default{,-ssl}
-    chmod 640 /etc/apache2/sites-available/default{,-ssl}
-    ;;
   '2.4')
     chown root:root /etc/apache2/sites-available/{000-default,default-ssl}.conf
     chmod 640 /etc/apache2/sites-available/{000-default,default-ssl}.conf
@@ -222,4 +212,3 @@ invoke-rc.d rsyslog restart
 
 # Exit
 exit 0
-
