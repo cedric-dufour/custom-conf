@@ -1,3 +1,11 @@
+custom-util-zfs (2021.05.12a) UNRELEASED; urgency=low
+
+  * FIX: Previous destination snapshot fail to be destroyed
+  * NEW: Support encrypted filesystem backup
+  * DEV: Shellcheck-ed all scripts
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Wed, 12 May 2021 18:23:52 +0200
+
 custom-util-zfs (2017.03.22a) UNRELEASED; urgency=low
 
   * Fixed SysV init script that would never stop
