@@ -8,7 +8,12 @@ override_dh_install:
 	find debian -type f -name .gitplaceholder -delete
 
 override_dh_installinit:
+	dh_installinit --name=zfs-load-keys --noscripts
 	dh_installinit --name=zfs-mount-late --noscripts
+
+override_dh_installsystemd:
+	dh_installsystemd --name=zfs-load-keys
+	dh_installsystemd --name=zfs-mount-late
 
 override_dh_installdocs:
 	dh_installdocs README

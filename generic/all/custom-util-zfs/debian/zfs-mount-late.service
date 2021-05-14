@@ -1,7 +1,7 @@
 [Unit]
 Description=Mount late ZFS resources
 DefaultDependencies=no
-After=zfs-mount.service
+After=zfs-mount.service zfs-load-keys.service
 Before=remote-fs.target
 
 [Service]

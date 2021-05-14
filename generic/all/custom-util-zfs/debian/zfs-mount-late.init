@@ -1,7 +1,7 @@
 #!/bin/bash
 ### BEGIN INIT INFO
-# Provides:       zfs-mount-late
-# Required-Start: zfs-mount
+# Provides:       zfs-load-keys
+# Required-Start: zfs-mount zfs-load-keys
 # Required-Stop:  zfs-mount
 # X-Start-Before: $remote_fs
 # X-Stop-After:   $remote_fs
@@ -32,8 +32,8 @@ case "$1" in
   force-reload|condrestart|reload|restart)
     exit 3
     ;;
-    *)
-    ${ZFS_MOUNT_LATE} $1
+  *)
+    ${ZFS_MOUNT_LATE} --help
     exit 2
     ;;
 esac

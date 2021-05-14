@@ -1,9 +1,0 @@
-#!/bin/bash
-[ "${1}" != 'remove' ] && exit 0
-
-# Stop the service
-invoke-rc.d zfs-mount-late stop
-
-# Exit
-exit 0
-

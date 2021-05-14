@@ -1,0 +1,13 @@
+[Unit]
+Description=Load keys of ZFS enctypted resources
+DefaultDependencies=no
+After=zfs-mount.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/sbin/zfs-load-keys
+
+[Install]
+WantedBy=zfs.target
+

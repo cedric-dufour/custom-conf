@@ -1,0 +1,74 @@
+#!/bin/bash
+SCRIPT="${0##*/}"
+
+## Usage
+__USAGE() {
+  cat <<EOF
+USAGE: ${SCRIPT} [<options>]
+
+SYNOPSIS:
+  Load encryption keys for all encrypted datasets that need unlocking.
+
+OPTIONS:
+
+  -I --interactive
+  Prompt operator for encryption keys (default is to skip datasets that require prompting)
+
+EOF
+}
+
+
+## Arguments
+ZFS_LOAD_KEYS_INTERACTIVE=
+while [ -n "${1}" ]; do
+  case "${1}" in
+    'help'|'--help'|'-h')
+      __USAGE
+      exit 1
+      ;;
+
+    '-I'|'--interactive')
+      ZFS_LOAD_KEYS_INTERACTIVE='yes'
+      ;;
+
+    -*)
+      echo "ERROR[${SCRIPT}]: Invalid option (${1})" >&2 && exit 1
+      ;;
+
+    *)
+      echo "ERROR[${SCRIPT}]: Too many arguments (${1})" >&2 && exit 1
+      ;;
+  esac
+  shift
+done
+
+
+## Main
+
+for dataset in \
+  $(zfs list -t filesystem -H -o name) \
+  $(zfs list -t volume -H -o name) \
+; do
+  # Encrypted (?)
+  encryption="$(zfs get encryption -H -o value "${dataset}" 2>/dev/null)"
+  [ "${encryption}" == 'off' ] && encryption=
+  [ -z "${encryption}" ] && continue
+
+  # Unlocked (?)
+  keystatus="$(zfs get keystatus -H -o value "${dataset}" 2>/dev/null)"
+  [ "${keystatus}" == 'available' ] && continue
+
+  # Non-interactive (?)
+  keylocation="$(zfs get keylocation -H -o value "${dataset}" 2>/dev/null)"
+  [ "${keylocation:0:7}" != 'file://' ] && [ -z "${ZFS_LOAD_KEYS_INTERACTIVE}" ] && continue
+
+  # Unlock
+  echo "INFO[${SCRIPT}]: Loading dataset encryption keys (${dataset})" >&2
+  if ! zfs load-key "${dataset}"; then
+    echo "WARNING[${SCRIPT}]: Failed to load dataset encryption keys (${dataset})" >&2
+  fi
+done
+
+
+## Done
+exit 0

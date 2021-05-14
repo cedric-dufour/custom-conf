@@ -1,3 +1,10 @@
+custom-util-zfs (2021.05.14a) UNRELEASED; urgency=low
+
+  * NEW: zfs-load-keys script and service
+  * DEV: Do use systemd debhelper
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Fri, 14 May 2021 18:31:58 +0200
+
 custom-util-zfs (2021.05.12a) UNRELEASED; urgency=low
 
   * FIX: Previous destination snapshot fail to be destroyed

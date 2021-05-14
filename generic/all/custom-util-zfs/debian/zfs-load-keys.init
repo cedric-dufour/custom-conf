@@ -1,0 +1,32 @@
+#!/bin/bash
+### BEGIN INIT INFO
+# Provides:       zfs-load-keys
+# Required-Start: zfs-mount
+# X-Start-Before: $remote_fs
+# Default-Start:  2 3 4 5
+# Short-Description: Load keys of ZFS encrypted resources.
+### END INIT INFO
+
+ZFS_MOUNT_LATE=/usr/sbin/zfs-load-keys
+
+. /lib/lsb/init-functions
+
+case "$1" in
+  start)
+    log_begin_msg "Loading keys of ZFS encrypted resources..."
+    ${ZFS_LOAD_KEYS} start >/dev/null
+    log_end_msg $?
+    ;;
+  stop|status)
+    ;;
+  force-reload|condrestart|reload|restart)
+    exit 3
+    ;;
+  *)
+    ${ZFS_LOAD_KEYS} --help
+    exit 2
+    ;;
+esac
+
+exit 0
+

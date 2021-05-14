@@ -11,11 +11,13 @@ SYSNOPSIS:
   types (prefix) and retention factor.
 
 OPTIONS:
+
   -T --type <prefix>
     Snapshot type/prefix; typically: hourly, daily, weekly, etc.
 
   -R --retention <factor>
-    Quantity of snapshots to preserve for the given type/prefix.
+    Quantity of snapshots to preserve for the given type/prefix
+
 EOF
 }
 [ $# -lt 1 ] && __USAGE && exit 1
