@@ -98,7 +98,7 @@ fi
 # ... systemctl
 function _mycomp_systemctl_units {
   local cur=`_get_cword`
-  COMPREPLY=( $( systemctl list-units --no-legend --no-pager --all --full --type=target,service,timer,mount,path "${cur}*" | awk '{print $1}' ) )
+  COMPREPLY=( $( systemctl list-units --plain --no-legend --no-pager --all --full --type=target,service,timer,mount,path "${cur}*" | awk '{print $1}' ) )
 }
 complete -F _mycomp_systemctl_units _ss
 complete -F _mycomp_systemctl_units _sa
