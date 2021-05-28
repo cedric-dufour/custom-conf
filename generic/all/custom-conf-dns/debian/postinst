@@ -7,6 +7,8 @@ custom-conf-install "${PKGNAME}" "/usr/share/${PKGNAME}/config" || exit 1
 
 # Fine-tune configuration
 source /usr/share/custom-conf/custom-conf.defs
+
+# (IPv4/IPv6)
 ipv6="$(ip -6 addr 2>/dev/null | fgrep 'scope global')"
 servers=
 for s in ${CUSTOM_CONF_DNS_SERVERS}; do
@@ -16,11 +18,27 @@ for s in ${CUSTOM_CONF_DNS_SERVERS}; do
   servers="${servers}${servers:+%NL;}nameserver ${s}"
 done
 [ -n "${CUSTOM_CONF_DNS_SERVERS}" -a -z "${servers}" ] && echo "ERROR[${PKGNAME}]: No IPv4 server found (${CUSTOM_CONF_DNS_SERVERS})" >&2
-gcfg.sed "s|%{CUSTOM_CONF_DOMAIN}|${CUSTOM_CONF_DOMAIN}|g;s|%{CUSTOM_CONF_DNS_SERVERS}|${servers}|g;s|%NL;|\n|g" /etc/resolv.conf
+
+# (search domains)
+CUSTOM_CONF_DNS_SEARCH="${CUSTOM_CONF_DOMAIN}"
+if [ -n "${CUSTOM_CONF_DOMAIN_LOCAL}" ]; then
+  CUSTOM_CONF_DNS_SEARCH="${CUSTOM_CONF_DNS_SEARCH} ${CUSTOM_CONF_DOMAIN_LOCAL}"
+fi
+
+# (ndots)
+local_prefix="${CUSTOM_CONF_DOMAIN_LOCAL%${CUSTOM_CONF_DOMAIN}}"
+if [ "${local_prefix}" != "${CUSTOM_CONF_DOMAIN_LOCAL}" ]; then
+  dots="$(echo -n "${local_prefix}" | sed 's|[^.]||g' | wc -c)"
+else
+  dots=0
+fi
+CUSTOM_CONF_DNS_OPTIONS="options ndots:$(( dots+1 ))"
+
+# (do it)
+gcfg.sed "s|%{CUSTOM_CONF_DNS_DOMAIN}|${CUSTOM_CONF_DOMAIN}|g;s|%{CUSTOM_CONF_DNS_SEARCH}|${CUSTOM_CONF_DNS_SEARCH}|g;s|%{CUSTOM_CONF_DNS_OPTIONS}|${CUSTOM_CONF_DNS_OPTIONS}|g;s|%{CUSTOM_CONF_DNS_SERVERS}|${servers}|g;s|%NL;|\n|g" /etc/resolv.conf
 
 # Additional actions
 invoke-rc.d nscd restart
 
 # Exit
 exit 0
-
