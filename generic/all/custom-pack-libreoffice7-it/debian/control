@@ -1,0 +1,12 @@
+Source: custom-pack-libreoffice7-it
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 4.3.0
+
+Package: custom-pack-libreoffice7-it
+Architecture: all
+Depends: libreoffice7.0-it, libreoffice7.0-dict-it, libobasis7.0-it-help
+Description: Custom Configuration Framework - LibreOffice 7.0, Italian language pack (original upstream packages)
+

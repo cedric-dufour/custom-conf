@@ -1,0 +1,12 @@
+Source: custom-pack-libreoffice7-fr
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 4.3.0
+
+Package: custom-pack-libreoffice7-fr
+Architecture: all
+Depends: libreoffice7.0-fr, libreoffice7.0-dict-fr, libobasis7.0-fr-help
+Description: Custom Configuration Framework - LibreOffice 7.0, French language pack (original upstream packages)
+
