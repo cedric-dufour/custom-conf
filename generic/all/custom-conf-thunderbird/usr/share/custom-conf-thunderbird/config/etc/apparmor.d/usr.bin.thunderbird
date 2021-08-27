@@ -57,6 +57,11 @@ profile thunderbird @{thunderbird_executable} {
 
 
   # Allow opening links
+  # GDesktopAppInfo in GLib 2.64.x uses a very small shell script
+  # to launch .desktop files, instead of gio-launch-desktop
+  /{usr/,}bin/{dash,bash} ixr,
+  # With older GLib we might still be on the fallback code path
+  # (remove this after Debian 11 and Ubuntu 20.04)
   /usr/lib/@{multiarch}/glib-[0-9]*/gio-launch-desktop ix,
 
   # For Xubuntu to launch the browser
@@ -272,12 +277,14 @@ profile thunderbird @{thunderbird_executable} {
   deny /usr/share/mozilla/extensions/**/ w,
   deny /usr/share/mozilla/ w,
 
-  # [CUSTOM-CONF:BEGIN]
-  # NOTE: gpg(1) is no more and replaced by gpg(2)
-
   /usr/bin/gpg{,2}           Cx -> gpg,
   /usr/bin/gpgconf           Cx -> gpg,
   /usr/bin/gpg-connect-agent Cx -> gpg,
+  /usr/lib/gnupg/gpg-wks-client ix,
+  # [CUSTOM-CONF:BEGIN]
+  # No way!
+  #/{,usr/}bin/ps
+  # [CUSTOM-CONF:END]
 
   # TB tries to create this file but has no business doing so
   deny @{HOME}/.gnupg/gpg-agent.conf w,
@@ -285,11 +292,11 @@ profile thunderbird @{thunderbird_executable} {
   profile gpg {
     #include <abstractions/base>
 
-    /usr/share/xul-ext/enigmail/chrome/** r,
-
     # Required to import keys from keyservers
     #include <abstractions/nameservice>
     #include <abstractions/p11-kit>
+
+    /usr/share/xul-ext/enigmail/chrome/** r,
 
     # silence noise from enigmail 1.9+
     deny owner @{HOME}/.{icedove,thunderbird}/*/.parentlock w,
