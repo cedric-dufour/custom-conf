@@ -1,0 +1,13 @@
+Source: custom-pack-bluetooth
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 4.6.0
+
+Package: custom-pack-bluetooth
+Architecture: all
+Depends: bluetooth, bluez-firmware, bluez-tools, blueman
+Suggests: custom-conf-polkit-bluetooth
+Description: Custom Configuration Framework - Bluetooth stack
+

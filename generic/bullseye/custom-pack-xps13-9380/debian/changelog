@@ -1,0 +1,14 @@
+custom-pack-xps13-9380 (2021.08.26a) UNRELEASED; urgency=low
+
+  * Debian/Bullseye forward-port
+  - ADD: efibootmgr
+  - ADD: firmware-realtek (<-> Dell WD15 docking station)
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Thu, 26 Aug 2021 09:03:37 +0200
+
+custom-pack-xps13-9380 (2019.08.02a) UNRELEASED; urgency=low
+
+  * Post Tenebras Lux
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Fri, 02 Aug 2019 10:18:15 +0200
+

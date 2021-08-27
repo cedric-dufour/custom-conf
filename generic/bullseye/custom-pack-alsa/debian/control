@@ -1,0 +1,12 @@
+Source: custom-pack-alsa
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 4.6.0
+
+Package: custom-pack-alsa
+Architecture: all
+Depends: alsa-utils, gstreamer1.0-plugins-base, gstreamer1.0-plugins-good, gstreamer1.0-plugins-bad, gstreamer1.0-plugins-ugly
+Description: Custom Configuration Framework - ALSA stack
+

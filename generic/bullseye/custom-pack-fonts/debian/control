@@ -1,0 +1,12 @@
+Source: custom-pack-fonts
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 4.6.0
+
+Package: custom-pack-fonts
+Architecture: all
+Depends: fonts-freefont-ttf, fonts-inconsolata, fonts-liberation, fonts-noto-mono, fonts-noto-color-emoji, ttf-bitstream-vera, ttf-mscorefonts-installer
+Description: Custom Configuration Framework - Additional fonts
+

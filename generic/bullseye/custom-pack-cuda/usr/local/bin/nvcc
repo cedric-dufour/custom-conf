@@ -1,0 +1,79 @@
+#!/bin/bash
+## CUSTOM-PACK: File automatically created/updated [custom-pack-cuda]
+
+# Retrieve CUDA version
+CUDA_VERSION="$(/usr/lib/nvidia-cuda-toolkit/bin/nvcc --version | sed -n 's|^.*V\([.0-9]*\)$|\1|p')"
+CUDA_VERSION_MAGIC="$(echo "${CUDA_VERSION}" | sed 's|^\([^.]*\)\.\([^.]*\).*$|\1\2|')"
+
+# Filter-out user-passed arguments
+declare -a args
+arg_ccbin=
+arg_arch=
+while [ -n "${1}" ]; do
+  case "${1}" in
+    --compiler-bindir|-ccbin|--compiler-bindir=*|-ccbin=*)
+      [[ ${1} =~ = ]] || shift
+      arg_ccbin="${1#*=}"
+      ;;
+    --gpu-architecture|-arch|--gpu-architecture=*|-arch=*)
+      [[ ${1} =~ = ]] || shift
+      arg_arch="${1#*=}"
+      ;;
+    *)
+      args[${#args[*]}]="${1}"
+      ;;
+  esac
+  shift
+done
+
+# Let's match requested compiler the best we can
+# REF: https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html
+#      CUDA 9.1 does not support GCC > 6 / CLANG > 6.0
+#      CUDA 9.2 does not support GCC > 7 / CLANG > 6.0
+if [ ${CUDA_VERSION_MAGIC} -lt 91 ]; then
+  echo "ERROR[${0}]: This version of CUDA (${CUDA_VERSION}) is not supported on this system (no compatible gcc/clang)" >&2
+  exit 65
+elif [ ${CUDA_VERSION_MAGIC} -eq 91 ]; then
+  # ... by default, let's use GCC 6
+  ccbin='gcc-6'
+  case "${arg_ccbin}" in
+    '') ;;
+    *clang++*) ccbin='clang++-6.0' ;;
+    *clang*) ccbin='clang-6.0' ;;
+    *gcc*) ccbin='gcc-6' ;;
+    *g++*) ccbin='g++-6' ;;
+    *) echo "WARNING[${0}]: Unsupported compiler '${arg_ccbin}'; using '${ccbin}' instead" >&2 ;;
+  esac
+elif [ ${CUDA_VERSION_MAGIC} -gt 91 ]; then
+  # ... by default, let's use GCC 7 (if installed), GCC 6 otherwise
+  [ -n "$(which gcc-7)" ] && ccbin='gcc-7' || ccbin='gcc-6'
+  case "${arg_ccbin}" in
+    '') ;;
+    *clang++*) ccbin='clang++-6.0' ;;
+    *clang*) ccbin='clang-6.0' ;;
+    *gcc*) [ -n "$(which gcc-7)" ] && ccbin='gcc-7' || ccbin='gcc-6' ;;
+    *g++*) [ -n "$(which g++-7)" ] && ccbin='g++-7' || ccbin='g++-6' ;;
+    *) echo "WARNING[${0}]: Unsupported compiler '${arg_ccbin}'; using '${ccbin}' instead" >&2 ;;
+  esac
+fi
+
+# Let's match requested GPU architecture the best we can
+# REF: https://devtalk.nvidia.com/default/topic/1044361/value-quot-sm_75-quot-not-defined-with-cuda-9-0-installed-on-rtx-2070
+#      CUDA 9.x does not support architecture 'sm_75' (Turing)
+arch=
+case "${arg_arch}" in
+  'sm_75')
+    if [ ${CUDA_VERSION_MAGIC} -lt 100 ]; then
+      arch='sm_70'
+      echo "WARNING[${0}]: Requested GPU architecture '${arg_arch}' unsupported by CUDA ${CUDA_VERSION}; using '${arch}' instead" >&2
+    else
+      arch="${arg_arch}"
+    fi
+    ;;
+  *) arch="${arg_arch}" ;;
+esac
+
+# Let's do it!
+[ -n "${NVCC_WRAPPER_DEBUG}" ] && echo "DEBUG[${0}]: nvcc ${ccbin:+-ccbin "${ccbin}"} ${arch:+-arch "${arch}"} ${args[@]}" >&2
+exec /usr/lib/nvidia-cuda-toolkit/bin/nvcc ${ccbin:+-ccbin "${ccbin}"} ${arch:+-arch "${arch}"} "${args[@]}"
+
