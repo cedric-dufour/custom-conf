@@ -1,7 +1,0 @@
-## CUSTOM-CONF: File automatically created/updated [custom-conf-apt]
-
-# Check for available updates
-SHELL=/bin/bash
-PATH=/sbin:/bin:/usr/sbin:/usr/bin
-5 0 * * 0 root %{ENABLE_APT_UPDATE_CHECK} && sleep $[$RANDOM\%3600] && apt-get --quiet=2 update && apt-get --quiet=2 --dry-run dist-upgrade
-

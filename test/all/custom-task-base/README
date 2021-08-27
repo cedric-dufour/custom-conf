@@ -1,7 +1,0 @@
-Custom Configuration Framework (custom-conf)
-============================================
-Package: custom-task-base
-
-This meta-package installs all *base* dependencies required to commission a
-(generic) node.
-

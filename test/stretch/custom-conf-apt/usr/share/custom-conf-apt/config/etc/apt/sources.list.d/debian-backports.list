@@ -1,6 +1,0 @@
-## CUSTOM-CONF: File automatically created/updated [custom-conf-apt]
-
-# Backports
-#deb http://deb.debian.org/debian/ stretch-backports main contrib non-free
-#deb-src http://deb.debian.org/debian/ stretch-backports main contrib non-free
-
