@@ -1,3 +1,10 @@
+custom-conf-docker (2021.08.27a) UNRELEASED; urgency=low
+
+  * Added 'docker-compose' to Suggests
+  * Removed (now-transitional) 'apt-ttransport-https' Recommends
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Fri, 27 Aug 2021 13:12:05 +0200
+
 custom-conf-docker (2018.11.08a) UNRELEASED; urgency=low
 
   * Updated systemd service file for changes introduced by Docker's containerd
