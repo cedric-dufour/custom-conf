@@ -66,6 +66,7 @@ alias rm='rm --one-file-system'
 # ... ps
 alias _psl='ps wwaxf -o user,tty,pid,state,start,time,%cpu,nlwp,ni,pri,%mem,vsz,rsz,command | less -S'
 # ... systemctl
+alias _sc='systemctl cat'
 alias _ss='systemctl status'
 alias _sa='systemctl start'
 alias _so='systemctl stop'
@@ -100,6 +101,7 @@ function _mycomp_systemctl_units {
   local cur=`_get_cword`
   COMPREPLY=( $( systemctl list-units --plain --no-legend --no-pager --all --full --type=target,service,timer,mount,path "${cur}*" | awk '{print $1}' ) )
 }
+complete -F _mycomp_systemctl_units _sc
 complete -F _mycomp_systemctl_units _ss
 complete -F _mycomp_systemctl_units _sa
 complete -F _mycomp_systemctl_units _so

@@ -1,3 +1,9 @@
+custom-root-env (2021.09.16a) UNRELEASED; urgency=low
+
+  * Add '_sc = systemctl cat' alias
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Thu, 16 Sep 2021 12:12:43 +0200
+
 custom-root-env (2021.05.20a) UNRELEASED; urgency=low
 
   * Fix systemd units completion
