@@ -1,3 +1,9 @@
+custom-pack-libreoffice7-de (2021.08.30a) UNRELEASED; urgency=low
+
+  * Hail LibreOffice 7.1!
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Mon, 30 Aug 2021 08:30:12 +0200
+
 custom-pack-libreoffice7-de (2021.07.13a) UNRELEASED; urgency=low
 
   * Hail LibreOffice 7.0!
