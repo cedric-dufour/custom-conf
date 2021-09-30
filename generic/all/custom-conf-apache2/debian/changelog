@@ -1,3 +1,9 @@
+custom-conf-apache2 (2021.09.30a) UNRELEASED; urgency=low
+
+  * CHG: Add TLSv1.3 support
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Thu, 30 Sep 2021 09:22:44 +0200
+
 custom-conf-apache2 (2021.05.04a) UNRELEASED; urgency=low
 
   * CHG: Drop version 2.2 support
