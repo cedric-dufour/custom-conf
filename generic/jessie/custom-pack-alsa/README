@@ -1,7 +1,0 @@
-Custom Configuration Framework (custom-conf)
-============================================
-Package: custom-pack-alsa
-
-This meta-package installs all dependencies required to have a fully functional
-Advanced Linux Sound Architecture (ALSA) stack. 
-

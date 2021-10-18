@@ -1,6 +1,0 @@
-## CUSTOM-CONF: File automatically created/updated [custom-conf-apt-owncloud]
-
-# OwnCloud repository
-# KEY: wget http://download.opensuse.org/repositories/isv:ownCloud:desktop/Debian_8.0/Release.key -O- | apt-key add -
-deb http://download.opensuse.org/repositories/isv:/ownCloud:/desktop/Debian_8.0/ /
-

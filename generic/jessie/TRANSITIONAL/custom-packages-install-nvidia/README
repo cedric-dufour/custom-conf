@@ -1,7 +1,0 @@
-Custom Configuration Framework (custom-conf)
-============================================
-Package: custom-packages-install-nvidia
-
-This meta-package installs all dependencies required to have a fully functional
-nVidia proprietary driver stack along CUDA, OpenCL and VDPAU support. 
-

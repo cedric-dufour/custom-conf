@@ -1,9 +1,0 @@
-#!/bin/bash
-[ "${1}" != 'configure' ] && exit 0
-
-# Blacklist all GPUs (until a knowledgeable sysadmin passes by)
-grep -q '^CUDA_VISIBLE_DEVICES=' /etc/environment || echo 'CUDA_VISIBLE_DEVICES=999' >> /etc/environment
-
-# Exit
-exit 0
-

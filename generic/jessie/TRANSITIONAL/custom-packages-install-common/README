@@ -1,6 +1,0 @@
-Custom Configuration Framework (custom-conf)
-============================================
-Package: custom-packages-install-common
-
-This meta-package installs common(ly used) applications and utilities.
-
