@@ -1,3 +1,10 @@
+custom-conf-apt-owncloud (2021.10.15a) UNRELEASED; urgency=low
+
+  * Update Server upstream source for Debian/Bullseye
+  - TODO: update Client upstream source when available
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Mon, 18 Oct 2021 06:46:11 +0200
+
 custom-conf-apt-owncloud (2021.08.24a) UNRELEASED; urgency=low
 
   * Debian/Bullseye forward-port
