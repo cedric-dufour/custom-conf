@@ -1,6 +1,0 @@
-Custom Configuration Framework (custom-conf)
-============================================
-Package: custom-conf-apt-owncloud
-
-This package provides standard configuration of ownCloud (client) APT repository.
-
