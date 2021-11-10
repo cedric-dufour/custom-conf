@@ -1,3 +1,9 @@
+custom-pack-sysutils (2021.11.10a) UNRELEASED; urgency=low
+
+  * Added 'bat(cat)' utility
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Wed, 10 Nov 2021 15:53:17 +0100
+
 custom-pack-sysutils (2021.08.26a) UNRELEASED; urgency=low
 
   * Debian/Bullseye forward-port
