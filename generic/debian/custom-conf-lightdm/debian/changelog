@@ -1,3 +1,9 @@
+custom-conf-lightdm (2021.11.15a) UNRELEASED; urgency=low
+
+  * Align indicators similarly to XFCE panel
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Mon, 15 Nov 2021 21:06:22 +0100
+
 custom-conf-lightdm (2019.04.05a) UNRELEASED; urgency=low
 
   * Accomodate both 'dbus-x11' and 'dbus-user-session' DBUS session models
