@@ -1,3 +1,10 @@
+custom-conf-apt-nvidia-docker (2021.12.17a) UNRELEASED; urgency=low
+
+  * Include APT signing key
+    REF: https://wiki.debian.org/DebianRepository/UseThirdParty
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Fri, 17 Dec 2021 15:29:04 +0100
+
 custom-conf-apt-nvidia-docker (2021.08.24a) UNRELEASED; urgency=low
 
   * Debian/Bullseye forward-port

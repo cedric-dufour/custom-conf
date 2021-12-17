@@ -28,16 +28,5 @@ fi
 [ "${OWNCLOUD_SERVER}" == 'true' ] && gcfg.sed "s|^#deb |deb |" /etc/apt/sources.list.d/owncloud-server.list
 [ "${OWNCLOUD_CLIENT}" == 'true' ] && gcfg.sed "s|^#deb |deb |" /etc/apt/sources.list.d/owncloud-client.list
 
-# Message
-[ "${OWNCLOUD_SERVER}" == 'true' ] && cat << EOF
-NOTICE[${PKGNAME}]: Please install ownCloud Server packages signing key MANUALLY
-: wget https://download.owncloud.org/download/repositories/production/Debian_10/Release.key -O- | apt-key add -
-EOF
-[ "${OWNCLOUD_CLIENT}" == 'true' ] && cat << EOF
-NOTICE[${PKGNAME}]: Please install ownCloud Client packages signing key MANUALLY
-: wget https://download.opensuse.org/repositories/isv:ownCloud:desktop/Debian_10/Release.key -O- | apt-key add -
-EOF
-
 # Exit
 exit 0
-

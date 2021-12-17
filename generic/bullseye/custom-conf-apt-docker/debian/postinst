@@ -5,12 +5,5 @@ PKGNAME='custom-conf-apt-docker'
 # Install files
 custom-conf-install "${PKGNAME}" "/usr/share/${PKGNAME}/config" || exit 1
 
-# Message
-cat << EOF
-NOTICE[${PKGNAME}]: Please install the packages signing key MANUALLY
-: wget https://download.docker.com/linux/debian/gpg -O- | apt-key add - 
-EOF
-
 # Exit
 exit 0
-

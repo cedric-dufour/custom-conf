@@ -3,5 +3,5 @@
 # ownCloud Server repository
 # REF: https://software.opensuse.org/download/package?package=owncloud-complete-files&project=isv%3AownCloud%3Aserver%3A10
 # (Please use 'dpkg-reconfigure custom-conf-apt-owncloud' to enable/disable)
-# KEY: wget https://download.opensuse.org/repositories/isv:ownCloud:server:10/Debian_11/Release.key -O- | apt-key add -
-#deb http://download.opensuse.org/repositories/isv:/ownCloud:/server:/10/Debian_11/ /'
+# KEY: wget https://download.opensuse.org/repositories/isv:ownCloud:server:10/Debian_11/Release.key -O-
+#deb [signed-by=/usr/share/keyrings/owncloud-server.gpg] http://download.opensuse.org/repositories/isv:/ownCloud:/server:/10/Debian_11/ /'
