@@ -1,1 +1,3 @@
+/etc/firefox-esr/firefox-esr.js /opt/firefox-esr/defaults/pref/autoconfig.js
 /etc/firefox-esr/custom-conf-firefox-esr.cfg /usr/lib/firefox-esr/custom-conf-firefox-esr.cfg
+/etc/firefox-esr/custom-conf-firefox-esr.cfg /opt/firefox-esr/custom-conf-firefox-esr.cfg

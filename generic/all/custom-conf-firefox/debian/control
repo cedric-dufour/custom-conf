@@ -3,10 +3,9 @@ Section: admin
 Priority: optional
 Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
 Homepage: https://github.com/cedric-dufour/custom-conf
-Standards-Version: 3.9.7
+Standards-Version: 4.6.0
 
 Package: custom-conf-firefox
 Architecture: all
-Depends: custom-conf, firefox
+Depends: custom-conf, firefox-mozilla-build | firefox
 Description: Custom Configuration Framework - Mozilla Firefox
-
