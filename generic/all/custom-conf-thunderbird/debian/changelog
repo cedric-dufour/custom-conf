@@ -1,3 +1,9 @@
+custom-conf-thunderbird (2021.12.17a) UNRELEASED; urgency=low
+
+  * AppArmor: Add 3rd-party Debian-packaged 'firefox(-esr)'
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Fri, 17 Dec 2021 18:06:51 +0100
+
 custom-conf-thunderbird (2021.08.26a) UNRELEASED; urgency=low
 
   * AppArmor: update (as per Debian/Bullseye udpates)

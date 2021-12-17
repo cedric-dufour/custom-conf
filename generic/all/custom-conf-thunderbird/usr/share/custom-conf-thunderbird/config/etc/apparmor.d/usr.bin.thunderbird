@@ -185,11 +185,12 @@ profile thunderbird @{thunderbird_executable} {
   # Allow Debian browsers to be launched (*handler.http*)
   /usr/bin/firefox{,-esr} Cx -> sanitized_helper,
   /usr/lib/firefox{,-esr}/firefox{,-esr} Cx -> sanitized_helper,
-  /usr/bin/chromium Cx -> custom_sanitized_helper,
+  # ... 3rd-party Debian-packaged
+  /opt/firefox{,-esr}/firefox{,-esr}{,-bin} Cx -> custom_sanitized_helper,
 
   # Allow OpenOffice/LibreOffice (upstream Debian packaging) to be launched
   /opt/openoffice4*/program/{soffice,swriter,scalc,simpress} Cxr -> custom_sanitized_helper,
-  /opt/libreoffice[5-6]*/program/{soffice,swriter,scalc,simpress} Cxr -> custom_sanitized_helper,
+  /opt/libreoffice[5-9]*/program/{soffice,swriter,scalc,simpress} Cxr -> custom_sanitized_helper,
 
   ## [CUSTOM-CONF:END]
 
