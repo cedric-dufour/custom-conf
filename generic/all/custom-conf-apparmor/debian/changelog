@@ -1,3 +1,9 @@
+custom-conf-apparmor (2021.12.17a) UNRELEASED; urgency=low
+
+  * Added (3rd-party Debian-packaged) Firefox rules
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Fri, 17 Dec 2021 17:57:41 +0100
+
 custom-conf-apparmor (2018.11.16a) UNRELEASED; urgency=low
 
   * Improved (upstream Debian-packaged) OpenOffice/LibreOffice rules

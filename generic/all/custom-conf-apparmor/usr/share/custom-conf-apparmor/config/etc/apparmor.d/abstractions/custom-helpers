@@ -42,13 +42,17 @@ profile custom_sanitized_helper {
   # [custom-conf-apparmor] Debian specifics
   /usr/lib/chromium/chrome-sandbox PUxr,
 
+  # [custom-conf-apparmor] Firefox (3rd-party Debian packaging)
+  /opt/firefox{,-esr}/firefox{,-esr}{,-bin} Pixr,
+  /opt/firefox{,-esr}/*.so{,.*} m,
+
   # [custom-conf-apparmor] OpenOffice (upstream Debian packaging)
   /opt/openoffice4*/program/{,**/}* Pixr,
   /opt/openoffice4*/program/{,**/}*.so{,.*} m,
 
   # [custom-conf-apparmor] LibreOffice (upstream Debian packaging)
-  /opt/libreoffice[5-6]*/program/{,**/}* Pixr,
-  /opt/libreoffice[5-6]*/program/{,**/}*.so{,.*} m,
+  /opt/libreoffice[5-9]*/program/{,**/}* Pixr,
+  /opt/libreoffice[5-9]*/program/{,**/}*.so{,.*} m,
 
   # Full access
   / r,
