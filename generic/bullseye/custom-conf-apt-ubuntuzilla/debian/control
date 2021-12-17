@@ -1,0 +1,11 @@
+Source: custom-conf-apt-ubuntuzilla
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 4.6.0
+
+Package: custom-conf-apt-ubuntuzilla
+Architecture: all
+Depends: custom-conf, custom-conf-apt
+Description: Custom Configuration Framework - Ubuntuzilla APT repository

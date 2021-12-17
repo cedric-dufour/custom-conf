@@ -1,0 +1,5 @@
+## CUSTOM-CONF: File automatically created/updated [custom-conf-apt-ubuntuzilla]
+
+# Ubuntuzilla repository
+# KEY: gpg --recv-key --keyserver keyserver.ubuntu.com B7B9C16F2667CA5C
+deb [arch=amd64 signed-by=/usr/share/keyrings/ubuntuzilla.gpg] http://downloads.sourceforge.net/project/ubuntuzilla/mozilla/apt all main
