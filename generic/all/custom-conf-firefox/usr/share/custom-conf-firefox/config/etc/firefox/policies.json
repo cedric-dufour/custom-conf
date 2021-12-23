@@ -1,0 +1,9 @@
+{
+  "REF": "https://support.mozilla.org/en-US/kb/customizing-firefox-using-policiesjson",
+  "policies": {
+    "DisableAppUpdate": true,
+    "DisableSystemAddonUpdate": true,
+    "DisableFirefoxStudies": true,
+    "DisableTelemetry": true
+  }
+}

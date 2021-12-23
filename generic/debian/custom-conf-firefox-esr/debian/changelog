@@ -1,3 +1,9 @@
+custom-conf-firefox-esr (2021.12.23a) UNRELEASED; urgency=low
+
+  * Disable upstream update check (and other nuisances)
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Thu, 23 Dec 2021 09:26:58 +0100
+
 custom-conf-firefox-esr (2021.12.17a) UNRELEASED; urgency=low
 
   * Add Ubuntuzilla 'firefox-esr-mozilla-build' as alternative

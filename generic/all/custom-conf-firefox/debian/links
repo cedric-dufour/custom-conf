@@ -1,3 +1,4 @@
+/etc/firefox/policies.json /opt/firefox/distribution/policies.json
 /etc/firefox/firefox.js /opt/firefox/defaults/pref/autoconfig.js
 /etc/firefox/custom-conf-firefox.cfg /usr/lib/firefox/custom-conf-firefox.cfg
 /etc/firefox/custom-conf-firefox.cfg /opt/firefox/custom-conf-firefox.cfg
