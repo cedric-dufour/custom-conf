@@ -1,3 +1,9 @@
+custom-conf-docker (2022.06.21a) UNRELEASED; urgency=low
+
+  * Prevent NetworkManager from managing Docker bridge interfaces
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Tue, 21 Jun 2022 15:45:24 +0200
+
 custom-conf-docker (2021.08.27a) UNRELEASED; urgency=low
 
   * Added 'docker-compose' to Suggests
