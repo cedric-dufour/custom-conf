@@ -7,6 +7,6 @@ Standards-Version: 4.6.0
 
 Package: custom-pack-libreoffice7-it
 Architecture: all
-Depends: libreoffice7.1-it, libreoffice7.1-dict-it, libobasis7.1-it-help
-Description: Custom Configuration Framework - LibreOffice 7.1, Italian language pack (original upstream packages)
+Depends: libreoffice7.2-it, libreoffice7.2-dict-it, libobasis7.2-it-help
+Description: Custom Configuration Framework - LibreOffice 7.2, Italian language pack (original upstream packages)
 
