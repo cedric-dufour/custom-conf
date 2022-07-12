@@ -1,0 +1,10 @@
+#!/bin/sh
+## CUSTOM-CONF: File automatically created/updated [custom-conf-cups]
+
+# Reload CUPS remote printers
+if [ -n "${IFACE}" ] && [ "${IFACE}" != 'lo' ] && ifquery --state "${IFACE}" >/dev/null; then
+  systemctl restart cups-browsed &
+fi
+
+# Always succeed
+exit 0

@@ -1,3 +1,9 @@
+custom-conf-cups (2022.02.23a) UNRELEASED; urgency=low
+
+  * Restart cups-browsed on resume from suspend or network changes
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Wed, 23 Feb 2022 23:03:33 +0100
+
 custom-conf-cups (2021.08.25a) UNRELEASED; urgency=low
 
   * Update AppArmor profile (as per Debian/Bullseye update)

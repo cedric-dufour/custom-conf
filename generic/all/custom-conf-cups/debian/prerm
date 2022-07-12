@@ -2,9 +2,14 @@
 [ "${1}" != 'remove' ] && exit 0
 PKGNAME='custom-conf-cups'
 
+# Additional actions (cont'd)
+[ -e /run/systemd ] && systemctl disable custom-conf-cups-suspend
+
 # Uninstall files
 custom-conf-uninstall "${PKGNAME}" "/usr/share/${PKGNAME}/config" || exit 1
 
+# Additional actions (cont'd)
+[ -e /run/systemd ] && systemctl daemon-reload
+
 # Exit
 exit 0
-

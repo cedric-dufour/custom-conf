@@ -1,0 +1,13 @@
+## CUSTOM-CONF: File automatically created/updated [custom-conf-cups]
+[Unit]
+Description=CUPS suspend resume hook
+After=suspend.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=no
+ExecStartPre=sleep 30
+ExecStart=systemctl restart cups-browsed
+
+[Install]
+WantedBy=suspend.target
