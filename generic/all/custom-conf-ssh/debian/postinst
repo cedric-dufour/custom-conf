@@ -148,22 +148,28 @@ esac
 
 # ... do it
 gcfg.sed "s|%{CUSTOM_CONF_SSH_LISTEN_IPV4}|${CUSTOM_CONF_SSH_LISTEN_IPV4}|g;s|%{CUSTOM_CONF_SSH_LISTEN_IPV6}|${CUSTOM_CONF_SSH_LISTEN_IPV6}|g;s|%{CUSTOM_CONF_SSH_PASSWORDAUTHENTICATION}|${CUSTOM_CONF_SSH_PASSWORDAUTHENTICATION}|g;s|%{CUSTOM_CONF_SSH_FORWARDX11}|${CUSTOM_CONF_SSH_FORWARDX11/ForwardX11/X11Forwarding}|g;s|%{CUSTOM_CONF_SSH_TCPKEEPALIVE}|${CUSTOM_CONF_SSH_TCPKEEPALIVE}|g;s|%{CUSTOM_CONF_SSH_ALLOWUSERS}|${CUSTOM_CONF_SSH_ALLOWUSERS}|g;s|%NL;|\n|g" /etc/ssh/sshd_config
-gcfg.sed "s|%{CUSTOM_CONF_SSH_FORWARDX11}|${CUSTOM_CONF_SSH_FORWARDX11}|g;s|%{CUSTOM_CONF_SSH_TCPKEEPALIVE}|${CUSTOM_CONF_SSH_TCPKEEPALIVE}|g;s|%{CUSTOM_CONF_SSH_HASHKNOWNHOSTS}|${CUSTOM_CONF_SSH_HASHKNOWNHOSTS}|g;s|%NL;|\n|g" /etc/ssh/ssh_config
+gcfg.sed "s|%{CUSTOM_CONF_SSH_TCPKEEPALIVE}|${CUSTOM_CONF_SSH_TCPKEEPALIVE}|g;s|%{CUSTOM_CONF_SSH_HASHKNOWNHOSTS}|${CUSTOM_CONF_SSH_HASHKNOWNHOSTS}|g;s|%NL;|\n|g" /etc/ssh/ssh_config
 
 # Additional actions
 sshkey_comment="$(hostname -f) (generated $(date +"%Y-%m-%d") with OpenSSL $(dpkg -l | grep 'ii\s*libssl' | awk '{print $3}' | sort -V | head -n 1))"
+if [ ! -e /etc/ssh/ssh_host_ed25519_key.pub ]; then
+  echo "WARNING[${PKGNAME}]: The ED25519 key does not exist"
+  echo ': creating new ED25519 key...'
+  /usr/bin/ssh-keygen -q -t ed25519 -N '' -f /etc/ssh/ssh_host_ed25519_key -C "${sshkey_comment}"
+  /usr/bin/ssh-keygen -lf /etc/ssh/ssh_host_ed25519_key.pub
+fi
+#if [ ! -e /etc/ssh/ssh_host_ecdsa_key.pub ]; then
+#  echo "WARNING[${PKGNAME}]: The ECDSA key does not exist"
+#  echo ': creating new ECDSA key...'
+#  /usr/bin/ssh-keygen -q -b 256 -t ecdsa -N '' -f /etc/ssh/ssh_host_ecdsa_key -C "${sshkey_comment}"
+#  /usr/bin/ssh-keygen -lf /etc/ssh/ssh_host_ecdsa_key.pub
+#fi
 if [ ! -e /etc/ssh/ssh_host_rsa_key.pub -o "$(ssh-keygen -lf /etc/ssh/ssh_host_rsa_key.pub | cut -d' ' -f1)" == '2048' ]; then
   echo "WARNING[${PKGNAME}]: The RSA key does not exist or its length does not match security policies"
   echo ': creating new RSA key...'
   rm -f /etc/ssh/ssh_host_rsa_key /etc/ssh/ssh_host_rsa_key.pub
   /usr/bin/ssh-keygen -q -b $[2049+$RANDOM%511] -t rsa -N '' -f /etc/ssh/ssh_host_rsa_key -C "${sshkey_comment}"
   /usr/bin/ssh-keygen -lf /etc/ssh/ssh_host_rsa_key.pub
-fi
-if [ ! -e /etc/ssh/ssh_host_ecdsa_key.pub ]; then
-  echo "WARNING[${PKGNAME}]: The ECDSA key does not exist"
-  echo ': creating new ECDSA key...'
-  /usr/bin/ssh-keygen -q -b 256 -t ecdsa -N '' -f /etc/ssh/ssh_host_ecdsa_key -C "${sshkey_comment}"
-  /usr/bin/ssh-keygen -lf /etc/ssh/ssh_host_ecdsa_key.pub
 fi
 invoke-rc.d ssh reload >/dev/null
 

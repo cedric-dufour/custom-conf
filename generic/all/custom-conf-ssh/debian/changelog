@@ -1,3 +1,10 @@
+custom-conf-ssh (2022.08.10a) UNRELEASED; urgency=low
+
+  * Revisit client configuration (ssh_config) <-> be friendly to ~/.ssh/config
+  * Revisit server configuration (sshd_config) <-> crypto settings
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Wed, 10 Aug 2022 12:26:57 +0200
+
 custom-conf-ssh (2019.01.08a) UNRELEASED; urgency=low
 
   * Remove (soon) deprecrated 'UsePrivilegeSeparation' option

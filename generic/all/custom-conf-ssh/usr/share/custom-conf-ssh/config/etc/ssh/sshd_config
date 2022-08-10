@@ -8,10 +8,15 @@ Port 22
 %{CUSTOM_CONF_SSH_LISTEN_IPV4}
 %{CUSTOM_CONF_SSH_LISTEN_IPV6}
 
-# Protocol settings
+# Protocol and crypto settings
 Protocol 2
+HostKey /etc/ssh/ssh_host_ed25519_key
+#HostKey /etc/ssh/ssh_host_ecdsa_key
 HostKey /etc/ssh/ssh_host_rsa_key
-HostKey /etc/ssh/ssh_host_ecdsa_key
+Ciphers aes256-gcm@openssh.com,chacha20-poly1305@openssh.com
+HostKeyAlgorithms -ecdsa-sha2-nist*,sk-ecdsa-sha2-nist*,ssh-rsa
+PubkeyAcceptedKeyTypes -ecdsa-sha2-nist*,sk-ecdsa-sha2-nist*,ssh-rsa
+KexAlgorithms -ecdh-sha2-nist*
 
 # Logging
 SyslogFacility AUTH
