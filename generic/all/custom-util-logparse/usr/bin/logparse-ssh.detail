@@ -19,5 +19,4 @@ done
 
 # Parse logs
 [ -z "$*" ] && exit 0
-logparse-acat "$@" | egrep -i 'sshd.*((failed|accepted) (password|publickey)|invalid user)' | sed 's/^\([^ ]*\) (.*) /\1|/;s/[^|]*accepted .* for \([^ ]*\) /OK|\1|/i;s/[^|]*invalid user [^ ]* /invalid_user|-|/i;s/[^|]*failed password for [^ ]* /invalid_password|-|/i;s/from \([0-9\.]*\|[0-9a-f:]*\)\($\| .*\)/\1/i'
-
+logparse-acat "$@" | sed -nE 's/^(\S+) .*accepted .* for (\S+) from ([0-9.]+|[0-9a-f:]+)($|\W.*)/\1|OK|\2|\3/ip;s/^(\S+) .*failed password for (\S+) from ([0-9.]+|[0-9a-f:]+)($|\W.*)/\1|invalid_password|\2|\3/ip;s/^(\S+) .*invalid user .* from ([0-9.]+|[0-9a-f:]+)($|\W.*)/\1|invalid_user|-|\2/ip'

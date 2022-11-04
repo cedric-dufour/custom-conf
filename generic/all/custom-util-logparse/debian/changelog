@@ -1,3 +1,10 @@
+custom-util-logparse (2022.11.03a) UNRELEASED; urgency=low
+
+  * Improve ISC DHCP logging/parsing
+  * (hail 'sed -nE' power)
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Thu, 03 Nov 2022 20:58:49 +0100
+
 custom-util-logparse (2018.09.12a) UNRELEASED; urgency=low
 
   * Allow any non-word character as IPv4/IPv6 field delimiter

@@ -19,5 +19,4 @@ done
 
 # Parse logs
 [ -z "$*" ] && exit 0
-logparse-acat "$@" | egrep -i 'dovecot.*\-login: (login|proxy)' | sed 's/^\([^ ]*\) .* dovecot: \([^ ]*\)-login: Login: user=<\([^ ]*\)>, .* rip=\([0-9.]*\|[0-9a-f:]*\)\(, lip=[0-9.]*\|[0-9a-f:]*\)*, \([^ ]*\)/\1|\2|\3|\4|\6/;s/^\([^ ]*\) .* dovecot: \([^ ]*\)-login: proxy(\([^)]*\)): disconnecting \([0-9.]*\|[0-9a-f:]*\)/\1|\2|\3|\4|PROXY/'
-
+logparse-acat "$@" | sed -nE 's/^(\S+) .*dovecot:.* (\S+)-login: Login: user=<(\S+)>, .* rip=([0-9.]+|[0-9a-f:]+)(, lip=([0-9.]+|[0-9a-f:]+))?($|\W.*)/\1|\2|\3|\4|\6/ip;s/^(\S+) .*dovecot:.* (\S+)-login: proxy\(([^)]+)\): disconnecting ([0-9.]+|[0-9a-f:]+)($|\W.*)/\1|\2|\3|\4|PROXY/ip'

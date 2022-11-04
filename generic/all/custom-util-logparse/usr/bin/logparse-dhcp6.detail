@@ -11,11 +11,25 @@ NOTE:
   In order for the ISC DHCP server to log IPv6 lease information,
   one MUST add the following stanza to its configuration:
 
-    option dhcp6.macaddr code 193 = string;
-    option dhcp6.leased-address code 194 = string;
-    option dhcp6.macaddr = binary-to-ascii( 16, 8, ":", suffix( option dhcp6.client-id, 6) );
-    option dhcp6.leased-address = binary-to-ascii( 16, 16, ":", substring( suffix( option dhcp6.ia-na, 24 ), 0, 16 ) );
-    log( info, concat( "DHCPV6 ", config-option dhcp6.leased-address, " leased to ", config-option dhcp6.macaddr ) );
+    # BUG(?): set variable = value -> ERROR: no scope; use customn option instead
+    option dhcp6.log_leasetype code 224 = string;
+    option dhcp6.log_hostname code 225 = string;
+    on commit {
+      if known {
+        option dhcp6.log_leasetype = "static";
+        option dhcp6.log_hostname = pick-first-value(host-decl-name,"n/a");  # BUG: host-decl-name -> ERROR: date: host_decl_name: not available
+      } else {
+        option dhcp6.log_leasetype = "dynamic";
+        option dhcp6.log_hostname = pick-first-value(option host-name,"n/a");
+      }
+      log(info, concat(
+        "DHCPLOG6 ",
+        binary-to-ascii(16,16,":",substring(suffix(option dhcp6.ia-na,24),0,16)),
+        " (",config-option dhcp6.log_leasetype,") leased to ",
+        binary-to-ascii(16,8,":",option dhcp6.client-id),
+        " (",config-option dhcp6.log_hostname,")"
+      ));
+    }
 EOF
 
 # Options
@@ -29,5 +43,4 @@ done
 
 # Parse logs
 [ -z "$*" ] && exit 0
-logparse-acat "$@" | fgrep 'DHCPV6 ' | sed 's/^\([^ ]*\) .*DHCPV6 \(.*\) leased to \(.*\)/\1|\2|\3|/;s/ (\(.*\))|/|\1/'
-
+logparse-acat "$@" | sed -nE 's/^(\S+) .*DHCPLOG6 (\S+) \((\S+)\) leased to (\S+) \((\S+)\)/\1|\2|\4|\5 (\3)/p'

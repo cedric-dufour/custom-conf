@@ -6,6 +6,27 @@ USAGE: ${0##*/} [-H|--header] <file> ...
 
 SYNOPSIS:
   Parse DHCP server logs and output attributed leases to stdout
+
+NOTE:
+  In order for the ISC DHCP server to log IPv4 lease information,
+  one MUST add the following stanza to its configuration:
+
+    on commit {
+      if known {
+        set log_leasetype = "static";
+        set log_hostname = pick-first-value(host-decl-name,"n/a");
+      } else {
+        set log_leasetype = "dynamic";
+        set log_hostname = pick-first-value(option host-name,"n/a");
+      }
+      log(info, concat(
+        "DHCPLOG ",
+        binary-to-ascii(10,8,".",leased-address),
+        " (",log_leasetype,") leased to ",
+        binary-to-ascii(16,8,":",substring(hardware,1,6)),
+        " (",log_hostname,")"
+      ));
+    }
 EOF
 
 # Options
@@ -19,5 +40,4 @@ done
 
 # Parse logs
 [ -z "$*" ] && exit 0
-logparse-acat "$@" | fgrep 'DHCPACK on' | sed 's/^\([^ ]*\) .*DHCPACK on \(.*\) to \(.*\) via.*/\1|\2|\3|/;s/ (\(.*\))|/|\1/'
-
+logparse-acat "$@" | sed -nE 's/^(\S+) .*DHCPLOG (\S+) \((\S+)\) leased to (\S+) \((\S+)\)/\1|\2|\4|\5 (\3)/p'

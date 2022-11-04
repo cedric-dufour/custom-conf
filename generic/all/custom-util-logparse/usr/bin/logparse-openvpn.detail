@@ -28,19 +28,19 @@ case "${MY_DETAIL}" in
   'ip')
     [ -n "${MY_HEADER}" ] && echo 'TIMESTAMP|USERNAME|IPADDR_REMOTE|IPADDR_LOCAL'
     [ -z "$*" ] && exit 0
-    logparse-acat "$@" | grep -i 'vpn.*sent control.*ifconfig' | sed 's/^\([^ ]*\) (.*) /\1|/;s/\([^|\/]*\)\/\([0-9\.]*\|[0-9a-f:]*\):[0-9]* sent control.*ifconfig \([0-9\.]*\|[0-9a-f:]*\).*/\1|\2|\3/i'
+    logparse-acat "$@" | sed -nE 's/^(\S+) .* (\S+)\/([0-9.]+|[0-9a-f:]+):[0-9]+ sent control.*ifconfig ([0-9.]+|[0-9a-f:]+)($|\W.*)/\1|\2|\3|\4/ip'
     ;;
 
   'user')
     [ -n "${MY_HEADER}" ] && echo 'TIMESTAMP|IPADDR|USERNAME'
     [ -z "$*" ] && exit 0
-    logparse-acat "$@" | grep -i 'vpn.*tls: username/password authentication' | sed "s/^\([^ ]*\) (.*) /\1|/;s/\([0-9\.]*\|[0-9a-f:]*\):[0-9]* tls.*username '\([^']*\)'.*/\1|\2/i" 
+    logparse-acat "$@" | sed -nE "s/^(\S+) .* ([0-9.]+|[0-9a-f:]+):[0-9]+ tls.*username '([^']+)'.*/\1|\2|\3/ip"
     ;;
 
   'cert')
     [ -n "${MY_HEADER}" ] && echo 'TIMESTAMP|IPADDR|CERTIFICATE'
     [ -z "$*" ] && exit 0
-    logparse-acat "$@" | grep -i 'nvpn.*verify ok: depth=0' | sed "s/^\([^ ]*\) (.*) /\1|/;s/\([0-9\.]*\|[0-9a-f:]*\):[0-9]* verify ok: depth=0.*\/cn=\([^\/ ]*\).*/\1|\2/i" 
+    logparse-acat "$@" | sed -nE 's/^(\S+) .* ([0-9.]+|[0-9a-f:]+):[0-9]+ verify ok: depth=0.*\Wcn=([^\/ ]+).*/\1|\2|\3/ip'
     ;;
 
 esac
