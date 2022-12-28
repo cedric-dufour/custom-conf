@@ -44,4 +44,3 @@ case "${MY_DETAIL}" in
     ;;
 
 esac
-

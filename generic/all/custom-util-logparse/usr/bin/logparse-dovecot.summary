@@ -20,4 +20,3 @@ done
 # Parse logs
 [ -z "$*" ] && exit 0
 logparse-dovecot.detail "$@" | cut -d'|' -f2- | sort -u
-

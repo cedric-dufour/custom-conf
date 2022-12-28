@@ -20,5 +20,3 @@ done
 # Parse logs
 [ -z "$*" ] && exit 0
 logparse-freeradius.detail "$@" | awk -F'|' 'BEGIN{ OFS="|" } $2=="OK" || $2="incorrect" {print $2,$3,$4}' | sort | uniq -c | awk 'BEGIN{OFS="|"} {print $2,$1}'
-
-

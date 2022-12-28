@@ -3,10 +3,12 @@ Section: admin
 Priority: optional
 Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
 Homepage: https://github.com/cedric-dufour/custom-conf
-Standards-Version: 4.6.1
+Standards-Version: 4.6.2
 
 Package: custom-util-logparse
 Architecture: all
-Depends: coreutils, awk, grep, geoip-database, libgeo-ip-perl, libnet-dns-perl
+Depends: coreutils, awk, grep, geoip-database, python3-geoip
+Recommends: geoipupdate, python3-geoip2
+Suggests: libgeo-ip-perl, libnet-dns-perl
 Description: Custom Configuration Framework - Log parsing utilities
 
