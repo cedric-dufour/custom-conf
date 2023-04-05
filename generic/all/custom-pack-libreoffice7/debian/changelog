@@ -1,3 +1,9 @@
+custom-pack-libreoffice7 (2023.04.05a) UNRELEASED; urgency=low
+
+  * Hail LibreOffice 7.4!
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Wed, 05 Apr 2023 10:15:25 +0200
+
 custom-pack-libreoffice7 (2022.07.12a) UNRELEASED; urgency=low
 
   * Hail LibreOffice 7.2!

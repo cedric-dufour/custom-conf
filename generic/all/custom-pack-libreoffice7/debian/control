@@ -3,11 +3,11 @@ Section: admin
 Priority: optional
 Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
 Homepage: https://github.com/cedric-dufour/custom-conf
-Standards-Version: 4.6.0
+Standards-Version: 4.6.2
 
 Package: custom-pack-libreoffice7
 Architecture: all
-Depends: custom-pack-libreoffice7-en-us, libreoffice7.2, libreoffice7.2-calc, libreoffice7.2-draw, libreoffice7.2-impress, libreoffice7.2-math, libreoffice7.2-writer, libreoffice7.2-debian-menus, libobasis7.2-gnome-integration, libobasis7.2-graphicfilter, libobasis7.2-ogltrans, libobasis7.2-ooofonts, libobasis7.2-ooolinguistic
+Depends: custom-pack-libreoffice7-en-us, libreoffice7.4, libreoffice7.4-calc, libreoffice7.4-draw, libreoffice7.4-impress, libreoffice7.4-math, libreoffice7.4-writer, libreoffice7.4-debian-menus, libobasis7.4-gnome-integration, libobasis7.4-graphicfilter, libobasis7.4-ogltrans, libobasis7.4-ooofonts, libobasis7.4-ooolinguistic
 Suggests: custom-pack-libreoffice7-en-gb, custom-pack-libreoffice7-de, custom-pack-libreoffice7-fr, custom-pack-libreoffice7-it
-Description: Custom Configuration Framework - LibreOffice 7.2 (original upstream packages)
+Description: Custom Configuration Framework - LibreOffice 7.4 (original upstream packages)
 

@@ -3,10 +3,10 @@ Section: admin
 Priority: optional
 Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
 Homepage: https://github.com/cedric-dufour/custom-conf
-Standards-Version: 4.6.0
+Standards-Version: 4.6.2
 
 Package: custom-pack-libreoffice7-fr
 Architecture: all
-Depends: libreoffice7.2-fr, libreoffice7.2-dict-fr, libobasis7.2-fr-help
-Description: Custom Configuration Framework - LibreOffice 7.2, French language pack (original upstream packages)
+Depends: libreoffice7.4-fr, libreoffice7.4-dict-fr, libobasis7.4-fr-help
+Description: Custom Configuration Framework - LibreOffice 7.4, French language pack (original upstream packages)
 
