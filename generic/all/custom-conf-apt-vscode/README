@@ -1,0 +1,5 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-conf-apt-vscode
+
+This package provides standard configuration of Microsoft Visual Studio Code (VS Code) repository.
