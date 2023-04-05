@@ -1,6 +1,0 @@
-Custom Configuration Framework (custom-conf)
-============================================
-Package: custom-pack-libreoffice6
-
-This meta-package installs LibreOffice core (original upstream) packages. 
-
