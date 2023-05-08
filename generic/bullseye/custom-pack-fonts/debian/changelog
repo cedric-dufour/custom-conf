@@ -1,3 +1,9 @@
+custom-pack-fonts (2023.05.08a) UNRELEASED; urgency=low
+
+  * Added 'fonts-unifont'
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Mon,  8 May 2023 20:17:13 +0200
+
 custom-pack-fonts (2021.08.24a) UNRELEASED; urgency=low
 
   * Debian/Bullseye forward-port 
