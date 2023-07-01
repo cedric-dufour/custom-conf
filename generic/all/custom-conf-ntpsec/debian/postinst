@@ -1,0 +1,89 @@
+#!/bin/bash
+[ "${1}" != 'configure' ] && exit 0
+PKGNAME='custom-conf-ntpsec'
+
+# Debconf
+. /usr/share/debconf/confmodule
+# ... preseed
+for var_priority in bind-address:high; do
+  var="${var_priority%:*}"
+  priority="${var_priority#*:}"
+  db_input ${priority} ${PKGNAME}/${var}
+  db_go
+done
+# ... get
+db_get ${PKGNAME}/bind-address && BIND_ADDR="${RET}"
+db_stop
+
+# Install files
+custom-conf-install "${PKGNAME}" "/usr/share/${PKGNAME}/config" || exit 1
+
+# Fine-tune configuration
+source /usr/share/custom-conf/custom-conf.defs
+
+# ... bind address (IPv4)
+ipv4="$(ip -4 addr 2>/dev/null | fgrep 'scope global')"
+CUSTOM_CONF_NTP_LISTEN_IPV4=
+if [ -n "${ipv4}" ]; then
+  if [ "${BIND_ADDR}" == 'gateway' -a -n "${CUSTOM_CONF_NETWORK_GATEWAY_IPV4}" ]; then
+    LISTEN_ADDR="$(custom-conf-getifaceip -I "${CUSTOM_CONF_NETWORK_GATEWAY_IPV4}")"
+    [ -n "${LISTEN_ADDR}" ] \
+      && CUSTOM_CONF_NTP_LISTEN_IPV4="interface listen ${LISTEN_ADDR}" \
+      || echo "ERROR[${PKGNAME}]: Failed to retrieve IPv4 address matching configured gateway" >&2
+  elif [ -n "${BIND_ADDR}" ]; then
+    for bind_addr in ${BIND_ADDR}; do
+      [[ ${bind_addr} != *'.'* ]] && continue
+      CUSTOM_CONF_NTP_LISTEN_IPV4="${CUSTOM_CONF_NTP_LISTEN_IPV4:+${CUSTOM_CONF_NTP_LISTEN_IPV4}%NL;}interface listen ${bind_addr}"
+    done
+  fi
+fi
+
+# ... bind address (IPv6)
+ipv6="$(ip -6 addr 2>/dev/null | fgrep 'scope global')"
+CUSTOM_CONF_NTP_LISTEN_IPV6=
+if [ -n "${ipv6}" ]; then
+  if [ "${BIND_ADDR}" == 'gateway' -a -n "${CUSTOM_CONF_NETWORK_GATEWAY_IPV6}" ]; then
+    LISTEN_ADDR="$(custom-conf-getifaceip -I "${CUSTOM_CONF_NETWORK_GATEWAY_IPV6}")"
+    [ -n "${LISTEN_ADDR}" ] \
+      && CUSTOM_CONF_NTP_LISTEN_IPV6="interface listen ${LISTEN_ADDR}" \
+      || echo "ERROR[${PKGNAME}]: Failed to retrieve IPv6 address matching configured gateway" >&2
+  elif [ -n "${BIND_ADDR}" ]; then
+    for bind_addr in ${BIND_ADDR}; do
+      [[ ${bind_addr} != *':'* ]] && continue
+      CUSTOM_CONF_NTP_LISTEN_IPV6="${CUSTOM_CONF_NTP_LISTEN_IPV6:+${CUSTOM_CONF_NTP_LISTEN_IPV6}%NL;}interface listen ${bind_addr}"
+    done
+  fi
+fi
+
+# ... bind address (finalize)
+if [ -z "${CUSTOM_CONF_NTP_LISTEN_IPV4}" -a -z "${CUSTOM_CONF_NTP_LISTEN_IPV6}" -a -n "${BIND_ADDR}" ]; then
+  if [ -n "${ipv4}" ]; then
+    echo "WARNING[${PKGNAME}]: Failed to retrieve a valid IPv4 address to bind to (using 127.0.0.1)"
+    CUSTOM_CONF_NTP_LISTEN_IPV4='interface listen 127.0.0.1'
+  fi
+  if [ -n "${ipv6}" ]; then
+    echo "WARNING[${PKGNAME}]: Failed to retrieve a valid IPv6 address to bind to (using ::1)"
+    CUSTOM_CONF_NTP_LISTEN_IPV6='interface listen ::1'
+  fi
+fi
+[ -z "${CUSTOM_CONF_NTP_LISTEN_IPV4}" ] && CUSTOM_CONF_NTP_LISTEN_IPV4='#interface listen [IPv4:unspecified]'
+[ -z "${CUSTOM_CONF_NTP_LISTEN_IPV6}" ] && CUSTOM_CONF_NTP_LISTEN_IPV6='#interface listen [IPv6:unspecified]'
+
+# ... servers
+servers=
+for s in ${CUSTOM_CONF_NTP_SERVERS}; do
+  [[ ${s} == *':'* ]] && [ -z "${ipv6}" ] && continue
+  servers="${servers}${servers:+%NL;}server ${s} ${CUSTOM_CONF_NTP_OPTIONS}"
+done
+[ -n "${CUSTOM_CONF_NTP_SERVERS}" -a -z "${servers}" ] && echo "ERROR[${PKGNAME}]: No IPv4 server found (${CUSTOM_CONF_NTP_SERVERS})" >&2
+
+# ... do it
+gcfg.sed "s|%{CUSTOM_CONF_NTP_LISTEN_IPV4}|${CUSTOM_CONF_NTP_LISTEN_IPV4}|g;s|%{CUSTOM_CONF_NTP_LISTEN_IPV6}|${CUSTOM_CONF_NTP_LISTEN_IPV6}|g;s|%{CUSTOM_CONF_NTP_SERVERS}|${servers}|g;s|%NL;|\n|g" /etc/ntpsec/ntp.conf
+
+# Additional actions
+rm -f /var/lib/ntp/*.dhcp
+invoke-rc.d ntpsec restart
+
+# Exit
+exit 0
+

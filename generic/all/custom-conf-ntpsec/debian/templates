@@ -1,0 +1,10 @@
+Template: custom-conf-ntpsec/bind-address
+Type: string
+Default:
+Description: Bind to a specific address(es) ?
+ Please specify which address(es) to bind the service to:
+ .
+  - {empty}:   do not bind to any specific address (security risk)
+  - gateway:   bind to addresses matching configured gateway/network
+  - <addr>:    space-separated actual IP address(es)
+

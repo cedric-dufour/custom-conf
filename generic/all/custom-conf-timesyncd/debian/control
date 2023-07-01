@@ -1,15 +1,15 @@
-Source: custom-conf-ntp
+Source: custom-conf-timesyncd
 Section: admin
 Priority: optional
 Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
 Homepage: https://github.com/cedric-dufour/custom-conf
 Standards-Version: 4.6.2
 
-Package: custom-conf-ntp
+Package: custom-conf-timesyncd
 Architecture: all
 Provides: custom-conf-time
 Replaces: custom-conf-time
 Conflicts: custom-conf-time
-Depends: custom-conf, ntp, tzdata
-Description: Custom Configuration Framework - NTP (client)
+Depends: custom-conf, systemd-timesyncd, tzdata
+Description: Custom Configuration Framework - systemd-timesyncd (NTP client)
 

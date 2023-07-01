@@ -1,0 +1,36 @@
+#!/bin/bash
+[ "${1}" != 'configure' ] && exit 0
+PKGNAME='custom-conf-timesyncd'
+
+# Install files
+custom-conf-install "${PKGNAME}" "/usr/share/${PKGNAME}/config" || exit 1
+
+# Fine-tune configuration
+source /usr/share/custom-conf/custom-conf.defs
+ipv4="$(ip -4 addr 2>/dev/null | fgrep 'scope global')"
+ipv6="$(ip -6 addr 2>/dev/null | fgrep 'scope global')"
+
+# ... servers
+servers=
+for s in ${CUSTOM_CONF_NTP_SERVERS}; do
+  [[ ${s} == *':'* ]] && [ -z "${ipv6}" ] && continue
+  servers="${servers}${servers:+ }${s}"
+done
+[ -n "${CUSTOM_CONF_NTP_SERVERS}" -a -z "${servers}" ] && echo "ERROR[${PKGNAME}]: No IPv4 server found (${CUSTOM_CONF_NTP_SERVERS})" >&2
+
+# ... fallback servers
+fallbacks=
+for s in ${CUSTOM_CONF_NTP_FALLBACKS}; do
+  [[ ${s} == *':'* ]] && [ -z "${ipv6}" ] && continue
+  fallbacks="${fallbacks}${fallbacks:+ }${s}"
+done
+[ -n "${CUSTOM_CONF_NTP_FALLBACKS}" -a -z "${fallbacks}" ] && echo "WARNING[${PKGNAME}]: No IPv4 fallback server found (${CUSTOM_CONF_NTP_FALLBACKS})" >&2
+
+# ... do it
+gcfg.sed "s|%{CUSTOM_CONF_NTP_SERVERS}|${servers}|g;s|%{CUSTOM_CONF_NTP_FALLBACKS}|${fallbacks}|g" /etc/systemd/timesyncd.conf
+
+# Additional actions
+systemctl restart systemd-timesyncd
+
+# Exit
+exit 0

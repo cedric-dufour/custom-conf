@@ -1,3 +1,9 @@
+custom-conf-ntp (2023.06.29a) UNRELEASED; urgency=low
+
+  * Provides 'custom-conf-time'
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Thu, 29 Jun 2023 21:36:33 +0200
+
 custom-conf-ntp (2021.10.11a) UNRELEASED; urgency=low
 
   * Remove 'kod' restrict flag (useless unless monitoring is enabled)

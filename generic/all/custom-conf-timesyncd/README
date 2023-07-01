@@ -1,0 +1,10 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-conf-timesyncd
+
+This package provides standard configuration of the Network Time Protocol
+(NTP) client provided by systemd-timesyncd.
+
+In particular, it addresses standard configuration of:
+ - NTP servers (<-> 'custom-defs-...' package)
+
