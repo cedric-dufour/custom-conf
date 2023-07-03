@@ -1,9 +1,0 @@
-## CUSTOM-CONF: File automatically created/updated [custom-conf-polkit-bluetooth]
-
-# Allow users to configure bluetooth
-[AllowBluemanConfig]
-Identity=unix-user:*
-Action=org.blueman.bluez.config
-ResultActive=yes
-ResultAny=no
-

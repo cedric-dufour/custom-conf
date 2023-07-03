@@ -3,10 +3,10 @@ Section: admin
 Priority: optional
 Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
 Homepage: https://github.com/cedric-dufour/custom-conf
-Standards-Version: 3.9.7
+Standards-Version: 4.6.2
 
 Package: custom-conf-polkit-network
 Architecture: all
 Depends: custom-conf
-Description: Custom Configuration Framework - Policy Kit <-> Allow network configuration
-
+Description: Custom Configuration Framework - Policy Kit <-> Allow network configuration - DEPRECATED
+ DEPRECATED. Use the 'netdev' group to grant network configuration privileges.

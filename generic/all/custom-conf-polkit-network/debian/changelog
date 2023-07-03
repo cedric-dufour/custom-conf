@@ -1,3 +1,9 @@
+custom-conf-polkit-network (2023.07.03a) UNRELEASED; urgency=low
+
+  * DEPRECATED
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Mon, 03 Jul 2023 21:47:15 +0200
+
 custom-conf-polkit-network (2014.12.26a) UNRELEASED; urgency=low
 
   * Post Tenebras Lux

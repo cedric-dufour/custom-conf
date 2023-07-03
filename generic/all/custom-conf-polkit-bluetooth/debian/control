@@ -3,10 +3,10 @@ Section: admin
 Priority: optional
 Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
 Homepage: https://github.com/cedric-dufour/custom-conf
-Standards-Version: 3.9.7
+Standards-Version: 4.6.2
 
 Package: custom-conf-polkit-bluetooth
 Architecture: all
 Depends: custom-conf
-Description: Custom Configuration Framework - Policy Kit <-> Allow bluetooth configuration
-
+Description: Custom Configuration Framework - Policy Kit <-> Allow bluetooth configuration - DEPRECATED
+ DEPRECATED. Use the 'netdev' group to grant bluetooth configuration privileges
