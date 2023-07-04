@@ -1,0 +1,46 @@
+//// CUSTOM-CONF: File automatically created/updated [custom-conf-polkit-nopower]
+
+// Prevent users to control system power
+
+// (shutdown)
+polkit.addRule(function(action, subject) {
+  if (
+    action.id == "org.freedesktop.login1.power-off" ||
+    action.id == "org.freedesktop.login1.power-off-multiple-sessions"
+  ) {
+    return polkit.Result.NO;
+  }
+});
+
+// (reboot)
+polkit.addRule(function(action, subject) {
+  if (
+    action.id == "org.freedesktop.login1.reboot" ||
+    action.id == "org.freedesktop.login1.reboot-multiple-sessions" ||
+    action.id.indexOf("org.freedesktop.login1.set-reboot") == 0
+  ) {
+    return polkit.Result.NO;
+  }
+});
+
+// (hibernate)
+polkit.addRule(function(action, subject) {
+  if (
+    action.id == "org.freedesktop.upower.hibernate" ||
+    action.id == "org.freedesktop.login1.hibernate" ||
+    action.id == "org.freedesktop.login1.hibernate-multiple-sessions"
+  ) {
+    return polkit.Result.NO;
+  }
+});
+
+// (suspend)
+polkit.addRule(function(action, subject) {
+  if (
+    action.id == "org.freedesktop.upower.suspend" ||
+    action.id == "org.freedesktop.login1.suspend" ||
+    action.id == "org.freedesktop.login1.suspend-multiple-sessions"
+  ) {
+    return polkit.Result.NO;
+  }
+});

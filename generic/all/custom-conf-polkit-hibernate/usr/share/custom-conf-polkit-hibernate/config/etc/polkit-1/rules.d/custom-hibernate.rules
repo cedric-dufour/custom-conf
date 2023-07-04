@@ -1,0 +1,29 @@
+//// CUSTOM-CONF: File automatically created/updated [custom-conf-polkit-hibernate]
+
+// Allow users to suspend
+polkit.addRule(function(action, subject) {
+  if (
+    (action.id == "org.freedesktop.upower.suspend" ||
+     action.id == "org.freedesktop.login1.suspend" ||
+     action.id == "org.freedesktop.login1.suspend-multiple-sessions") &&
+    (subject.active == true ||
+     subject.inactive == true) &&
+    subject.local == true
+  ) {
+    return polkit.Result.YES;
+  }
+});
+
+// Allow users to hibernate
+polkit.addRule(function(action, subject) {
+  if (
+    (action.id == "org.freedesktop.upower.hibernate" ||
+     action.id == "org.freedesktop.login1.hibernate" ||
+     action.id == "org.freedesktop.login1.hibernate-multiple-sessions") &&
+    (subject.active == true ||
+     subject.inactive == true) &&
+    subject.local == true
+  ) {
+    return polkit.Result.YES;
+  }
+});

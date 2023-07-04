@@ -7,4 +7,3 @@ custom-conf-uninstall "${PKGNAME}" "/usr/share/${PKGNAME}/config" || exit 1
 
 # Exit
 exit 0
-

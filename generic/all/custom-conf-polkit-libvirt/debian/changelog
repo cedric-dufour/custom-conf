@@ -1,3 +1,9 @@
+custom-conf-polkit-libvirt (2023.07.04a) UNRELEASED; urgency=low
+
+  * Hail JavaScript rules!
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Tue, 04 Jul 2023 21:29:12 +0200
+
 custom-conf-polkit-libvirt (2016.02.09a) UNRELEASED; urgency=low
 
   * Post Tenebras Lux

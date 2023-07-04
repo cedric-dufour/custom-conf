@@ -2,6 +2,9 @@
 [ "${1}" != 'configure' ] && exit 0
 PKGNAME='custom-conf-polkit-nopower'
 
+# Uninstall old (PKLA) files
+custom-conf-uninstall "${PKGNAME}" "/usr/share/${PKGNAME}/uninstall" || exit 1
+
 # Install files
 custom-conf-install "${PKGNAME}" "/usr/share/${PKGNAME}/config" || exit 1
 

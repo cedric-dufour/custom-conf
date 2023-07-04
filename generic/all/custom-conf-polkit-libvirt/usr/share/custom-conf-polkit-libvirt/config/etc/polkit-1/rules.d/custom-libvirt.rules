@@ -1,0 +1,12 @@
+//// CUSTOM-CONF: File automatically created/updated [custom-conf-polkit-libvirt]
+
+// Allow users to manage LibVirt
+polkit.addRule(function(action, subject) {
+  if (
+    action.id == "org.libvirt.unix.manage" &&
+    subject.active == true &&
+    subject.local == true
+  ) {
+    return polkit.Result.YES;
+  }
+});
