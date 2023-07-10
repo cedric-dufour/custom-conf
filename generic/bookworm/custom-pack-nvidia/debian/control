@@ -1,0 +1,14 @@
+Source: custom-pack-nvidia
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 4.6.2
+
+Package: custom-pack-nvidia
+Architecture: all
+Depends: linux-headers-amd64, nvidia-driver, nvidia-settings, nvidia-smi, nvidia-vdpau-driver, nvidia-vulkan-icd
+Recommends: custom-conf-xorg-nvidia
+Suggests: custom-pack-cuda
+Description: Custom Configuration Framework - nVidia proprietary driver stack
+

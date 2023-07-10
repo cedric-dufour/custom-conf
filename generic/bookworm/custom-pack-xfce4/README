@@ -1,0 +1,7 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-pack-xfce4
+
+This meta-package installs all dependencies required to have a fully functional
+XFCE (version 4) desktop environment.
+

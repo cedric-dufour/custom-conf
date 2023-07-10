@@ -1,0 +1,31 @@
+custom-conf-apt-docker (2023.07.10a) UNRELEASED; urgency=low
+
+  * Debian/Bookworm forward-port
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Mon, 10 Jul 2023 21:48:20 +0200
+
+custom-conf-apt-docker (2021.12.17a) UNRELEASED; urgency=low
+
+  * Include APT signing key
+    REF: https://wiki.debian.org/DebianRepository/UseThirdParty
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Fri, 17 Dec 2021 15:13:35 +0100
+
+custom-conf-apt-docker (2021.08.24a) UNRELEASED; urgency=low
+
+  * Debian/Bullseye forward-port
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Tue, 24 Aug 2021 19:19:57 +0200
+
+custom-conf-apt-docker (2019.07.08a) UNRELEASED; urgency=low
+
+  * Debian/Buster forward-port
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Mon, 08 Jul 2019 10:36:31 +0200
+
+custom-conf-apt-docker (2017.10.19a) UNRELEASED; urgency=low
+
+  * Post Tenebras Lux
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Thu, 19 Oct 2017 11:47:46 +0200
+

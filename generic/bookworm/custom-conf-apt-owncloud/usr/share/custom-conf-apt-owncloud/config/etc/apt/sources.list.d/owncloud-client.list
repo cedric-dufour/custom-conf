@@ -1,0 +1,7 @@
+## CUSTOM-CONF: File automatically created/updated [custom-conf-apt-owncloud]
+
+# ownCloud Client repository
+# REF: https://software.opensuse.org/download/package?project=isv:ownCloud:desktop&package=owncloud-client
+# (Please use 'dpkg-reconfigure custom-conf-apt-owncloud' to enable/disable)
+# KEY: wget https://download.owncloud.com/desktop/ownCloud/stable/latest/linux/Debian_12/Release.key -O-
+#deb [signed-by=/usr/share/keyrings/owncloud-client.gpg] https://download.owncloud.com/desktop/ownCloud/stable/latest/linux/Debian_12/ /

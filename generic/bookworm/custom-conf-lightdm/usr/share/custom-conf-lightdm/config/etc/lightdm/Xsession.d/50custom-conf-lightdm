@@ -1,0 +1,13 @@
+##!/bin/sh (sourced)
+## CUSTOM-CONF: File automatically created/updated [custom-conf-lightdm]
+
+## LightDM session wrapper script
+
+# Launch the X session monitor "daemon"
+# Note: /proc/*/comm (name) is truncated to 15 characters
+if ! pgrep -U "${USER}" -c -x Xsession-monito >/dev/null; then
+  UMASK="$(umask)"; umask 077
+  /etc/lightdm/Xsession-monitor &
+  echo $! > "/tmp/.xsession-monitor${DISPLAY%%.*}.pid"
+  umask ${UMASK}
+fi

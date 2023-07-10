@@ -1,0 +1,6 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-conf-apt-virtualbox
+
+This package provides standard configuration of Oracle VirtualBox APT repository.
+

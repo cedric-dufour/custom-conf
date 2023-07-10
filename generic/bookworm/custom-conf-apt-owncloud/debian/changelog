@@ -1,0 +1,51 @@
+custom-conf-apt-owncloud (2023.07.10a) UNRELEASED; urgency=low
+
+  * Debian/Bookworm forward-port
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Mon, 10 Jul 2023 21:48:20 +0200
+
+custom-conf-apt-owncloud (2021.12.17a) UNRELEASED; urgency=low
+
+  * Include APT signing key
+    REF: https://wiki.debian.org/DebianRepository/UseThirdParty
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Fri, 17 Dec 2021 15:20:45 +0100
+
+custom-conf-apt-owncloud (2021.10.15a) UNRELEASED; urgency=low
+
+  * Update Server upstream source for Debian/Bullseye
+  - TODO: update Client upstream source when available
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Mon, 18 Oct 2021 06:46:11 +0200
+
+custom-conf-apt-owncloud (2021.08.24a) UNRELEASED; urgency=low
+
+  * Debian/Bullseye forward-port
+  - TODO: switch upstream source to Debian/Bullseye when available
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Tue, 24 Aug 2021 19:17:20 +0200
+
+custom-conf-apt-owncloud (2019.12.14a) UNRELEASED; urgency=low
+
+  * Hail Debian 10 packaging!
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Sat, 14 Dec 2019 19:34:15 +0100
+
+custom-conf-apt-owncloud (2018.05.14a) UNRELEASED; urgency=low
+
+  * Use 'gcfg.sed' instead of 'gsed' in scripts
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Mon, 14 May 2018 14:39:32 +0200
+
+custom-conf-apt-owncloud (2018.02.11a) UNRELEASED; urgency=low
+
+  * Switch to HTTPS and add 'apt-transport-https' dependency
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Sun, 11 Feb 2018 13:25:18 +0100
+
+custom-conf-apt-owncloud (2017.10.19a) UNRELEASED; urgency=low
+
+  * Post Tenebras Lux
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Thu, 19 Oct 2017 11:46:21 +0200
+

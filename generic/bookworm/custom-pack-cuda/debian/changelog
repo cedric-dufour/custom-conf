@@ -1,0 +1,73 @@
+custom-pack-cuda (2023.04.05a) UNRELEASED; urgency=low
+
+  * Debian/Bookworm forward-port
+  - UPG: gcc-10 -> gcc-11
+  - UPG: g++-10 -> g++-11
+  - UPG: clang-11 -> clang-13
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Wed, 05 Apr 2023 18:51:08 +0200
+
+custom-pack-cuda (2021.08.24a) UNRELEASED; urgency=low
+
+  * Debian/Bullseye forward-port
+  - UPG: gcc-7 -> gcc-10
+  - UPG: g++-7 -> g++-10
+  - UPG: clang-6.0 -> clang-11
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Tue, 24 Aug 2021 18:42:31 +0200
+
+custom-pack-cuda (2019.01.10a) UNRELEASED; urgency=low
+
+  * Debian/Buster forward-port
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Thu, 10 Jan 2019 17:19:24 +0100
+
+custom-pack-cuda (2018.11.21a) UNRELEASED; urgency=low
+
+  * Updated 'nvcc' wrapper for CUDA 9 and Turing architecture
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Wed, 21 Nov 2018 12:48:32 +0100
+
+custom-pack-cuda (2018.05.14a) UNRELEASED; urgency=low
+
+  * Use 'gcfg.sed' instead of 'gsed' in scripts
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Mon, 14 May 2018 14:39:32 +0200
+
+custom-pack-cuda (2018.01.08a) UNRELEASED; urgency=low
+
+  * Improved 'nvcc' wrapper to use GCC 4.9 if available
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Mon, 08 Jan 2018 13:48:57 +0100
+
+custom-pack-cuda (2017.12.15b) UNRELEASED; urgency=low
+
+  * QUIRK: CUDA 8 does not like Debian/Stretch's GCC 6; let's use Clang 3.8 instead
+           <-> https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=835940
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Fri, 15 Dec 2017 15:38:41 +0100
+
+custom-pack-cuda (2017.03.15a) UNRELEASED; urgency=low
+
+  * Debian/Stretch forward-port
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Wed, 15 Mar 2017 16:39:55 +0100
+
+custom-pack-cuda (2017.03.07a) UNRELEASED; urgency=low
+
+  * Transition from 'custom-packages-install-nvidia'
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Tue, 07 Mar 2017 18:30:00 +0100
+
+custom-packages-install-nvidia (2016.11.07a) UNRELEASED; urgency=low
+
+  * Fix 'sed' error on uninstallation
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Mon, 07 Nov 2016 15:43:05 +0100
+
+custom-packages-install-nvidia (2016.07.05a) UNRELEASED; urgency=low
+
+  * Post Tenebras Lux
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Tue, 05 Jul 2016 08:23:49 +0200
+

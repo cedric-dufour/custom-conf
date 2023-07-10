@@ -1,0 +1,37 @@
+custom-pack-alsa (2023.04.05a) UNRELEASED; urgency=low
+
+  * Debian/Bookworm forward-port
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Wed, 05 Apr 2023 18:51:08 +0200
+
+custom-pack-alsa (2021.08.24a) UNRELEASED; urgency=low
+
+  * Debian/Bullseye forward-port
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Tue, 24 Aug 2021 18:23:26 +0200
+
+custom-pack-alsa (2019.01.14a) UNRELEASED; urgency=low
+
+  * Debian/Buster forward-port
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Mon, 14 Jan 2019 13:56:21 +0100
+
+custom-pack-alsa (2017.11.11a) UNRELEASED; urgency=low
+
+  * Debian/Stretch forward-port
+  - GStreamer 0.1 is dead, hail GStreamer 1.0
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Sat, 11 Nov 2017 16:16:55 +0100
+
+custom-pack-alsa (2017.03.07a) UNRELEASED; urgency=low
+
+  * Transition from 'custom-packages-install-alsa'
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Tue, 07 Mar 2017 18:30:00 +0100
+
+custom-packages-install-alsa (2016.07.05a) UNRELEASED; urgency=low
+
+  * Post Tenebras Lux
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Tue, 05 Jul 2016 08:23:49 +0200
+

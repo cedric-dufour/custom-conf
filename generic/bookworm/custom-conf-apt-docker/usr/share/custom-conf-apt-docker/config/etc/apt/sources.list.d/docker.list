@@ -1,0 +1,5 @@
+## CUSTOM-CONF: File automatically created/updated [custom-conf-apt-docker]
+
+# Docker repository
+# KEY: wget https://download.docker.com/linux/debian/gpg -qO-
+deb [arch=amd64 signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/debian/ bookworm stable

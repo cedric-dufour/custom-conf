@@ -1,0 +1,9 @@
+## CUSTOM-CONF: File automatically created/updated [custom-conf-apt-nvidia-docker]
+
+# NVIDIA docker repository
+# REF: https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#docker
+# KEY: wget https://nvidia.github.io/nvidia-docker/gpgkey -O-
+# TODO: Update to Debian/Bookworm
+deb [signed-by=/usr/share/keyrings/nvidia-docker.gpg] https://nvidia.github.io/libnvidia-container/debian11/$(ARCH) /
+deb [signed-by=/usr/share/keyrings/nvidia-docker.gpg] https://nvidia.github.io/nvidia-container-runtime/debian11/$(ARCH) /
+deb [signed-by=/usr/share/keyrings/nvidia-docker.gpg] https://nvidia.github.io/nvidia-docker/debian11/$(ARCH) /

@@ -1,0 +1,51 @@
+custom-pack-mmutils (2023.04.05a) UNRELEASED; urgency=low
+
+  * Debian/Bookworm forward-port
+  - RIP: resample
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Wed, 05 Apr 2023 18:51:08 +0200
+
+custom-pack-mmutils (2021.08.24a) UNRELEASED; urgency=low
+
+  * Debian/Bullseye forward-port
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Tue, 24 Aug 2021 18:56:15 +0200
+
+custom-pack-mmutils (2020.01.07a) UNRELEASED; urgency=low
+
+  * Added 'exiftran' EXIF editing utility
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Tue, 07 Jan 2020 17:41:19 +0100
+
+custom-pack-mmutils (2019.07.02a) UNRELEASED; urgency=low
+
+  * Debian/Buster forward-port
+  - RIP: gif2png (#930858)
+  - RIP: vlc-nox
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Tue, 02 Jul 2019 04:49:33 +0200
+
+custom-pack-mmutils (2017.08.16a) UNRELEASED; urgency=low
+
+  * Added 'mplayer' multimedia player
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Wed, 16 Aug 2017 14:32:00 +0200
+
+custom-pack-mmutils (2017.03.15a) UNRELEASED; urgency=low
+
+  * Debian/Stretch forward-port
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Wed, 15 Mar 2017 15:01:02 +0100
+
+custom-pack-mmutils (2017.03.07a) UNRELEASED; urgency=low
+
+  * Transition from 'custom-packages-install-common'
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Tue, 07 Mar 2017 18:30:00 +0100
+
+custom-packages-install-common (2016.07.05a) UNRELEASED; urgency=low
+
+  * Post Tenebras Lux
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Tue, 05 Jul 2016 08:23:49 +0200
+

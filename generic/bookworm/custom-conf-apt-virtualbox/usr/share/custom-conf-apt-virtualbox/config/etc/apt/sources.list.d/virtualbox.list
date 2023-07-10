@@ -1,0 +1,6 @@
+## CUSTOM-CONF: File automatically created/updated [custom-conf-apt-virtualbox]
+
+# VirtualBox repository
+# KEY: https://www.virtualbox.org/download/oracle_vbox_2016.asc -qO-
+# TODO: Update to Debian/Bookworm
+deb [arch=amd64 signed-by=/usr/share/keyrings/virtualbox.gpg] https://download.virtualbox.org/virtualbox/debian bullseye contrib

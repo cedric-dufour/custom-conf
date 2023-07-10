@@ -1,0 +1,25 @@
+custom-conf-apt-nvidia-docker (2023.07.10a) UNRELEASED; urgency=low
+
+  * Debian/Bookworm forward-port
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Mon, 10 Jul 2023 21:48:20 +0200
+
+custom-conf-apt-nvidia-docker (2021.12.17a) UNRELEASED; urgency=low
+
+  * Include APT signing key
+    REF: https://wiki.debian.org/DebianRepository/UseThirdParty
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Fri, 17 Dec 2021 15:29:04 +0100
+
+custom-conf-apt-nvidia-docker (2021.08.24a) UNRELEASED; urgency=low
+
+  * Debian/Bullseye forward-port
+  - TODO: switch upstream source to Debian/Bullseye when available
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Tue, 24 Aug 2021 19:23:32 +0200
+
+custom-conf-apt-nvidia-docker (2020.09.16a) UNRELEASED; urgency=low
+
+  * Debian/Buster forward-port
+
+ -- Samuel Gaist <samuel.gaist@idiap.ch>  Wed, 16 Sep 2020 11:15:50 +0200

@@ -1,0 +1,12 @@
+#!/bin/sh
+## CUSTOM-CONF: File automatically created/updated [custom-conf-lightdm]
+
+## LightDM session cleanup script
+
+# Kill the X session monitor "daemon"
+# Note: /proc/*/comm (name) is truncated to 15 characters
+if [ -r "/tmp/.xsession-monitor${DISPLAY%%.*}.pid" ]; then
+  pkill -U ${USER} -F "/tmp/.xsession-monitor${DISPLAY%%.*}.pid" -x Xsession-monito \
+  && rm -f "/tmp/.xsession-monitor${DISPLAY%%.*}.pid"
+fi
+

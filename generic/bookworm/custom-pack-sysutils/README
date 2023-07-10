@@ -1,0 +1,6 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-pack-sysutils
+
+This meta-package installs (command line) system utilities.
+

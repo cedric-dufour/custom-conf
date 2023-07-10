@@ -1,0 +1,12 @@
+Source: custom-pack-xps13-9380
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 4.6.2
+
+Package: custom-pack-xps13-9380
+Architecture: all
+Depends: efibootmgr, firmware-atheros, firmware-misc-nonfree, firmware-realtek, fwupd-amd64-signed, grub-efi-amd64-signed, i965-va-driver, intel-microcode, irqbalance, libvdpau-va-gl1, xserver-xorg-input-synaptics
+Description: Custom Configuration Framework - Dell XPS 13 (9380) dependencies
+

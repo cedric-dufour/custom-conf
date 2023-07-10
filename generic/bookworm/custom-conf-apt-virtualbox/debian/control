@@ -1,0 +1,12 @@
+Source: custom-conf-apt-virtualbox
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 4.6.2
+
+Package: custom-conf-apt-virtualbox
+Architecture: all
+Depends: custom-conf, custom-conf-apt, apt-transport-https, ca-certificates
+Description: Custom Configuration Framework - Oracle VirtualBox APT repository
+

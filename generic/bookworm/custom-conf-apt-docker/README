@@ -1,0 +1,6 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-conf-apt-docker
+
+This package provides standard configuration of Docker APT repository.
+

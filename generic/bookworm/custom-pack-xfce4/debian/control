@@ -1,0 +1,14 @@
+Source: custom-pack-xfce4
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 4.6.2
+
+Package: custom-pack-xfce4
+Architecture: all
+Depends: gcfg, desktop-base, file-roller, gstreamer1.0-libav, libxfce4ui-utils, lightdm, light-locker, policykit-1, thunar, thunar-volman, thunar-archive-plugin, thunar-media-tags-plugin, tumbler, system-config-printer, xfburn, xfconf, xfce4-appfinder, xfce4-cpugraph-plugin, xfce4-genmon-plugin, xfce4-indicator-plugin, xfce4-netload-plugin, xfce4-notifyd, xfce4-panel, xfce4-places-plugin, xfce4-power-manager, xfce4-power-manager-plugins, xfce4-pulseaudio-plugin, xfce4-screenshooter, xfce4-session, xfce4-settings, xfce4-systemload-plugin, xfce4-taskmanager, xfce4-terminal, xfce4-timer-plugin, xfce4-verve-plugin, xfce4-xkb-plugin, xfdesktop4, xfwm4, xorg
+Recommends: colord
+Suggests: custom-conf-lightdm, custom-conf-polkit-nopower
+Description: Custom Configuration Framework - XFCE4 desktop environment
+

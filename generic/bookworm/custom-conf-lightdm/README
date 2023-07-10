@@ -1,0 +1,11 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-conf-lightdm
+
+This package provides standard configuration of the LightDM display manager.
+
+In particular, it addresses standard configuration of:
+ - setting the keyboard layout and DPMS timeouts for the greeter
+ - loading system /etc/xprofile and users ~/.xprofile
+ - further customization of the X session startup
+
