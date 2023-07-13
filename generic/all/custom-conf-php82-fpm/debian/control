@@ -1,0 +1,13 @@
+Source: custom-conf-php82-fpm
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 4.6.2
+
+Package: custom-conf-php82-fpm
+Architecture: all
+Provides: custom-conf-php-fpm
+Depends: custom-conf, php8.2-fpm
+Recommends: custom-conf-php82-apache2, libapache2-mod-fastcgi
+Description: Custom Configuration Framework - PHP 8.2 <-> FPM

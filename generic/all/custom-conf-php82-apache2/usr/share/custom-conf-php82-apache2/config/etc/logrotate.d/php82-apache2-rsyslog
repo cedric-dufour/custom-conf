@@ -1,0 +1,16 @@
+## CUSTOM-CONF: File automatically created/updated [custom-conf-php82-apache2]
+
+# Rotate rsyslog-redirected PHP 8.2 logs
+/var/log/php8.2-apache2.rsyslog {
+	weekly
+	missingok
+	rotate 10
+	compress
+	delaycompress
+	notifempty
+	create 640 %{CUSTOM_CONF_PHP82_APACHE2_LOGOWNER} adm
+	sharedscripts
+	postrotate
+		invoke-rc.d rsyslog rotate >/dev/null
+	endscript
+}
