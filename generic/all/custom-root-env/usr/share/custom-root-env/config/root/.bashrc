@@ -21,7 +21,7 @@ export REMOTEHOST=$(who am i | grep '.*(\([^:)]*\).*' | sed 's/.*(\([^:)]*\).*/\
 [ ! "${PS1}" ] && return
 
 # Command prompt
-export PS1="\[\e[35m\]@ \[\e[33m\]\D{%Y-%m-%d %H:%M:%S %z}\[\e[35m\]\n\n* \[\e[01;31m\]\u@$(hostname -f)\[\e[00;35m\]:\[\e[36m\]\w\[\e[35m\]\n#\[\e[0m\] "
+export PS1="\[\e[35m\]# \[\e[33m\]\D{%Y-%m-%d %H:%M:%S %z}\[\e[35m\]\n\n# \[\e[01;31m\]\u@$(hostname -f)\[\e[00;35m\]:\[\e[36m\]\w\[\e[35m\]\n\[\e[0m\]"
 
 # Shell timeout (we're root, after all...)
 export TMOUT=900
@@ -53,19 +53,24 @@ HISTCONTROL=ignoreboth
 HISTSIZE=10000
 
 # Aliases
-# ... cd
+# (cd)
 alias cd..='cd ..'
 alias cd-='cd -'
-# ... ls
+# (ls)
 alias l1='ls -1'
 alias ll='ls -l'
 alias lh='ls -lh'
 alias la='ls -la'
-# ... rm
+# (rm)
 alias rm='rm --one-file-system'
-# ... ps
+# (ps)
 alias _psl='ps wwaxf -o user,tty,pid,state,start,time,%cpu,nlwp,ni,pri,%mem,vsz,rsz,command | less -S'
-# ... systemctl
+# (log)
+alias _dm='dmesg --time-format=iso | tac | less -S'
+alias _DM='dmesg --time-format=iso'
+alias _log='tac /var/log/syslog | less -S'
+alias _LOG='cat /var/log/syslog'
+# (systemd)
 alias _sc='systemctl cat'
 alias _ss='systemctl status'
 alias _sa='systemctl start'
@@ -73,14 +78,13 @@ alias _so='systemctl stop'
 alias _sr='systemctl restart'
 alias _sl='systemctl reload'
 alias _sj='journalctl -u'
-# ... gcfg
+# (gcfg)
 alias _ge='gcfg edit'
 alias _gl='gcfg list @FLAGS'
 alias _go='gcfg original'
 alias _gd='gcfg delta'
-# ... misc
-alias _dm='dmesg --time-format=iso | tail -n 25'
-alias _sy='tail -n 25 /var/log/syslog'
+# (misc)
+alias _doc="awk 'BEGIN {print \": [output]\"}; {print \": \"\$0}'"
 
 # Coloring
 if [ -n "$(which dircolors)" ]; then
@@ -96,7 +100,8 @@ fi
 
 # Completions
 [ -r /etc/bash_completion ] && . /etc/bash_completion
-# ... systemctl
+
+# (systemd)
 function _mycomp_systemctl_units {
   local cur=`_get_cword`
   COMPREPLY=( $( systemctl list-units --plain --no-legend --no-pager --all --full --type=target,service,timer,mount,path "${cur}*" | awk '{print $1}' ) )
@@ -118,4 +123,3 @@ unset file
 
 # Switch to home directory
 cd
-

@@ -37,4 +37,3 @@ set modeline
 set paste
 set ruler
 set showmatch
-

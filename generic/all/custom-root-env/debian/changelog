@@ -1,3 +1,9 @@
+custom-root-env (2023.07.20a) UNRELEASED; urgency=low
+
+  * Update '_dm' and '_log' aliases + Add '_doc' alias
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Thu, 20 Jul 2023 18:23:17 +0200
+
 custom-root-env (2021.09.16a) UNRELEASED; urgency=low
 
   * Add '_sc = systemctl cat' alias

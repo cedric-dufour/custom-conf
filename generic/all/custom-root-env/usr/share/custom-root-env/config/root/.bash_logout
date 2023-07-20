@@ -6,4 +6,3 @@ clear
 
 # Additional local actions
 [ -d ~/.bash_logout.d ] && for file in ~/.bash_logout.d/*; do source ${file}; done
-
