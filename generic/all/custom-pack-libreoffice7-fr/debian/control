@@ -7,6 +7,6 @@ Standards-Version: 4.6.2
 
 Package: custom-pack-libreoffice7-fr
 Architecture: all
-Depends: libreoffice7.4-fr, libreoffice7.4-dict-fr, libobasis7.4-fr-help
-Description: Custom Configuration Framework - LibreOffice 7.4, French language pack (original upstream packages)
+Depends: libreoffice7.6-fr, libreoffice7.6-dict-fr, libobasis7.6-fr-help
+Description: Custom Configuration Framework - LibreOffice 7.6, French language pack (original upstream packages)
 

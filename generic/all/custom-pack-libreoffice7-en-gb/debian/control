@@ -7,6 +7,6 @@ Standards-Version: 4.6.2
 
 Package: custom-pack-libreoffice7-en-gb
 Architecture: all
-Depends: libreoffice7.4-en-gb, libreoffice7.4-dict-en, libobasis7.4-en-gb-help
-Description: Custom Configuration Framework - LibreOffice 7.4, Engligh (GB) language pack (original upstream packages)
+Depends: libreoffice7.6-en-gb, libreoffice7.6-dict-en, libobasis7.6-en-gb-help
+Description: Custom Configuration Framework - LibreOffice 7.6, Engligh (GB) language pack (original upstream packages)
 
