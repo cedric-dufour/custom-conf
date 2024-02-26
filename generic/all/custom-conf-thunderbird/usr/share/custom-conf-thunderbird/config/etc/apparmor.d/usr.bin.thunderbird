@@ -6,11 +6,12 @@
 
 # Declare an apparmor variable to help with overrides
 @{MOZ_LIBDIR}=/usr/lib/thunderbird
-@{thunderbird_executable} = /usr/lib/thunderbird/thunderbird{,-bin}
+@{THUNDERBIRD_EXECUTABLE} = /usr/lib/thunderbird/thunderbird{,-bin}
+@{THUNDERBIRD_USER_DIR} = @{HOME}/.{icedove,thunderbird,mozilla-thunderbird}
 
 #include <tunables/global>
 
-profile thunderbird @{thunderbird_executable} {
+profile thunderbird @{THUNDERBIRD_EXECUTABLE} {
   #include <abstractions/audio>
   #include <abstractions/aspell>
   #include <abstractions/cups-client>
@@ -19,8 +20,10 @@ profile thunderbird @{thunderbird_executable} {
   #include <abstractions/dbus-accessibility>
   #include <abstractions/dbus-session>
   #include <abstractions/dconf>
+  #include <abstractions/dri-enumerate>
   #include <abstractions/gnome>
   #include <abstractions/ibus>
+  #include <abstractions/mesa>
   #include <abstractions/nameservice>
   #include <abstractions/nvidia>
   #include <abstractions/p11-kit>
@@ -31,9 +34,9 @@ profile thunderbird @{thunderbird_executable} {
   #include <abstractions/ubuntu-helpers>
 
   # Backported from the mesa abstraction, available in AppArmor >2.13
-  # ... system files
+  # System files
   /dev/dri/ r, # libGLX_mesa.so calls drmGetDevice2()
-  # ... user files
+  # User files
   owner @{HOME}/.cache/ w, # if user clears all caches
   owner @{HOME}/.cache/mesa_shader_cache/ w,
   owner @{HOME}/.cache/mesa_shader_cache/index rw,
@@ -77,7 +80,7 @@ profile thunderbird @{thunderbird_executable} {
   # for crash reports?
   ptrace (read,trace) peer=@{profile_name},
 
-  @{thunderbird_executable} ixr,
+  @{THUNDERBIRD_EXECUTABLE} ixr,
 
   # Pulseaudio
   /usr/bin/pulseaudio Pixr,
@@ -190,7 +193,11 @@ profile thunderbird @{thunderbird_executable} {
 
   # Allow OpenOffice/LibreOffice (upstream Debian packaging) to be launched
   /opt/openoffice4*/program/{soffice,swriter,scalc,simpress} Cxr -> custom_sanitized_helper,
-  /opt/libreoffice[5-9]*/program/{soffice,swriter,scalc,simpress} Cxr -> custom_sanitized_helper,
+  /opt/libreoffice[2-7]*/program/{soffice,swriter,scalc,simpress} Cxr -> custom_sanitized_helper,
+
+  # Allow KeePassXC-Mail extension access to Mozilla Native Messaging and KeePassXC Proxy
+  owner @{HOME}/.mozilla/native-messaging-hosts/*.json r,
+  /usr/bin/keepassxc-proxy ixr,
 
   ## [CUSTOM-CONF:END]
 
@@ -244,12 +251,12 @@ profile thunderbird @{thunderbird_executable} {
   /**/ r,
 
   # per-user thunderbird configuration
-  owner @{HOME}/.{icedove,thunderbird}/ rw,
-  owner @{HOME}/.{icedove,thunderbird}/** rw,
-  owner @{HOME}/.{icedove,thunderbird}/**/storage.sdb k,
-  owner @{HOME}/.{icedove,thunderbird}/**/*.{db,parentlock,sqlite}* k,
-  owner @{HOME}/.{icedove,thunderbird}/plugins/** rm,
-  owner @{HOME}/.{icedove,thunderbird}/**/plugins/** rm,
+  owner @{THUNDERBIRD_USER_DIR}/ rw,
+  owner @{THUNDERBIRD_USER_DIR}/** rw,
+  owner @{THUNDERBIRD_USER_DIR}/**/storage.sdb k,
+  owner @{THUNDERBIRD_USER_DIR}/**/*.{db,parentlock,sqlite}* k,
+  owner @{THUNDERBIRD_USER_DIR}/plugins/** rm,
+  owner @{THUNDERBIRD_USER_DIR}/**/plugins/** rm,
   owner @{HOME}/.cache/thunderbird/ rw,
   # [CUSTOM-CONF:BEGIN]
   # Add lock permission
@@ -263,7 +270,7 @@ profile thunderbird @{thunderbird_executable} {
   # Extensions
   # /usr/share/.../extensions/... is already covered by '/usr/** r', above.
   # Allow 'x' for downloaded extensions, but inherit policy for safety
-  owner @{HOME}/.{icedove,thunderbird}/**/extensions/** mixrw,
+  owner @{THUNDERBIRD_USER_DIR}/**/extensions/** mixrw,
   owner @{HOME}/.mozilla/ rw,
   owner @{HOME}/.mozilla/extensions/          rw,
   owner @{HOME}/.mozilla/extensions/**        mixr,
@@ -290,6 +297,9 @@ profile thunderbird @{thunderbird_executable} {
   # TB tries to create this file but has no business doing so
   deny @{HOME}/.gnupg/gpg-agent.conf w,
 
+  # Required for Wayland display protocol support
+  owner /dev/shm/wayland.mozilla.ipc.[0-9]* rw,
+
   profile gpg {
     #include <abstractions/base>
 
@@ -300,14 +310,14 @@ profile thunderbird @{thunderbird_executable} {
     /usr/share/xul-ext/enigmail/chrome/** r,
 
     # silence noise from enigmail 1.9+
-    deny owner @{HOME}/.{icedove,thunderbird}/*/.parentlock w,
-    deny owner @{HOME}/.{icedove,thunderbird}/*/panacea.dat w,
-    deny owner @{HOME}/.{icedove,thunderbird}/*/*.mab w,
-    deny owner @{HOME}/.{icedove,thunderbird}/**/*.msf w,
+    deny owner @{THUNDERBIRD_USER_DIR}/*/.parentlock w,
+    deny owner @{THUNDERBIRD_USER_DIR}/*/panacea.dat w,
+    deny owner @{THUNDERBIRD_USER_DIR}/*/*.mab w,
+    deny owner @{THUNDERBIRD_USER_DIR}/**/*.msf w,
     deny owner @{HOME}/.cache/thunderbird/**/_CACHE_* w,
 
     # noise from inherited files
-    deny @{HOME}/.{icedove,thunderbird}/*/ImapMail/*/INBOX w,
+    deny @{THUNDERBIRD_USER_DIR}/*/ImapMail/*/INBOX w,
     deny /usr/{lib,share}/thunderbird/omni.ja r,
     deny /usr/share/thunderbird/extensions/** r,
 
@@ -377,7 +387,7 @@ profile thunderbird @{thunderbird_executable} {
     owner @{PROC}/@{pids}/task/@{tid}/comm rw,
 
     # for revocation certificate generation in the Enigmail setup wizard
-    owner @{HOME}/.{icedove,thunderbird}/*/0x[A-F0-9]*_rev.asc rw,
+    owner @{THUNDERBIRD_USER_DIR}/*/0x[A-F0-9]*_rev.asc rw,
     # for revocation certificate generation in the Enigmail key manager
     owner @{HOME}/*0x[A-F0-9]**.asc rw,
 

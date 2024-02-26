@@ -1,3 +1,10 @@
+custom-conf-thunderbird (2024.02.26a) UNRELEASED; urgency=low
+
+  * AppArmor: update (as per Debian/Bookworm udpates)
+  * AppArmor: add support for KeePassXC-Mail extension
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Mon, 26 Feb 2024 19:34:22 +0100
+
 custom-conf-thunderbird (2021.12.17a) UNRELEASED; urgency=low
 
   * AppArmor: Add 3rd-party Debian-packaged 'firefox(-esr)'

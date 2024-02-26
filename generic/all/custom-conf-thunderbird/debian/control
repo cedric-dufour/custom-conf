@@ -3,7 +3,7 @@ Section: admin
 Priority: optional
 Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
 Homepage: https://github.com/cedric-dufour/custom-conf
-Standards-Version: 4.6.0
+Standards-Version: 4.6.2
 
 Package: custom-conf-thunderbird
 Architecture: all
