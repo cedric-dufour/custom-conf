@@ -1,3 +1,9 @@
+custom-conf-pam-unix (2024.05.24a) UNRELEASED; urgency=low
+
+  * Switched Unix password hashing to yescrypt
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Fri, 24 May 2024 19:04:34 +0200
+
 custom-conf-pam-unix (2019.04.10a) UNRELEASED; urgency=low
 
   * Do not bail out of 'common-*'; allow including resources to have their words

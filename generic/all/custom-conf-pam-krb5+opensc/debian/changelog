@@ -1,3 +1,9 @@
+custom-conf-pam-krb5+opensc (2024.05.24a) UNRELEASED; urgency=low
+
+  * Switched Unix password hashing to yescrypt
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Fri, 24 May 2024 19:04:34 +0200
+
 custom-conf-pam-krb5+opensc (2023.06.29a) UNRELEASED; urgency=low
 
   * Favor 'libpam-ldapd' over 'libpam-ldap' (removed in Debian/Bookworm)
