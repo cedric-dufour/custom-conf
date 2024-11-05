@@ -1,8 +1,0 @@
-## CUSTOM-CONF: File automatically created/updated [custom-conf-apt-nvidia-docker]
-
-# NVIDIA docker repository
-# KEY: wget https://nvidia.github.io/nvidia-docker/gpgkey -O- | apt-key add -
-deb https://nvidia.github.io/libnvidia-container/debian10/$(ARCH) /
-deb https://nvidia.github.io/nvidia-container-runtime/debian10/$(ARCH) /
-deb https://nvidia.github.io/nvidia-docker/debian10/$(ARCH) /
-

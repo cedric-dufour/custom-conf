@@ -1,9 +1,0 @@
-#!/bin/bash
-[ "${1}" != 'remove' ] && exit 0
-
-# Cleanup GPU mask
-gcfg.sed '/^CUDA_VISIBLE_DEVICES=/d' /etc/environment
-
-# Exit
-exit 0
-
