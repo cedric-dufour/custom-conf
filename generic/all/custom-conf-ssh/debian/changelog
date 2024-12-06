@@ -1,3 +1,9 @@
+custom-conf-ssh (2024.11.28a) UNRELEASED; urgency=low
+
+  * Harden connection keep-alive (and zombie avoidance)
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Thu, 28 Nov 2024 08:52:29 +0100
+
 custom-conf-ssh (2022.09.02a) UNRELEASED; urgency=low
 
   * Make sure all host keys are custom-conf'ed

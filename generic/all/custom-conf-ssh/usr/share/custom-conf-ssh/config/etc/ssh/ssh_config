@@ -8,13 +8,13 @@ Host *
   # Hosts
   %{CUSTOM_CONF_SSH_HASHKNOWNHOSTS}
 
-  # Connections
-  %{CUSTOM_CONF_SSH_TCPKEEPALIVE}
-  ServerAliveInterval 285
-
   # Authentication
   GSSAPIAuthentication yes
   GSSAPIDelegateCredentials no
+
+  # Connection
+  TCPKeepAlive no
+  %{CUSTOM_CONF_SSH_SERVERALIVE}
 
   # Environment
   SendEnv LANG LC_*

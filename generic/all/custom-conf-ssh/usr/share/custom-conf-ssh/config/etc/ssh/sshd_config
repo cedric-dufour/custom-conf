@@ -34,11 +34,14 @@ PermitEmptyPasswords no
 ChallengeResponseAuthentication no
 UsePAM yes
 
+# Connection
+TCPKeepAlive no
+%{CUSTOM_CONF_SSH_CLIENTALIVE}
+
 # Features
 %{CUSTOM_CONF_SSH_FORWARDX11}
 PrintMotd no
 PrintLastLog yes
-%{CUSTOM_CONF_SSH_TCPKEEPALIVE}
 AcceptEnv LANG LC_*
 Subsystem sftp /usr/lib/openssh/sftp-server
 

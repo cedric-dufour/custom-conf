@@ -74,7 +74,8 @@ fi
 # ... host-specific parameters
 CUSTOM_CONF_SSH_PASSWORDAUTHENTICATION='PasswordAuthentication no'
 CUSTOM_CONF_SSH_FORWARDX11='ForwardX11 no'
-CUSTOM_CONF_SSH_TCPKEEPALIVE='TCPKeepAlive no'
+CUSTOM_CONF_SSH_CLIENTALIVE='ClientAliveInterval 60%NL;ClientAliveCountMax 15'
+CUSTOM_CONF_SSH_SERVERALIVE='ServerAliveInterval 60%NL;ServerAliveCountMax 60'
 CUSTOM_CONF_SSH_ALLOWUSERS='#AllowUsers N/A'
 CUSTOM_CONF_SSH_HASHKNOWNHOSTS='HashKnownHosts yes'
 case "${HOST_TYPE}" in
@@ -82,7 +83,7 @@ case "${HOST_TYPE}" in
   workstation|computation|laptop)
     CUSTOM_CONF_SSH_PASSWORDAUTHENTICATION='PasswordAuthentication yes'
     CUSTOM_CONF_SSH_FORWARDX11='ForwardX11 yes'
-    CUSTOM_CONF_SSH_TCPKEEPALIVE='TCPKeepAlive yes'
+    CUSTOM_CONF_SSH_CLIENTALIVE='ClientAliveInterval 60%NL;ClientAliveCountMax 60'
     users=
     if [ -n "${ALLOW_USER}" ]; then
       for user in root ${ALLOW_USER}; do
@@ -96,7 +97,7 @@ case "${HOST_TYPE}" in
   server)
     CUSTOM_CONF_SSH_PASSWORDAUTHENTICATION='PasswordAuthentication yes'
     CUSTOM_CONF_SSH_FORWARDX11='ForwardX11 no'
-    CUSTOM_CONF_SSH_TCPKEEPALIVE='TCPKeepAlive no'
+    CUSTOM_CONF_SSH_CLIENTALIVE='ClientAliveInterval 60%NL;ClientAliveCountMax 15'
     users=
     for user in root ${ALLOW_USER}; do
       if [ -n "${CUSTOM_CONF_SSH_ALLOWSEGMENTS}" ]; then
@@ -114,7 +115,7 @@ case "${HOST_TYPE}" in
   vserver)
     CUSTOM_CONF_SSH_PASSWORDAUTHENTICATION='PasswordAuthentication no'
     CUSTOM_CONF_SSH_FORWARDX11='ForwardX11 no'
-    CUSTOM_CONF_SSH_TCPKEEPALIVE='TCPKeepAlive no'
+    CUSTOM_CONF_SSH_CLIENTALIVE='ClientAliveInterval 60%NL;ClientAliveCountMax 15'
     users=
     for user in root ${ALLOW_USER}; do
       if [ -n "${CUSTOM_CONF_SSH_ALLOWSEGMENTS}" ]; then
@@ -147,8 +148,8 @@ case "${HOST_TYPE}" in
 esac
 
 # ... do it
-gcfg.sed "s|%{CUSTOM_CONF_SSH_LISTEN_IPV4}|${CUSTOM_CONF_SSH_LISTEN_IPV4}|g;s|%{CUSTOM_CONF_SSH_LISTEN_IPV6}|${CUSTOM_CONF_SSH_LISTEN_IPV6}|g;s|%{CUSTOM_CONF_SSH_PASSWORDAUTHENTICATION}|${CUSTOM_CONF_SSH_PASSWORDAUTHENTICATION}|g;s|%{CUSTOM_CONF_SSH_FORWARDX11}|${CUSTOM_CONF_SSH_FORWARDX11/ForwardX11/X11Forwarding}|g;s|%{CUSTOM_CONF_SSH_TCPKEEPALIVE}|${CUSTOM_CONF_SSH_TCPKEEPALIVE}|g;s|%{CUSTOM_CONF_SSH_ALLOWUSERS}|${CUSTOM_CONF_SSH_ALLOWUSERS}|g;s|%NL;|\n|g" /etc/ssh/sshd_config
-gcfg.sed "s|%{CUSTOM_CONF_SSH_TCPKEEPALIVE}|${CUSTOM_CONF_SSH_TCPKEEPALIVE}|g;s|%{CUSTOM_CONF_SSH_HASHKNOWNHOSTS}|${CUSTOM_CONF_SSH_HASHKNOWNHOSTS}|g;s|%NL;|\n|g" /etc/ssh/ssh_config
+gcfg.sed "s|%{CUSTOM_CONF_SSH_LISTEN_IPV4}|${CUSTOM_CONF_SSH_LISTEN_IPV4}|g;s|%{CUSTOM_CONF_SSH_LISTEN_IPV6}|${CUSTOM_CONF_SSH_LISTEN_IPV6}|g;s|%{CUSTOM_CONF_SSH_PASSWORDAUTHENTICATION}|${CUSTOM_CONF_SSH_PASSWORDAUTHENTICATION}|g;s|%{CUSTOM_CONF_SSH_FORWARDX11}|${CUSTOM_CONF_SSH_FORWARDX11/ForwardX11/X11Forwarding}|g;s|%{CUSTOM_CONF_SSH_CLIENTALIVE}|${CUSTOM_CONF_SSH_CLIENTALIVE}|g;s|%{CUSTOM_CONF_SSH_ALLOWUSERS}|${CUSTOM_CONF_SSH_ALLOWUSERS}|g;s|%NL;|\n|g" /etc/ssh/sshd_config
+gcfg.sed "s|%{CUSTOM_CONF_SSH_SERVERALIVE}|${CUSTOM_CONF_SSH_SERVERALIVE}|g;s|%{CUSTOM_CONF_SSH_HASHKNOWNHOSTS}|${CUSTOM_CONF_SSH_HASHKNOWNHOSTS}|g;s|%NL;|\n  |g" /etc/ssh/ssh_config
 
 # Additional actions
 openssl_version="$(dpkg -l | grep 'ii\s*libssl' | awk '{print $3}' | sort -V | head -n 1)"
