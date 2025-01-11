@@ -5,7 +5,7 @@
 USAGE: ${0##*/} [-H|--header] <file> ...
 
 SYNOPSIS:
-  Parse IPTables (kernel) logs and output traffic summary to stdout
+  Parse iptables/nftables (kernel) logs and output traffic summary to stdout
 EOF
 
 # Options
@@ -24,4 +24,4 @@ done
 
 # Parse logs
 [ -z "$*" ] && exit 0
-logparse-acat "$@" | fgrep 'IPTABLES:' | sed 's/.*\[IPTABLES://;s/\]//' | awk '$13~/PROTO=TCP/ {print $1,$5,$13,$15}; $12~/PROTO=UDP/ {print $1,$5,$12,$14}' | sed 's/[^ =]*=//g' | sort | uniq -c | awk 'BEGIN { OFS="|" }; { print $2,$3,$4,$5,$1 }' | sort -t'|' -k6,6 -n -r
+logparse-acat "$@" | sed -nE 's/^.*\[(IP|NF)TABLES:([^]]+)\]/\2/p' | awk '$13~/PROTO=TCP/ {print $1,$5,$13,$15}; $12~/PROTO=UDP/ {print $1,$5,$12,$14}' | sed 's/[^ =]*=//g' | sort | uniq -c | awk 'BEGIN { OFS="|" }; { print $2,$3,$4,$5,$1 }' | sort -t'|' -k6,6 -n -r

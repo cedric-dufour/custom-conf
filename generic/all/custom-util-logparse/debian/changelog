@@ -1,3 +1,9 @@
+custom-util-logparse (2025.01.11a) UNRELEASED; urgency=low
+
+  * Hail NFTABLES logs!
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Sat, 11 Jan 2025 10:44:59 +0100
+
 custom-util-logparse (2022.12.28b) UNRELEASED; urgency=low
 
   * Hail 'logparse-arpalert.*'!
