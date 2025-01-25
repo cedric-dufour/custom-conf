@@ -1,3 +1,10 @@
+custom-conf-dns (2025.01.14a) UNRELEASED; urgency=low
+
+  * Have local domain appear first in searched domains
+  * Filter AAAA responses out if host has no (global scope) IPv6
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Tue, 14 Jan 2025 11:17:50 +0100
+
 custom-conf-dns (2021.05.28a) UNRELEASED; urgency=low
 
   * Add support for additional local domain (and corresponding ndots)
