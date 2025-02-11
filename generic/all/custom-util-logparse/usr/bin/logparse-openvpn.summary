@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Usage
-[ "${1##*-}" == 'help' ] && cat << EOF && exit 1
+[ "${1##*-}" == 'help' ] && cat <<EOF && exit 1
 USAGE: ${0##*/} [-H|--header] {-I|--ip|-A|--auth} <file> ...
 
 SYNOPSIS:
@@ -13,10 +13,10 @@ MY_HEADER=
 MY_DETAIL='ip'
 while [ "${1:0:1}" == '-' ]; do
   case "${1}" in
-    '-H'|'--header') MY_HEADER='yes';;
-    '-I'|'--ip') MY_DETAIL='ip';;
-    '-A'|'--auth') MY_DETAIL='auth';;
-    *) echo "ERROR: Unsupported option (${1})" >&2;;
+  '-H' | '--header') MY_HEADER='yes' ;;
+  '-I' | '--ip') MY_DETAIL='ip' ;;
+  '-A' | '--auth') MY_DETAIL='auth' ;;
+  *) echo "ERROR: Unsupported option (${1})" >&2 ;;
   esac
   shift
 done
@@ -24,19 +24,19 @@ done
 # Parse logs
 case "${MY_DETAIL}" in
 
-  'ip')
-    [ -n "${MY_HEADER}" ] && echo 'USERNAME|IPADDR_REMOTE'
-    [ -z "$*" ] && exit 0
-    logparse-openvpn.detail --ip "$@" | cut -d'|' -f2-3 | sort -u
-    ;;
+'ip')
+  [ -n "${MY_HEADER}" ] && echo 'USERNAME|IPADDR_REMOTE'
+  [ -z "$*" ] && exit 0
+  logparse-openvpn.detail --ip "$@" | cut -d'|' -f2-3 | sort -u
+  ;;
 
-  'auth')
-    [ -n "${MY_HEADER}" ] && echo 'USERNAME|CERTIFICATE'
-    [ -z "$*" ] && exit 0
-    join -t'|' \
-      <(logparse-openvpn.detail --user "$@" | sed 's/T[0-9:.+]*|/#/' | sort -u) \
-      <(logparse-openvpn.detail --cert "$@" | sed 's/T[0-9:.+]*|/#/' | sort -u) \
-      | cut -d'|' -f2,3 | sort -u
-    ;;
+'auth')
+  [ -n "${MY_HEADER}" ] && echo 'USERNAME|CERTIFICATE'
+  [ -z "$*" ] && exit 0
+  join -t'|' \
+    <(logparse-openvpn.detail --user "$@" | sed 's/T[0-9:.+]*|/#/' | sort -u) \
+    <(logparse-openvpn.detail --cert "$@" | sed 's/T[0-9:.+]*|/#/' | sort -u) |
+    cut -d'|' -f2,3 | sort -u
+  ;;
 
 esac

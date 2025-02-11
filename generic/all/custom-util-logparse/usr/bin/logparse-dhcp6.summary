@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Usage
-[ "${1##*-}" == 'help' ] && cat << EOF && exit 1
+[ "${1##*-}" == 'help' ] && cat <<EOF && exit 1
 USAGE: ${0##*/} [-H|--header] <file> ...
 
 SYNOPSIS:
@@ -11,12 +11,14 @@ EOF
 # Options
 while [ "${1:0:1}" == '-' ]; do
   case "${1}" in
-    '-H'|'--header') echo 'IPADDR|MACADDR|HOSTNAME';;
-    *) echo "ERROR: Unsupported option (${1})" >&2;;
+  '-H' | '--header') echo 'IPADDR|MACADDR|HOSTNAME' ;;
+  *) echo "ERROR: Unsupported option (${1})" >&2 ;;
   esac
   shift
 done
 
 # Parse logs
 [ -z "$*" ] && exit 0
-logparse-dhcp6.detail "$@" | cut -d'|' -f2- | sort -u
+logparse-dhcp6.detail "$@" |
+  cut -d'|' -f2- |
+  sort -u

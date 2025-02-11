@@ -19,4 +19,6 @@ done
 
 # Parse logs
 [ -z "$*" ] && exit 0
-logparse-acat "$@" | grep -iE 'freeradius.*login (ok|incorrect)'  | sed 's/^\([^ ]*\) (.*) /\1|/;s/[^|]*login \([^:]*\): */\1|/i;s/\[\([^]]*\)\] */\1|/;s/[^|]*client \(.*\) port \(.*\) \(via\|cli\) \([^)]*\).*/\4|\1|\2/i'
+logparse-acat "$@" |
+  grep -iE 'freeradius.*login (ok|incorrect)'  |
+  sed 's/^\([^ ]*\) (.*) /\1|/;s/[^|]*login \([^:]*\): */\1|/i;s/\[\([^]]*\)\] */\1|/;s/[^|]*client \(.*\) port \(.*\) \(via\|cli\) \([^)]*\).*/\4|\1|\2/i'

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Usage
-[ "${1##*-}" == 'help' ] && cat << EOF && exit 1
+[ "${1##*-}" == 'help' ] && cat <<EOF && exit 1
 USAGE: ${0##*/} [-H|--header] {-I|--ip|-U|--user|-C|--cert} <file> ...
 
 SYNOPSIS:
@@ -13,11 +13,11 @@ MY_HEADER=
 MY_DETAIL='ip'
 while [ "${1:0:1}" == '-' ]; do
   case "${1}" in
-    '-H'|'--header') MY_HEADER='yes';;
-    '-I'|'--ip') MY_DETAIL='ip';;
-    '-U'|'--user') MY_DETAIL='user';;
-    '-C'|'--cert') MY_DETAIL='cert';;
-    *) echo "ERROR: Unsupported option (${1})" >&2;;
+  '-H' | '--header') MY_HEADER='yes' ;;
+  '-I' | '--ip') MY_DETAIL='ip' ;;
+  '-U' | '--user') MY_DETAIL='user' ;;
+  '-C' | '--cert') MY_DETAIL='cert' ;;
+  *) echo "ERROR: Unsupported option (${1})" >&2 ;;
   esac
   shift
 done
@@ -25,22 +25,25 @@ done
 # Parse logs
 case "${MY_DETAIL}" in
 
-  'ip')
-    [ -n "${MY_HEADER}" ] && echo 'TIMESTAMP|USERNAME|IPADDR_REMOTE|IPADDR_LOCAL'
-    [ -z "$*" ] && exit 0
-    logparse-acat "$@" | sed -nE 's/^(\S+) .* (\S+)\/([0-9.]+|[0-9a-f:]+):[0-9]+ sent control.*ifconfig ([0-9.]+|[0-9a-f:]+)($|\W.*)/\1|\2|\3|\4/ip'
-    ;;
+'ip')
+  [ -n "${MY_HEADER}" ] && echo 'TIMESTAMP|USERNAME|IPADDR_REMOTE|IPADDR_LOCAL'
+  [ -z "$*" ] && exit 0
+  logparse-acat "$@" |
+    sed -nE 's/^(\S+) .* (\S+)\/([0-9.]+|[0-9a-f:]+):[0-9]+ sent control.*ifconfig ([0-9.]+|[0-9a-f:]+)($|\W.*)/\1|\2|\3|\4/ip'
+  ;;
 
-  'user')
-    [ -n "${MY_HEADER}" ] && echo 'TIMESTAMP|IPADDR|USERNAME'
-    [ -z "$*" ] && exit 0
-    logparse-acat "$@" | sed -nE "s/^(\S+) .* ([0-9.]+|[0-9a-f:]+):[0-9]+ tls.*username '([^']+)'.*/\1|\2|\3/ip"
-    ;;
+'user')
+  [ -n "${MY_HEADER}" ] && echo 'TIMESTAMP|IPADDR|USERNAME'
+  [ -z "$*" ] && exit 0
+  logparse-acat "$@" |
+    sed -nE "s/^(\S+) .* ([0-9.]+|[0-9a-f:]+):[0-9]+ tls.*username '([^']+)'.*/\1|\2|\3/ip"
+  ;;
 
-  'cert')
-    [ -n "${MY_HEADER}" ] && echo 'TIMESTAMP|IPADDR|CERTIFICATE'
-    [ -z "$*" ] && exit 0
-    logparse-acat "$@" | sed -nE 's/^(\S+) .* ([0-9.]+|[0-9a-f:]+):[0-9]+ verify ok: depth=0.*\Wcn=([^\/ ]+).*/\1|\2|\3/ip'
-    ;;
+'cert')
+  [ -n "${MY_HEADER}" ] && echo 'TIMESTAMP|IPADDR|CERTIFICATE'
+  [ -z "$*" ] && exit 0
+  logparse-acat "$@" |
+    sed -nE 's/^(\S+) .* ([0-9.]+|[0-9a-f:]+):[0-9]+ verify ok: depth=0.*\Wcn=([^\/ ]+).*/\1|\2|\3/ip'
+  ;;
 
 esac

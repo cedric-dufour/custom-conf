@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Usage
-[ "${1##*-}" == 'help' ] && cat << EOF && exit 1
+[ "${1##*-}" == 'help' ] && cat <<EOF && exit 1
 USAGE: ${0##*/} [-H|--header] <file> ...
 
 SYNOPSIS:
@@ -11,12 +11,13 @@ EOF
 # Options
 while [ "${1:0:1}" == '-' ]; do
   case "${1}" in
-    '-H'|'--header') echo 'TIMESTAMP|STATUS|USERNAME|IPADDR';;
-    *) echo "ERROR: Unsupported option (${1})" >&2;;
+  '-H' | '--header') echo 'TIMESTAMP|STATUS|USERNAME|IPADDR' ;;
+  *) echo "ERROR: Unsupported option (${1})" >&2 ;;
   esac
   shift
 done
 
 # Parse logs
 [ -z "$*" ] && exit 0
-logparse-acat "$@" | sed -nE 's/^(\S+) .*accepted .* for (\S+) from ([0-9.]+|[0-9a-f:]+)($|\W.*)/\1|OK|\2|\3/ip;s/^(\S+) .*failed password for (\S+) from ([0-9.]+|[0-9a-f:]+)($|\W.*)/\1|invalid_password|\2|\3/ip;s/^(\S+) .*invalid user .* from ([0-9.]+|[0-9a-f:]+)($|\W.*)/\1|invalid_user|-|\2/ip'
+logparse-acat "$@" |
+  sed -nE 's/^(\S+) .*accepted .* for (\S+) from ([0-9.]+|[0-9a-f:]+)($|\W.*)/\1|OK|\2|\3/ip;s/^(\S+) .*failed password for (\S+) from ([0-9.]+|[0-9a-f:]+)($|\W.*)/\1|invalid_password|\2|\3/ip;s/^(\S+) .*invalid user .* from ([0-9.]+|[0-9a-f:]+)($|\W.*)/\1|invalid_user|-|\2/ip'

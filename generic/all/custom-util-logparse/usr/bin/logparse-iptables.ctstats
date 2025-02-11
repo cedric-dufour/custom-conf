@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Usage
-[ "${1##*-}" == 'help' ] && cat << EOF && exit 1
+[ "${1##*-}" == 'help' ] && cat <<EOF && exit 1
 USAGE: ${0##*/} [-H|--header] <file> ...
 
 SYNOPSIS:
@@ -11,12 +11,12 @@ EOF
 # Options
 while [ "${1:0:1}" == '-' ]; do
   case "${1}" in
-    '-H'|'--header')
-      echo 'SRC_IP|DST_IP|DST_PORTS'
-      ;;
-    *)
-      echo "ERROR: Unsupported option (${1})" >&2
-      ;;
+  '-H' | '--header')
+    echo 'SRC_IP|DST_IP|DST_PORTS'
+    ;;
+  *)
+    echo "ERROR: Unsupported option (${1})" >&2
+    ;;
   esac
   shift
 done
@@ -34,7 +34,8 @@ while read -r COUNT SRC_IP DST_IP DST_PORT; do
   fi
   aggregate="${aggregate}${aggregate:+,}${DST_PORT}(${COUNT})"
 done < <(
-  logparse-acat "$@" | \
-    sed -nE 's#^.*\[(IP|NF)TABLES:CONNTRACK\].*SRC=(\S+)\s.*DST=(\S+)\s.*PROTO=(\S+)\s.*DPT=(\S+)\s.*$#\2 \3 \4/\5#p' | sort | uniq -c
+  logparse-acat "$@" |
+    sed -nE 's#^.*\[(IP|NF)TABLES:CONNTRACK\].*SRC=(\S+)\s.*DST=(\S+)\s.*PROTO=(\S+)\s.*DPT=(\S+)\s.*$#\2 \3 \4/\5#p' |
+    sort | uniq -c
 )
 [ -n "${aggregate}" ] && echo "${group}|${aggregate}"
