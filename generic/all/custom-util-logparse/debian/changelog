@@ -1,8 +1,9 @@
-custom-util-logparse (2025.02.11a) UNRELEASED; urgency=low
+custom-util-logparse (2025.02.12a) UNRELEASED; urgency=low
 
-  * Add 'logparse-conntrack.summary' (conntrackd statistics)
+  * Add 'logparse-ctstats.{detail,summary}' (nf/iptables conntrack statistics); replaces 'logparse-iptables.ctstats'
+  * Add 'logparse-conntrack.{detail,summary}' (conntrackd statistics)
 
- -- Cédric Dufour <cedric.dufour@ced-network.net>  Tue, 11 Feb 2025 19:12:42 +0100
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Wed, 12 Feb 2025 19:12:42 +0100
 
 custom-util-logparse (2025.01.25a) UNRELEASED; urgency=low
 

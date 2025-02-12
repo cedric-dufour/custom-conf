@@ -27,7 +27,8 @@ case "${MY_DETAIL}" in
 'ip')
   [ -n "${MY_HEADER}" ] && echo 'USERNAME|IPADDR_REMOTE'
   [ -z "$*" ] && exit 0
-  logparse-openvpn.detail --ip "$@" | cut -d'|' -f2-3 | sort -u
+  logparse-openvpn.detail --ip "$@" |
+    cut -d'|' -f2-3 | sort -u
   ;;
 
 'auth')

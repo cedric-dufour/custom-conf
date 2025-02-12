@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# Usage
+[ "${1##*-}" == 'help' ] && cat <<EOF && exit 1
+USAGE: ${0##*/} [-H|--header] <file> ...
+
+SYNOPSIS:
+  Parse iptables/nftables (kernel) logs and output (established) connection summary to stdout
+EOF
+
+# Options
+while [ "${1:0:1}" == '-' ]; do
+  case "${1}" in
+  '-H' | '--header') echo 'SRC_IP|DST_IP|PROTO|DST_PORT|COUNT' ;;
+  *) echo "ERROR: Unsupported option (${1})" >&2 ;;
+  esac
+  shift
+done
+
+# Parse logs
+[ -z "$*" ] && exit 0
+logparse-ctstats.detail "$@" |
+  awk -F'|' '{K=$2"|"$3"|"$4"|"$5; N[K]+=1}; END {OFS="|"; for (K in N) print K,N[K]}' |
+  sort -t'|' -k5,5 -n -r

@@ -5,13 +5,13 @@
 USAGE: ${0##*/} [-H|--header] <file> ...
 
 SYNOPSIS:
-  Parse ARPalert dameon logs and output leases to stdout
+  Parse iptables/nftables (kernel) logs and output (established) connection details to stdout
 EOF
 
 # Options
 while [ "${1:0:1}" == '-' ]; do
   case "${1}" in
-  '-H' | '--header') echo 'TIMESTAMP|MACADDR|IPADDR|TYPE' ;;
+  '-H' | '--header') echo 'TIMESTAMP|SRC_IP|DST_IP|PROTO|DST_PORT' ;;
   *) echo "ERROR: Unsupported option (${1})" >&2 ;;
   esac
   shift
@@ -20,4 +20,4 @@ done
 # Parse logs
 [ -z "$*" ] && exit 0
 logparse-acat "$@" |
-  sed -nE 's/^(\S+) .*arpalert:.* mac=(\S+), ip=(\S+), type=(\S+), dev=(\S+), vendor="([^"]*)".*$/\1|\2 (\6)|\3|\4 (\5)/;T skip;s/\(\(null\)\)/(n\/a)/;p;:skip'
+  sed -nE 's#^(\S+).*\[(IP|NF)TABLES:CONNTRACK\].*SRC=(\S+)\s.*DST=(\S+)\s.*PROTO=(\S+)\s.*DPT=(\S+)\s.*$#\1|\3|\4|\5|\6#p'
