@@ -7,6 +7,6 @@ Standards-Version: 4.6.2
 
 Package: custom-pack-xps13-9380
 Architecture: all
-Depends: efibootmgr, firmware-atheros, firmware-misc-nonfree, firmware-realtek, fwupd-amd64-signed, grub-efi-amd64-signed, i965-va-driver, intel-microcode, irqbalance, libvdpau-va-gl1, xserver-xorg-input-synaptics
+Depends: efibootmgr, firmware-atheros, firmware-misc-nonfree, firmware-realtek, fwupd-amd64-signed, gstreamer1.0-vaapi, grub-efi-amd64-signed, intel-gpu-tools, intel-media-va-driver-non-free | intel-media-va-driver, intel-microcode, irqbalance, libvdpau-va-gl1, vainfo, xserver-xorg-input-synaptics
 Description: Custom Configuration Framework - Dell XPS 13 (9380) dependencies
 
