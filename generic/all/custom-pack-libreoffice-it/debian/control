@@ -1,0 +1,14 @@
+Source: custom-pack-libreoffice-it
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 4.7.2
+
+Package: custom-pack-libreoffice-it
+Architecture: all
+Conflicts: custom-pack-libreoffice7-it
+Replaces: custom-pack-libreoffice7-it
+Depends: libreoffice25.2-it, libreoffice25.2-dict-it, libobasis25.2-it, libobasis25.2-it-help
+Description: Custom Configuration Framework - LibreOffice 25.2, Italian language pack (original upstream packages)
+

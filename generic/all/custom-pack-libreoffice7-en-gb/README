@@ -1,7 +1,0 @@
-Custom Configuration Framework (custom-conf)
-============================================
-Package: custom-pack-libreoffice7-en-gb
-
-This meta-package installs LibreOffice GB English (en-gb) translation
-dependencies.
-

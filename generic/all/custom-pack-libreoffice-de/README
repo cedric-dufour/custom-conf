@@ -1,6 +1,6 @@
 Custom Configuration Framework (custom-conf)
 ============================================
-Package: custom-pack-libreoffice7-de
+Package: custom-pack-libreoffice-de
 
 This meta-package installs LibreOffice German (de) translation dependencies.
 

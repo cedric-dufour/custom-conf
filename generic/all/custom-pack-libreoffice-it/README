@@ -1,6 +1,6 @@
 Custom Configuration Framework (custom-conf)
 ============================================
-Package: custom-pack-libreoffice7-it
+Package: custom-pack-libreoffice-it
 
 This meta-package installs LibreOffice Italian (it) translation dependencies.
 

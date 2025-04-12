@@ -1,3 +1,9 @@
+custom-pack-libreoffice-en-gb (2025.04.12a) UNRELEASED; urgency=low
+
+  * Hail LibreOffice 25.2!
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Sat, 12 Apr 2025 20:34:48 +0200
+
 custom-pack-libreoffice7-en-gb (2024.02.25a) UNRELEASED; urgency=low
 
   * Hail LibreOffice 7.6!

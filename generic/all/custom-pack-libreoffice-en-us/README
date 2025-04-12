@@ -1,0 +1,6 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-pack-libreoffice-en-us
+
+This meta-package installs LibreOffice US English (en-us) translation dependencies.
+

@@ -1,0 +1,14 @@
+Source: custom-pack-libreoffice-en-us
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 4.7.2
+
+Package: custom-pack-libreoffice-en-us
+Architecture: all
+Conflicts: custom-pack-libreoffice7-en-us
+Replaces: custom-pack-libreoffice7-en-us
+Depends: libreoffice25.2-en-us, libreoffice25.2-dict-en, libobasis25.2-en-us, libobasis25.2-en-us-help
+Description: Custom Configuration Framework - LibreOffice 25.2, Engligh (US) language pack (original upstream packages)
+

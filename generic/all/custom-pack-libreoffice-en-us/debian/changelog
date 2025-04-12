@@ -1,28 +1,34 @@
-custom-pack-libreoffice7-it (2024.02.25a) UNRELEASED; urgency=low
+custom-pack-libreoffice-en-us (2025.04.12a) UNRELEASED; urgency=low
+
+  * Hail LibreOffice 25.2!
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Sat, 12 Apr 2025 20:34:48 +0200
+
+custom-pack-libreoffice7-en-us (2024.02.25a) UNRELEASED; urgency=low
 
   * Hail LibreOffice 7.6!
 
  -- Cédric Dufour <cedric.dufour@ced-network.net>  Sun, 25 Feb 2024 18:22:34 +0100
 
-custom-pack-libreoffice7-it (2023.04.05a) UNRELEASED; urgency=low
+custom-pack-libreoffice7-en-us (2023.04.05a) UNRELEASED; urgency=low
 
   * Hail LibreOffice 7.4!
 
  -- Cédric Dufour <cedric.dufour@ced-network.net>  Wed, 05 Apr 2023 10:15:25 +0200
 
-custom-pack-libreoffice7-it (2022.07.12a) UNRELEASED; urgency=low
+custom-pack-libreoffice7-en-us (2022.07.12a) UNRELEASED; urgency=low
 
   * Hail LibreOffice 7.2!
 
  -- Cédric Dufour <cedric.dufour@ced-network.net>  Tue, 12 Jul 2022 15:46:15 +0200
 
-custom-pack-libreoffice7-it (2021.08.30a) UNRELEASED; urgency=low
+custom-pack-libreoffice7-en-us (2021.08.30a) UNRELEASED; urgency=low
 
   * Hail LibreOffice 7.1!
 
  -- Cédric Dufour <cedric.dufour@ced-network.net>  Mon, 30 Aug 2021 08:30:12 +0200
 
-custom-pack-libreoffice7-it (2021.07.13a) UNRELEASED; urgency=low
+custom-pack-libreoffice7-en-us (2021.07.13a) UNRELEASED; urgency=low
 
   * Hail LibreOffice 7.0!
 

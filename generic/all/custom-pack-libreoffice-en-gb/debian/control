@@ -1,0 +1,14 @@
+Source: custom-pack-libreoffice-en-gb
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 4.6.2
+
+Package: custom-pack-libreoffice-en-gb
+Architecture: all
+Conflicts: custom-pack-libreoffice7-en-gb
+Replaces: custom-pack-libreoffice7-en-gb
+Depends: libreoffice25.2-en-gb, libreoffice25.2-dict-en, libobasis25.2-en-gb, libobasis25.2-en-gb-help
+Description: Custom Configuration Framework - LibreOffice 25.2, Engligh (GB) language pack (original upstream packages)
+

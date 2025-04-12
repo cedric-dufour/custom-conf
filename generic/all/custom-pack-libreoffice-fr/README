@@ -1,6 +1,6 @@
 Custom Configuration Framework (custom-conf)
 ============================================
-Package: custom-pack-libreoffice7-fr
+Package: custom-pack-libreoffice-fr
 
 This meta-package installs LibreOffice French (fr) translation dependencies.
 
