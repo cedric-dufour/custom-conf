@@ -1,7 +1,0 @@
-Custom Configuration Framework (custom-conf)
-============================================
-Package: custom-pack-openoffice4-en-gb
-
-This meta-package installs OpenOffice.org UK English (en-gb) translation
-dependencies.
-

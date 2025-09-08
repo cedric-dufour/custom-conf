@@ -1,7 +1,0 @@
-Custom Configuration Framework (custom-conf)
-============================================
-Package: custom-pack-openoffice4-en-us
-
-This meta-package installs OpenOffice.org US English (en-us) translation
-dependencies.
-
