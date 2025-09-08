@@ -1,6 +1,0 @@
-custom-conf-php73-fpm (2019.05.07a) UNRELEASED; urgency=low
-
-  * Hail PHP 7.3 !
-
- -- Cédric Dufour <cedric.dufour@ced-network.net>  Tue, 07 May 2019 12:24:09 +0200
-
