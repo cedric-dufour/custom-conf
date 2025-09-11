@@ -1,3 +1,9 @@
+custom-conf-xorg-intel (2025.09.11a) UNRELEASED; urgency=low
+
+  * FIX: Let Xorg autodetect adequate driver (FIX VA-API hardware decoding and Vulkan rendering)
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Thu, 11 Sep 2025 20:18:21 +0200
+
 custom-conf-xorg-intel (2017.12.01a) UNRELEASED; urgency=low
 
   * Post Tenebras Lux
