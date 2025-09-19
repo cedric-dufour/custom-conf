@@ -1,3 +1,9 @@
+custom-pack-nvidia (2025.09.19a) UNRELEASED; urgency=low
+
+  * Added 'nvidia-vaapi-driver', 'libnvcuvid1' and 'vulkan-tools' dependencies
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Fri, 19 Sep 2025 19:34:29 +0200
+
 custom-pack-nvidia (2023.04.05a) UNRELEASED; urgency=low
 
   * Debian/Bookworm forward-port
