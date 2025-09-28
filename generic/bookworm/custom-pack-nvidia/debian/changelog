@@ -1,3 +1,10 @@
+custom-pack-nvidia (2025.09.28a) UNRELEASED; urgency=low
+
+  * Added 'vainfo' dependency
+    NB: Make sure to set 'LIBVA_DRIVER_NAME=nvidia' environment variable
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Sun, 28 Sep 2025 10:05:32 +0200
+
 custom-pack-nvidia (2025.09.19a) UNRELEASED; urgency=low
 
   * Added 'nvidia-vaapi-driver', 'libnvcuvid1' and 'vulkan-tools' dependencies
