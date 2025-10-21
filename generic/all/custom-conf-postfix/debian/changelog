@@ -1,3 +1,9 @@
+custom-conf-postfix (2025.10.21a) UNRELEASED; urgency=low
+
+  * Bump Postfix compatibility level (-> 3.6)
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Tue, 21 Oct 2025 18:59:37 +0200
+
 custom-conf-postfix (2019.07.28a) UNRELEASED; urgency=low
 
   * Bump Postfix compatibility level (-> 2)
