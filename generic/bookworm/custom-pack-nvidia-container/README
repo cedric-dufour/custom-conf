@@ -1,0 +1,8 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-pack-nvidia-container
+
+This meta-package installs all dependencies required to have a fully functional
+containerized NVIDIA stack, using NVIDIA Container Toolkit.
+
+REF: https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/index.html

@@ -1,0 +1,8 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-conf-apt-nvidia-container
+
+This package provides standard configuration of NVIDIA Container Toolkit APT repository.
+
+REF: https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/index.html
+

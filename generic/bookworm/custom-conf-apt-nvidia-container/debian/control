@@ -1,0 +1,12 @@
+Source: custom-conf-apt-nvidia-container
+Section: admin
+Priority: optional
+Maintainer: Samuel Gaist <samuel.gaist@idiap.ch>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 4.7.2
+
+Package: custom-conf-apt-nvidia-container
+Architecture: all
+Depends: custom-conf, custom-conf-apt, apt-transport-https, ca-certificates
+Description: Custom Configuration Framework - NVIDIA Container (Tool)Kit APT repository
+
