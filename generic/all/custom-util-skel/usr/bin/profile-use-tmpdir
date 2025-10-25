@@ -181,6 +181,17 @@ IFS=$'\n'
 for resource in \
   '.adobe/Flash_Player/AssetCache:dir' \
   '.cache:dir' \
+  '.config/Code/Cache:dir' \
+  '.config/Code/CachedConfigurations:dir' \
+  '.config/Code/CachedData:dir' \
+  '.config/Code/CachedExtensions:dir' \
+  '.config/Code/CachedExtensionVSIXs:dir' \
+  '.config/Code/CachedProfilesData:dir' \
+  '.config/Code/DawnCache:dir' \
+  '.config/Code/DawnGraphiteCache:dir' \
+  '.config/Code/DawnWebGPUCache:dir' \
+  '.config/Code/GPUCache:dir' \
+  '.config/Code/User/History:dir' \
   '.config/chromium/Crash Reports:dir' \
   '.config/chromium/GrShaderCache:dir' \
   '.config/chromium/ShaderCache:dir' \
@@ -223,7 +234,11 @@ done
 for profile in $(find '.mozilla/firefox/' -maxdepth 2 -type f -name 'prefs.js'); do
   profile="$(dirname "${profile}")"
   for resource in \
+    "${profile}/crashes:dir" \
     "${profile}/datareporting:dir" \
+    "${profile}/favicons.sqlite:files" \
+    "${profile}/favicons.sqlite-shm:delete" \
+    "${profile}/favicons.sqlite-wal:delete" \
     "${profile}/netpredictions.sqlite:delete" \
     "${profile}/startupCache:delete" \
     "${profile}/thumbnails:delete" \
@@ -246,8 +261,13 @@ done
 for profile in $(find '.thunderbird/' -maxdepth 2 -type f -name 'prefs.js'); do
   profile="$(dirname "${profile}")"
   for resource in \
-    "${profile}/saved-telemetry-pings:dir" \
+    "${profile}/crashes:dir" \
+    "${profile}/datareporting:dir" \
+    "${profile}/favicons.sqlite:files" \
+    "${profile}/favicons.sqlite-shm:delete" \
+    "${profile}/favicons.sqlite-wal:delete" \
     "${profile}/ImapMail:dir" \
+    "${profile}/saved-telemetry-pings:dir" \
     "${profile}/urlclassifier3.sqlite:delete" \
     "${profile}/urlclassifier.pset:delete" \
     "${profile}/XPC.mfasl:delete" \
