@@ -21,7 +21,11 @@ export REMOTEHOST=$(who am i | grep '.*(\([^:)]*\).*' | sed 's/.*(\([^:)]*\).*/\
 [ ! "${PS1}" ] && return
 
 # Command prompt
-export PS1="\[\e[35m\]# \[\e[33m\]\D{%Y-%m-%d %H:%M:%S %z}\[\e[35m\]\n\n# \[\e[01;31m\]\u@$(hostname -f)\[\e[00;35m\]:\[\e[36m\]\w\[\e[35m\]\n\[\e[0m\]"
+if [ -n "$(which git)" ]; then
+  export PS1="\[\e[35m\]# \[\e[33m\]\D{%Y-%m-%d %H:%M:%S %z}\[\e[35m\]\n\n# \[\e[01;31m\]\u@$(hostname -f)\[\e[00;35m\]:\[\e[36m\]\w\[\e[35m\]\$(git log --color --pretty='format:%C(auto)%d' HEAD^! 2>/dev/null)\n\[\e[0m\]"
+else
+  export PS1="\[\e[35m\]# \[\e[33m\]\D{%Y-%m-%d %H:%M:%S %z}\[\e[35m\]\n\n# \[\e[01;31m\]\u@$(hostname -f)\[\e[00;35m\]:\[\e[36m\]\w\[\e[35m\]\n\[\e[0m\]"
+fi
 
 # Shell timeout (we're root, after all...)
 export TMOUT=900

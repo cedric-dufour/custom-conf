@@ -1,3 +1,9 @@
+custom-root-env (2025.10.23a) UNRELEASED; urgency=low
+
+  * Add Git-friendly prompt
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Thu, 23 Oct 2025 18:45:58 +0200
+
 custom-root-env (2023.07.20a) UNRELEASED; urgency=low
 
   * Update '_dm' and '_log' aliases + Add '_doc' alias
