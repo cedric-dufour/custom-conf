@@ -1,3 +1,9 @@
+custom-conf-php82-fpm (2025.11.02a) UNRELEASED; urgency=low
+
+  * FIX (rsys)log rotation
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Sun, 02 Nov 2025 09:52:04 +0100
+
 custom-conf-php82-fpm (2023.07.13a) UNRELEASED; urgency=low
 
   * Hail PHP 8.2!

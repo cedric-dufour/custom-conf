@@ -11,6 +11,6 @@
 	create 640 %{CUSTOM_CONF_PHP82_FPM_LOGOWNER} adm
 	sharedscripts
 	postrotate
-		invoke-rc.d rsyslog rotate >/dev/null
+		/usr/lib/rsyslog/rsyslog-rotate
 	endscript
 }
