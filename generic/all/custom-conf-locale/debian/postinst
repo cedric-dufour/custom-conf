@@ -15,6 +15,15 @@ done
 db_get ${PKGNAME}/keyboard-type && CUSTOM_CONF_LOCALE_KEYBOARD_TYPE="${RET}"
 db_stop
 
+# Migration
+if [ -e /etc/gcfg/git/etc/default/locale ]; then
+  rm -f /etc/default/locale  # potentially ../locale.conf as per Debian/Trixie
+  ln /etc/gcfg/git/etc/default/locale /etc/default/locale
+  gcfg move --batch /etc/default/locale /etc/locale.conf
+  rm -f /etc/default/locale  # restored by gcfg move
+  ln -s ../locale.conf /etc/default/locale  # as per Debian/Trixie
+fi
+
 # Install files
 custom-conf-install "${PKGNAME}" "/usr/share/${PKGNAME}/config" || exit 1
 
