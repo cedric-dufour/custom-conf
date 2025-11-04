@@ -1,3 +1,9 @@
+custom-conf-mariadb (2025.09.26a) UNRELEASED; urgency=low
+
+  * Switch to MariaDB-centric configuration
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Fri, 26 Sep 2025 18:32:26 +0200
+
 custom-conf-mariadb (2018.05.14a) UNRELEASED; urgency=low
 
   * Use 'gcfg.sed' instead of 'gsed' in scripts
