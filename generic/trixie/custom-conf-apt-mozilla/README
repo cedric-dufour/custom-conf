@@ -1,0 +1,5 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-conf-apt-mozilla
+
+This package provides standard configuration of Mozilla official repository.

@@ -1,0 +1,15 @@
+#!/bin/bash
+[ "${1}" != 'configure' ] && exit 0
+PKGNAME='custom-pack-nvidia'
+
+# Reminder
+cat <<EOF
+To enable all nVidia features, make sure to:
+- enable 'nvidia-drm.modeset=1' kernel parameter
+- install 'acpid' package/daemon
+- set 'LIBVA_DRIVER_NAME=nvidia' environment variable
+- use 'NVD_LOG=1' environment variable for debugging
+EOF
+
+# Exit
+exit 0

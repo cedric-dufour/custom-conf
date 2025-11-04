@@ -1,0 +1,10 @@
+## CUSTOM-CONF: File automatically created/updated [custom-conf-apt-virtualbox]
+
+# VirtualBox repository
+# KEY: https://www.virtualbox.org/download/oracle_vbox_2016.asc -qO-
+Types: deb
+URIs: https://download.virtualbox.org/virtualbox/debian
+Suites: trixie
+Components: contrib
+Architectures: amd64
+Signed-By: /usr/share/keyrings/virtualbox.gpg

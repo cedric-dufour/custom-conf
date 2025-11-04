@@ -1,0 +1,10 @@
+## CUSTOM-CONF: File automatically created/updated [custom-conf-apt-mozilla]
+
+# Mozilla official repository
+# KEY: gpg --recv-key --keyserver keyserver.ubuntu.com 35BAA0B33E9EB396F59CA838C0BA5CE6DC6315A3C
+Types: deb
+URIs: https://packages.mozilla.org/apt
+Suites: mozilla
+Components: main
+Architecture: amd64
+Signed-By: /usr/share/keyrings/mozilla.gpg

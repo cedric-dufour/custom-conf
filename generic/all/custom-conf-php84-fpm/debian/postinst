@@ -1,0 +1,31 @@
+#!/bin/bash
+[ "${1}" != 'configure' ] && exit 0
+PKGNAME='custom-conf-php84-fpm'
+
+# Install files
+custom-conf-install "${PKGNAME}" "/usr/share/${PKGNAME}/config" || exit 1
+
+# Fine-tune configuration
+source /usr/share/custom-conf/custom-conf.defs
+# ... PHP
+CUSTOM_CONF_ETC_TIMEZONE="$(head -n 1 /etc/timezone)"
+gcfg.sed "s|%{CUSTOM_CONF_SMTP_SERVER}|${CUSTOM_CONF_SMTP_SERVER}|g;s|%{CUSTOM_CONF_ETC_TIMEZONE}|${CUSTOM_CONF_ETC_TIMEZONE}|g" /etc/php/8.4/fpm/php.ini
+# ... logrotate
+CUSTOM_CONF_PHP84_FPM_LOGOWNER='root'
+[ "$(lsb_release -si)" == 'Ubuntu' ] && CUSTOM_CONF_PHP84_FPM_LOGOWNER='syslog'
+gcfg.sed "s|%{CUSTOM_CONF_PHP84_FPM_LOGOWNER}|${CUSTOM_CONF_PHP84_FPM_LOGOWNER}|g" /etc/logrotate.d/php84-fpm-rsyslog
+
+# Additional actions
+invoke-rc.d php8.4-fpm restart
+invoke-rc.d rsyslog restart
+# ... message
+cat << EOF
+INFO[${PKGNAME}]: In order to enable PHP-FPM, please...
+: a2dismod php8.4
+: a2enmod proxy_fcgi
+: a2enconf php8.4-fpm
+: service apache2 restart
+EOF
+
+# Exit
+exit 0

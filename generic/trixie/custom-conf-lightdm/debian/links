@@ -1,0 +1,2 @@
+/etc/X11/Xsession.d/20dbus_xdg-runtime /etc/lightdm/Xsession.d/20dbus_xdg-runtime
+/etc/X11/Xsession.d/55xfce4-session /etc/lightdm/Xsession.d/55xfce4-session

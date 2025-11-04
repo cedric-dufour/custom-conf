@@ -1,0 +1,11 @@
+custom-pack-nvidia-container (2025.10.21a) UNRELEASED; urgency=low
+
+  * Debian/Trixie forward-port
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Tue, 21 Oct 2025 19:41:27 +0200
+
+custom-pack-nvidia-container (2025.10.17a) UNRELEASED; urgency=low
+
+  * Post Tenebras Lux
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Fri, 17 Oct 2025 19:07:24 +0200

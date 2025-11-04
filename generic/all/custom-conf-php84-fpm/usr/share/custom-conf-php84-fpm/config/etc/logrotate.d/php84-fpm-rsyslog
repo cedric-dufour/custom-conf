@@ -1,0 +1,16 @@
+## CUSTOM-CONF: File automatically created/updated [custom-conf-php84-fpm]
+
+# Rotate rsyslog-redirected PHP-FPM logs
+/var/log/php8.4-fpm.rsyslog {
+	weekly
+	missingok
+	rotate 10
+	compress
+	delaycompress
+	notifempty
+	create 640 %{CUSTOM_CONF_PHP84_FPM_LOGOWNER} adm
+	sharedscripts
+	postrotate
+		/usr/lib/rsyslog/rsyslog-rotate
+	endscript
+}

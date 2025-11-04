@@ -1,0 +1,9 @@
+## CUSTOM-CONF: File automatically created/updated [custom-conf-apt-nvidia-cuda]
+
+# Official NVIDIA CUDA repository
+# REF: https://developer.download.nvidia.com/compute/cuda/repos/debian12/x86_64/cuda-keyring_1.1-1_all.deb
+Types: deb
+URIs: https://developer.download.nvidia.com/compute/cuda/repos/debian12/x86_64
+Suites: /
+Architecture: amd64
+Signed-By: /usr/share/keyrings/nvidia-cuda.gpg

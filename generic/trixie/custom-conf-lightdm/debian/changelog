@@ -1,0 +1,69 @@
+custom-conf-lightdm (2025.05.12a) UNRELEASED; urgency=low
+
+  * Debian/Trixie forward-port
+  - UPG: policykit-1 -> polkitd
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Mon, 12 May 2025 20:49:12 +0200
+
+custom-conf-lightdm (2023.07.02a) UNRELEASED; urgency=low
+
+  * Debian/Bookworm specific updates
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Sun, 02 Jul 2023 17:27:48 +0200
+
+custom-conf-lightdm (2021.11.15a) UNRELEASED; urgency=low
+
+  * Align indicators similarly to XFCE panel
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Mon, 15 Nov 2021 21:06:22 +0100
+
+custom-conf-lightdm (2019.04.05a) UNRELEASED; urgency=low
+
+  * Accomodate both 'dbus-x11' and 'dbus-user-session' DBUS session models
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Fri, 05 Apr 2019 09:24:47 +0200
+
+custom-conf-lightdm (2018.08.20a) UNRELEASED; urgency=low
+
+  * Fix missing indicators
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Mon, 20 Aug 2018 18:14:15 +0200
+
+custom-conf-lightdm (2018.08.16a) UNRELEASED; urgency=low
+
+  * Kill the Xsession monitoring "daemon" safely on Xsession cleanup
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Thu, 16 Aug 2018 11:13:08 +0200
+
+custom-conf-lightdm (2018.08.10a) UNRELEASED; urgency=low
+
+  * Add hooks (run-parts) for LightDM display/session setup/cleanup
+  * Add X session monitoring "daemon" and hooks (run-parts) <-> lock/unlock
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Fri, 10 Aug 2018 14:01:28 +0200
+
+custom-conf-lightdm (2017.08.11c) UNRELEASED; urgency=low
+
+  * Fix indicators (Debian/Stretch)
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Fri, 11 Aug 2017 20:25:59 +0200
+
+custom-conf-lightdm (2017.08.11b) UNRELEASED; urgency=low
+
+  * REVERT: Load system wide X profile before LightDM specific X session snippets
+            (session setup DOES come before profile setup)
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Fri, 11 Aug 2017 17:37:33 +0200
+
+custom-conf-lightdm (2017.08.11a) UNRELEASED; urgency=low
+
+  * Load system wide X profile before LightDM specific X session snippets
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Fri, 11 Aug 2017 17:05:31 +0200
+
+custom-conf-lightdm (2017.08.10a) UNRELEASED; urgency=low
+
+  * Post Tenebras Lux
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Thu, 10 Aug 2017 15:37:45 +0200
+

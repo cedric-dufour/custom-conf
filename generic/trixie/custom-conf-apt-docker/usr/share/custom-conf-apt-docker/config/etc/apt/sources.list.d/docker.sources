@@ -1,0 +1,10 @@
+## CUSTOM-CONF: File automatically created/updated [custom-conf-apt-docker]
+
+# Docker repository
+# KEY: wget https://download.docker.com/linux/debian/gpg -qO-
+Types: deb
+URIs: https://download.docker.com/linux/debian/
+Suites: trixie
+Components: stable
+Architectures: amd64
+Signed-By: /usr/share/keyrings/docker.gpg

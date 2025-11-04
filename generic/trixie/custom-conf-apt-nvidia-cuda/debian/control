@@ -1,0 +1,11 @@
+Source: custom-conf-apt-nvidia-cuda
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 4.7.2
+
+Package: custom-conf-apt-nvidia-cuda
+Architecture: all
+Depends: custom-conf, custom-conf-apt
+Description: Custom Configuration Framework - Official NVIDIA CUDA APT repository

@@ -1,0 +1,11 @@
+custom-conf-php84-fpm (2025.11.02a) UNRELEASED; urgency=low
+
+  * FIX (rsys)log rotation
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Sun, 02 Nov 2025 09:52:04 +0100
+
+custom-conf-php84-fpm (2025.09.08a) UNRELEASED; urgency=low
+
+  * Hail PHP 8.4!
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Mon,  8 Sep 2025 21:17:11 +0200

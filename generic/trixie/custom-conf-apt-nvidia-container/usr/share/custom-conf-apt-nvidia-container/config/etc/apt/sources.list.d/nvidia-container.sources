@@ -1,0 +1,10 @@
+## CUSTOM-CONF: File automatically created/updated [custom-conf-apt-nvidia-container]
+
+# NVIDIA Container Toolkit repository
+# REF: https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html
+# KEY: wget https://nvidia.github.io/libnvidia-container/gpgkey -O-
+Types: deb
+URIs: https://nvidia.github.io/libnvidia-container/stable/deb/amd64
+Suites: /
+Architecture: amd64
+Signed-By: /usr/share/keyrings/nvidia-container.gpg

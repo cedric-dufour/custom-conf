@@ -1,0 +1,6 @@
+Custom Configuration Framework (custom-conf)
+============================================
+Package: custom-conf-apt-nvidia-cuda
+
+This package provides standard configuration of the official NVIDIA CUDA repository.
+REF: https://docs.nvidia.com/cuda/cuda-installation-guide-linux

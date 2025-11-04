@@ -1,0 +1,10 @@
+## CUSTOM-CONF: File automatically created/updated [custom-conf-apt-vscode]
+
+# Microsoft Visual Studio Code (VS Code) repository
+# KEY: wget -qO- https://packages.microsoft.com/keys/microsoft.asc
+Types: deb
+URIs: https://packages.microsoft.com/repos/code
+Suites: stable
+Components: main
+Architectures: amd64
+Signed-By: /usr/share/keyrings/vscode.gpg

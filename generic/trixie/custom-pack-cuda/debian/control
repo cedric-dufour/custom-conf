@@ -1,0 +1,13 @@
+Source: custom-pack-cuda
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 4.7.2
+
+Package: custom-pack-cuda
+Architecture: all
+Depends: gcfg, nvidia-cuda-toolkit, nvidia-opencl-icd, clinfo, gcc-12, g++-12, clang-17
+Recommends: custom-pack-nvidia
+Description: Custom Configuration Framework - nVidia CUDA stack
+

@@ -1,0 +1,14 @@
+#!/bin/bash
+[ "${1}" != 'configure' ] && exit 0
+PKGNAME='custom-conf-apt-mozilla'
+
+# Install files
+custom-conf-install "${PKGNAME}" "/usr/share/${PKGNAME}/config" || exit 1
+
+# (clean-up deb822-replaced files)
+while read -ru3 file; do
+  gcfg remove --batch "${file}"
+done 3< <(gcfg list "${PKGNAME}" | grep '/etc/apt/sources.list.d/.*\.list$')
+
+# Exit
+exit 0

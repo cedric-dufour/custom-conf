@@ -1,0 +1,15 @@
+# BUG: kernel: PM: hibernation: Wakeup event detected during hibernation, rolling back
+# REF: https://bugzilla.kernel.org/show_bug.cgi?id=218634#c42
+[Unit]
+Description=Intel HID module unloading to prevent it interrupting hibernation
+Before=sleep.target
+StopWhenUnneeded=yes
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=-/usr/sbin/rmmod intel_hid
+ExecStop=-/usr/sbin/modprobe intel_hid
+
+[Install]
+WantedBy=sleep.target

@@ -1,0 +1,12 @@
+Source: custom-pack-lib32
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 4.7.2
+
+Package: custom-pack-lib32
+Architecture: all
+Depends: lib32gcc-s1, lib32ncurses6, lib32readline8, lib32stdc++6, lib32z1, libc6-i386
+Description: Custom Configuration Framework - low-level 32-bit support libraries
+

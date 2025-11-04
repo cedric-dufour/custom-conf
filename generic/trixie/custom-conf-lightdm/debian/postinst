@@ -1,0 +1,47 @@
+#!/bin/bash
+[ "${1}" != 'configure' ] && exit 0
+PKGNAME='custom-conf-lightdm'
+
+# Debconf
+. /usr/share/debconf/confmodule
+# ... preseed
+for var_priority in display-scale:high indicators:high; do
+  var="${var_priority%:*}"
+  priority="${var_priority#*:}"
+  db_input ${priority} ${PKGNAME}/${var}
+  db_go
+done
+# ... get
+db_get ${PKGNAME}/display-scale && CUSTOM_DEBCONF_LIGHTDM_DISPLAY_SCALE="${RET}"
+db_get ${PKGNAME}/indicators && CUSTOM_DEBCONF_LIGHTDM_INDICATORS="${RET}"
+db_stop
+
+# Clean up old/invalid configuration
+test -L /etc/lightdm/Xsession.d/95dbus_update-activation-env \
+&& test ! -e /etc/lightdm/Xsession.d/95dbus_update-activation-env \
+&& rm -f /etc/lightdm/Xsession.d/95dbus_update-activation-env
+
+# Install files
+custom-conf-install "${PKGNAME}" "/usr/share/${PKGNAME}/config" || exit 1
+
+# Fine-tune configuration
+# ... indicators
+CUSTOM_CONF_LIGHTDM_INDICATORS=
+for indicator in power session language; do
+  [ "${CUSTOM_DEBCONF_LIGHTDM_INDICATORS/${indicator}/}" == "${CUSTOM_DEBCONF_LIGHTDM_INDICATORS}" ] && continue
+  CUSTOM_CONF_LIGHTDM_INDICATORS="${CUSTOM_CONF_LIGHTDM_INDICATORS:+${CUSTOM_CONF_LIGHTDM_INDICATORS};}~${indicator}"
+done
+# ... DPMS
+CUSTOM_CONF_LIGHTDM_DPMS='xset dpms 60 180 300'
+# ... do it
+gcfg.sed "s/%{CUSTOM_CONF_LIGHTDM_DPMS}/${CUSTOM_CONF_LIGHTDM_DPMS}/g" /etc/lightdm/display-setup.d/50custom-conf-lightdm
+gcfg.sed "s/%{CUSTOM_CONF_LIGHTDM_INDICATORS}/${CUSTOM_CONF_LIGHTDM_INDICATORS}/g" /etc/lightdm/lightdm-gtk-greeter.conf
+gcfg.sed "s/%{CUSTOM_CONF_LIGHTDM_DISPLAY_SCALE}/${CUSTOM_DEBCONF_LIGHTDM_DISPLAY_SCALE}/g" /etc/lightdm/Xsession-greeter
+
+# Warning
+echo "WARNING[${PKGNAME}]: You MUST restart lightdm to enforce changes"
+echo ": service lightdm restart"
+
+# Exit
+exit 0
+

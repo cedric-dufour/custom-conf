@@ -1,0 +1,15 @@
+Source: custom-pack-nvidia-container
+Section: admin
+Priority: optional
+Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
+Homepage: https://github.com/cedric-dufour/custom-conf
+Standards-Version: 4.7.2
+
+Package: custom-pack-nvidia-container
+Architecture: all
+Pre-Depends: custom-conf-apt-nvidia-container
+Depends: linux-headers-amd64, nvidia-driver, nvidia-container-toolkit, libnvidia-container-tools, libnvidia-container1
+Recommends: custom-pack-cuda
+Suggests: nvidia-settings, nvidia-smi
+Description: Custom Configuration Framework - NVIDIA Container Toolkit
+

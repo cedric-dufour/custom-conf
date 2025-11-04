@@ -1,0 +1,20 @@
+##!/bin/sh (sourced)
+## CUSTOM-CONF: File automatically created/updated [custom-conf-lightdm]
+
+## Activate the full environment in DBus
+#  (was in /etc/X11/Xsession.d up to Debian/Bullseye)
+if [ -n "$DBUS_SESSION_BUS_ADDRESS" ] && \
+    [ -x "/usr/bin/dbus-update-activation-environment" ]; then
+  # subshell so we can unset environment variables
+  (
+    # unset login-session-specifics
+    unset XDG_SEAT
+    unset XDG_SESSION_ID
+    unset XDG_VTNR
+
+    # tell dbus-daemon --session (and systemd --user, if running)
+    # to put the Xsession's environment in activated services'
+    # environments
+    dbus-update-activation-environment --verbose --systemd --all
+  )
+fi

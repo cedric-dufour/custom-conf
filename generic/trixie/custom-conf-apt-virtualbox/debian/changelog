@@ -1,0 +1,11 @@
+custom-conf-apt-virtualbox (2025.10.25a) UNRELEASED; urgency=low
+
+  * Debian/Trixie forward-port (using deb822 format)
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Sat, 25 Oct 2025 11:30:24 +0200
+
+custom-conf-apt-virtualbox (2023.04.10a) UNRELEASED; urgency=low
+
+  * Post Tenebras Lux
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Mon, 10 Apr 2023 18:36:01 +0200

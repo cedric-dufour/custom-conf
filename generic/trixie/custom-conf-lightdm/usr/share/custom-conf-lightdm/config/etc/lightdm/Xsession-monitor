@@ -1,0 +1,29 @@
+#!/bin/bash
+## CUSTOM-CONF: File automatically created/updated [custom-conf-lightdm]
+set -a
+
+## LightDM X session monitoring script
+
+# DBus environment
+if [ -z "${XDG_SEAT}" ]; then
+  echo 'WARNING: Undefined display manager seat; attempting to recover it from DBus session file' >&2
+  [ ! -r /var/lib/dbus/machine-id ] && echo 'ERROR: Unreadable DBus machine ID file' >&2 && exit 1
+  DBUS_MACHINE_ID="$(cat /var/lib/dbus/machine-id)"
+  DBUS_SESSION_FILE="${HOME}/.dbus/session-bus/${DBUS_MACHINE_ID}-$(echo ${DISPLAY} | sed -n 's|^:\([0-9]*\).*$|\1|p')"
+  [ ! -r "${DBUS_SESSION_FILE}" ] && echo "ERROR: Unreadable DBus session file (${DBUS_SESSION_FILE})" >&2 && exit 1
+  eval $(grep '^DBUS_SESSION_BUS_PID=' "${DBUS_SESSION_FILE}")
+  [ -z "${DBUS_SESSION_BUS_PID}" ] && echo "ERROR: Failed to retrieve DBus session PID from session file (${DBUS_SESSION_FILE})" >&2 && exit 1
+  eval $(grep -z '^XDG_SEAT=' "/proc/${DBUS_SESSION_BUS_PID}/environ" | tr '\0' '\n')
+fi
+[ -z "${XDG_SEAT}" ] && echo 'ERROR: Undefined display manager seat' >&2 && exit 1
+DBUS_LOGIN_SESSION_PATH="$(dbus-send --print-reply --type=method_call --system --dest=org.freedesktop.login1 /org/freedesktop/login1/seat/${XDG_SEAT} org.freedesktop.DBus.Properties.Get string:'org.freedesktop.login1.Seat' string:'ActiveSession' | sed -n 's|^.*object path "\([^"]*\)".*$|\1|p')"
+[ -z "${DBUS_LOGIN_SESSION_PATH}" ] && echo "ERROR: Failed to retrieve the login active session path from DBus login seat (/org/freedesktop/login1/seat/${XDG_SEAT})" >&2 && exit 1
+
+# DBus session monitor
+trap 'pkill -P $$ -x dbus-monitor' EXIT
+dbus-monitor --profile --system "type='signal',interface='org.freedesktop.login1.Session',path='${DBUS_LOGIN_SESSION_PATH}'" 2>/dev/null \
+| while read DBUS_TYPE DBUS_TIMESTAMP DBUS_SERIAL DBUS_SENDER DBUS_DESTINATION DBUS_PATH DBUS_INTERFACE DBUS_MEMBER; do
+  [ "${DBUS_INTERFACE}" != 'org.freedesktop.login1.Session' ] && continue
+  run-parts --verbose /etc/lightdm/Xsession-monitor.d
+done
+

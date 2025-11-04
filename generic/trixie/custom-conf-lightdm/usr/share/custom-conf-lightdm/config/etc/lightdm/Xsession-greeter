@@ -1,0 +1,11 @@
+#!/bin/sh
+## CUSTOM-CONF: File automatically created/updated [custom-conf-lightdm]
+
+## LightDM Greeter X session wrapper
+
+# Set GDK scaling factor
+# REF: https://docs.gtk.org/gtk4/x11.html#gdk_scale
+export GDK_SCALE='%{CUSTOM_CONF_LIGHTDM_DISPLAY_SCALE}'
+
+# Done
+exec $@
