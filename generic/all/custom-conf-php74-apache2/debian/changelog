@@ -1,5 +1,0 @@
-custom-conf-php74-apache2 (2021.05.04a) UNRELEASED; urgency=low
-
-  * Hail PHP 7.4!
-
- -- Cédric Dufour <cedric.dufour@ced-network.net>  Tue, 04 May 2021 12:38:33 +0200
