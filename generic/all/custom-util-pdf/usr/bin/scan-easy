@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Usage
-[ "${1##*-}" == 'help' ] && cat << EOF && exit 1
+[ "${1##*-}" == 'help' ] && cat <<EOF && exit 1
 USAGE:
   ${0##*/} [options] { <output.{tif|pdf|ps}> | <printer> | <email> }
 
@@ -30,60 +30,104 @@ OPTIONS:
 EOF
 
 # Arguments
-MY_OUTPUT=
-MY_NAME=
-MY_COLOR='Color'
-MY_RESOLUTION='300'
-MY_WIDTH='210'
-MY_HEIGHT='297'
-MY_MEDIA='a4'
-MY_BLACK='1.0'
-MY_WHITE='90.0'
-MY_THRESHOLD='50.0'
-MY_QUALITY='50'
-MY_DESTINATION='file'
-MY_COPIES='1'
-MY_PREVIEW=
-MY_OPTIONS_SCAN=
-MY_OPTIONS_IMAGE=
-MY_OPTIONS_PRINT='-o sides=two-sided-long-edge'
-MY_INPUT=
-MY_SOURCE='scanner'
-EXT_OPTIONS=
+ARG_OUTPUT=
+ARG_NAME=
+ARG_COLOR='Color'
+ARG_RESOLUTION='300'
+ARG_WIDTH='210'
+ARG_HEIGHT='297'
+ARG_MEDIA='a4'
+ARG_BLACK='1.0'
+ARG_WHITE='90.0'
+ARG_THRESHOLD='50.0'
+ARG_QUALITY='50'
+ARG_DESTINATION='file'
+ARG_COPIES='1'
+ARG_PREVIEW=
+ARG_OPTIONS_SCAN=()
+ARG_OPTIONS_IMAGE=()
+ARG_OPTIONS_PRINT=('-o' 'sides=two-sided-long-edge')
+ARG_INPUT="${SCANNER}"
+ARG_SOURCE='scanner'
 while [ -n "${1}" ]; do
   case "${1}" in
-    -D|--name) shift; MY_NAME="${1}" ;;
-    -C|--color) shift; MY_COLOR=${1} ;;
-    -R|--resolution) shift; MY_RESOLUTION=$(( 0 + ${1} )) ;;
-    -X|--width) shift; MY_WIDTH=$(( 0 + ${1} )) ;;
-    -Y|--height) shift; MY_HEIGHT=$(( 0 + ${1} )) ;;
-    -M|--media) shift; MY_MEDIA=${1} ;;
-    -Ib|--black) shift; MY_BLACK=${1} ;;
-    -Iw|--white) shift; MY_WHITE=${1} ;;
-    -It|--threshold) shift; MY_THRESHOLD=${1} ;;
-    -Iq|--quality) shift; MY_QUALITY=$(( 0 + ${1} )) ;;
-    -P|--print) MY_DESTINATION='print' ;;
-    -Pn|--copies) shift; MY_COPIES=$(( 0 + ${1} )) ;;
-    -E|--email) MY_DESTINATION='email' ;;
-    -W|--preview) MY_PREVIEW='yes' ;;
-    -So|--options-scan) shift; MY_OPTIONS_SCAN="${1}" ;;
-    -Io|--options-image) shift; MY_OPTIONS_IMAGE="${1}" ;;
-    -Po|--options-print) shift; MY_OPTIONS_PRINT="${1}" ;;
-    -F|--from) shift; MY_INPUT="${1}" ;;
-    -*) echo "ERROR: Invalid option (${1})" >&2 && exit 1 ;;
-    *)
-      [ -n "${MY_OUTPUT}" ] && echo 'ERROR: Too many arguments' >&2 && exit 1
-      MY_OUTPUT="${1}"
-      ;;
+  '-D' | '--name')
+    shift
+    ARG_NAME="${1}"
+    ;;
+  '-C' | '--color')
+    shift
+    ARG_COLOR=${1}
+    ;;
+  '-R' | '--resolution')
+    shift
+    ARG_RESOLUTION=$((0 + ${1}))
+    ;;
+  '-X' | '--width')
+    shift
+    ARG_WIDTH=$((0 + ${1}))
+    ;;
+  '-Y' | '--height')
+    shift
+    ARG_HEIGHT=$((0 + ${1}))
+    ;;
+  '-M' | '--media')
+    shift
+    ARG_MEDIA=${1}
+    ;;
+  '-Ib' | '--black')
+    shift
+    ARG_BLACK=${1}
+    ;;
+  '-Iw' | '--white')
+    shift
+    ARG_WHITE=${1}
+    ;;
+  '-It' | '--threshold')
+    shift
+    ARG_THRESHOLD=${1}
+    ;;
+  '-Iq' | '--quality')
+    shift
+    ARG_QUALITY=$((0 + ${1}))
+    ;;
+  '-P' | '--print') ARG_DESTINATION='print' ;;
+  '-Pn' | '--copies')
+    shift
+    ARG_COPIES=$((0 + ${1}))
+    ;;
+  '-E' | '--email') ARG_DESTINATION='email' ;;
+  '-W' | '--preview') ARG_PREVIEW='yes' ;;
+  '-So' | '--options-scan')
+    shift
+    ARG_OPTIONS_SCAN+=("${1}")
+    ;;
+  '-Io' | '--options-image')
+    shift
+    ARG_OPTIONS_IMAGE+=("${1}")
+    ;;
+  '-Po' | '--options-print')
+    shift
+    ARG_OPTIONS_PRINT+=("${1}")
+    ;;
+  '-F' | '--from')
+    shift
+    ARG_INPUT="${1}"
+    ;;
+  -*) echo "ERROR: Invalid option (${1})" >&2 && exit 1 ;;
+  *)
+    [ -n "${ARG_OUTPUT}" ] && echo 'ERROR: Too many arguments' >&2 && exit 1
+    ARG_OUTPUT="${1}"
+    ;;
   esac
   shift
 done
 # ... check
-[ ${MY_RESOLUTION} -lt 25 ] && echo "ERROR: Invalid resolution (${MY_RESOLUTION})" >&2 && exit 1
-[ ${MY_WIDTH} -lt 10 ] && echo "ERROR: Invalid width (${MY_WIDTH})" >&2 && exit 1
-[ ${MY_HEIGHT} -lt 10 ] && echo "ERROR: Invalid height (${MY_HEIGHT})" >&2 && exit 1
-[ ${MY_QUALITY} -lt 1 ] && echo "ERROR: Invalid quality (${MY_QUALITY})" >&2 && exit 1
-[ ${MY_COPIES} -lt 1 ] && echo "ERROR: Invalid copies quantity (${MY_COPIES})" >&2 && exit 1
+[ ${ARG_RESOLUTION} -lt 25 ] && echo "ERROR: Invalid resolution (${ARG_RESOLUTION})" >&2 && exit 1
+[ ${ARG_WIDTH} -lt 10 ] && echo "ERROR: Invalid width (${ARG_WIDTH})" >&2 && exit 1
+[ ${ARG_HEIGHT} -lt 10 ] && echo "ERROR: Invalid height (${ARG_HEIGHT})" >&2 && exit 1
+[ ${ARG_QUALITY} -lt 1 ] && echo "ERROR: Invalid quality (${ARG_QUALITY})" >&2 && exit 1
+[ ${ARG_COPIES} -lt 1 ] && echo "ERROR: Invalid copies quantity (${ARG_COPIES})" >&2 && exit 1
 
 # Check dependencies
 [ -z "$(which scanimage)" ] && echo "ERROR: 'scanimage' was not found" >&2 && exit 1
@@ -92,228 +136,291 @@ done
 
 # Parameters
 # ... images
-MY_COMPRESSION=
-MY_CONVERT=
-case "${MY_COLOR}" in
-  'color'|'Color') MY_COMPRESSION="jpeg:${MY_QUALITY}" ;;
-  'gray'|'Gray') MY_CONVERT='-colorspace gray'; MY_COMPRESSION="jpeg:${MY_QUALITY}" ;;
-  'bw'|'BW') MY_CONVERT="-threshold ${MY_THRESHOLD}% -monochrome"; MY_COMPRESSION='g4' ;;
-  *) echo "ERROR: Invalid color (${MY_COLOR})" >&2 && exit 1
+OPTIONS_TIFFCP=()
+OPTIONS_CONVERT=()
+case "${ARG_COLOR,,}" in
+'color') OPTIONS_TIFFCP=("jpeg:${ARG_QUALITY}") ;;
+'gray')
+  OPTIONS_CONVERT=('-colorspace' 'gray')
+  OPTIONS_TIFFCP=("jpeg:${ARG_QUALITY}")
+  ;;
+'bw')
+  OPTIONS_CONVERT=('-threshold' "${ARG_THRESHOLD}%" '-monochrome')
+  OPTIONS_TIFFCP=('g4')
+  ;;
+*) echo "ERROR: Invalid color (${ARG_COLOR})" >&2 && exit 1 ;;
 esac
 # ... destination
-MY_OUTPUT_TIF=
-MY_OUTPUT_PDF=
-MY_OUTPUT_PS=
-case "${MY_DESTINATION}" in
+OUTPUT_TIF=
+OUTPUT_PDF=
+OUTPUT_PS=
+case "${ARG_DESTINATION}" in
 
-  'file')
-    if [ -z "${MY_OUTPUT}" ]; then
-      [ -z "${MY_NAME}" ] && MY_NAME="$(date +'%Y%m%d%H%M%S')-$(whoami).scan"
-      MY_OUTPUT="${MY_NAME}.pdf"
-    elif [ -z "${MY_NAME}" ]; then
-      MY_NAME="${MY_OUTPUT##*/}"; MY_NAME="${MY_NAME%.*}"
-    fi
-    MY_FORMAT="${MY_OUTPUT##*.}"; MY_FORMAT="${MY_FORMAT,,}"
-    case "${MY_FORMAT}" in
+'file')
+  if [ -z "${ARG_OUTPUT}" ]; then
+    [ -z "${ARG_NAME}" ] && ARG_NAME="$(date +'%Y%m%d%H%M%S')-$(whoami).scan"
+    ARG_OUTPUT="${ARG_NAME}.pdf"
+  elif [ -z "${ARG_NAME}" ]; then
+    ARG_NAME="${ARG_OUTPUT##*/}"
+    ARG_NAME="${ARG_NAME%.*}"
+  fi
+  OUTPUT_FORMAT="${ARG_OUTPUT##*.}"
+  OUTPUT_FORMAT="${OUTPUT_FORMAT,,}"
+  case "${OUTPUT_FORMAT}" in
 
-      'tif')
-        MY_OUTPUT_TIF="${MY_OUTPUT}"
-        ;;
-
-      'pdf')
-        # NOTE: 'tiff2pdf' is plain buggy, so we MUST use 'convert' twice; let's not loose quality on Tiff file
-        MY_COMPRESSION='zip:p9'
-        MY_OUTPUT_PDF="${MY_OUTPUT}"
-        ;;
-
-      'ps')
-        # NOTE: 'tiff2ps -3' will allow 'zip:p9' to passthrough without transcoding
-        MY_COMPRESSION='zip:p9'
-        MY_OUTPUT_PS="${MY_OUTPUT}"
-        ;;
-
-      *) echo "ERROR: Invalid file format (${MY_FORMAT})" >&2 && exit 1
-
-    esac
-    [ -n "${MY_PREVIEW}" ] && MY_PREVIEW="${MY_OUTPUT}"
+  'tif')
+    OUTPUT_TIF="${ARG_OUTPUT}"
     ;;
 
-  'print')
-    [ -z "${MY_OUTPUT}" ] && MY_OUTPUT="${PRINTER}"
-    [ -z "${MY_OUTPUT}" ] && echo 'ERROR: Missing printer name argument' >&2 && exit 1
-    # NOTE: We'll pipe 'tiff2ps -3' directly to 'lp'
-    MY_COMPRESSION='zip:p9'
-    MY_FORMAT=
-    [ -n "${MY_PREVIEW}" ] && MY_PREVIEW="tif"
+  'pdf')
+    # NOTE: 'tiff2pdf' is plain buggy, so we MUST use 'convert' twice; let's not loose quality on Tiff file
+    OPTIONS_TIFFCP=('zip:p9')
+    OUTPUT_PDF="${ARG_OUTPUT}"
     ;;
 
-  'email')
-    [ -z "${MY_OUTPUT}" ] && MY_OUTPUT="$(whoami)"
-    # NOTE: Let's assume PDF is the most sensible format
-    MY_FORMAT='pdf'
-    [ -n "${MY_PREVIEW}" ] && MY_PREVIEW="pdf"
+  'ps')
+    # NOTE: 'tiff2ps -3' will allow 'zip:p9' to passthrough without transcoding
+    OPTIONS_TIFFCP=('zip:p9')
+    OUTPUT_PS="${ARG_OUTPUT}"
     ;;
+
+  *) echo "ERROR: Invalid file format (${OUTPUT_FORMAT})" >&2 && exit 1 ;;
+
+  esac
+  [ -n "${ARG_PREVIEW}" ] && ARG_PREVIEW="${ARG_OUTPUT}"
+  ;;
+
+'print')
+  [ -z "${ARG_OUTPUT}" ] && ARG_OUTPUT="${PRINTER}"
+  [ -z "${ARG_OUTPUT}" ] && echo 'ERROR: Missing printer name argument' >&2 && exit 1
+  # NOTE: We'll pipe 'tiff2ps -3' directly to 'lp'
+  OPTIONS_TIFFCP=('zip:p9')
+  OUTPUT_FORMAT=
+  [ -n "${ARG_PREVIEW}" ] && ARG_PREVIEW="tif"
+  ;;
+
+'email')
+  [ -z "${ARG_OUTPUT}" ] && ARG_OUTPUT="$(whoami)"
+  # NOTE: Let's assume PDF is the most sensible format
+  OUTPUT_FORMAT='pdf'
+  [ -n "${ARG_PREVIEW}" ] && ARG_PREVIEW="pdf"
+  ;;
 
 esac
 # ... files
-[ -z "${MY_NAME}" ] && MY_NAME="$(date +'%Y%m%d%H%M%S')-$(whoami).scan"
-MY_DIRTMP="${TMP:-/tmp}/${MY_NAME}.d"
-mkdir "${MY_DIRTMP}" || exit 1
-trap "rm -rf '${MY_DIRTMP}'" EXIT
-chmod 700 "${MY_DIRTMP}" || exit 1
-MY_FILETMP="${MY_DIRTMP}/output"
-[ -z "${MY_OUTPUT_TIF}" ] && MY_OUTPUT_TIF="${MY_FILETMP}.tif"
-[ -z "${MY_OUTPUT_PDF}" ] && MY_OUTPUT_PDF="${MY_FILETMP}.pdf"
-[ "${MY_PREVIEW}" == 'tif' ] && MY_PREVIEW="${MY_OUTPUT_TIF}"
-[ "${MY_PREVIEW}" == 'pdf' ] && MY_PREVIEW="${MY_OUTPUT_PDF}"
+TMP_NAME="$(date +'%Y%m%d%H%M%S')-$(whoami).scan"
+[ -z "${ARG_NAME}" ] && ARG_NAME="${TMP_NAME}"
+TMP_DIR="${TMP:-/tmp}/${TMP_NAME}.d"
+mkdir "${TMP_DIR}" || exit 1
+# shellcheck disable=SC2064
+trap "rm -rf '${TMP_DIR}'" EXIT
+chmod 700 "${TMP_DIR}" || exit 1
+TMP_FILE="${TMP_DIR}/output"
+[ -z "${OUTPUT_TIF}" ] && OUTPUT_TIF="${TMP_FILE}.tif"
+[ -z "${OUTPUT_PDF}" ] && OUTPUT_PDF="${TMP_FILE}.pdf"
+[ "${ARG_PREVIEW}" == 'tif' ] && ARG_PREVIEW="${OUTPUT_TIF}"
+[ "${ARG_PREVIEW}" == 'pdf' ] && ARG_PREVIEW="${OUTPUT_PDF}"
 # ... source
-if [ -d "${MY_INPUT}" ]; then
-  MY_SOURCE='dir'
-elif [ -f "${MY_INPUT}" ]; then
-  MY_SOURCE='file'
+if [ -d "${ARG_INPUT}" ]; then
+  ARG_SOURCE='dir'
+elif [ -f "${ARG_INPUT}" ]; then
+  ARG_SOURCE='file'
 fi
-
 
 # Scan/import page(s)
 p=0
-if [ "${MY_SOURCE}" == 'scanner' ]; then
+if [ "${ARG_SOURCE}" == 'scanner' ]; then
 
   while true; do
-    let p1=p+1
-    P="000${p}"; P=${P:${#P}-3}
+    p1=$((p + 1))
+    P="000${p}"
+    P=${P:${#P}-3}
     while true; do
-      echo -n "[S]can page N°${p1}, [D]one with scanning (or <CTRL-C> to abort) [S/d] ? " && read answer
+      echo -n "[S]can page N°${p1}, [D]one with scanning (or <CTRL-C> to abort) [S/d] ? " && read -r answer
       case "${answer}" in
-        'D'|'d')
-          [ ${p} -eq 0 ] && echo 'Empty document (no page); bailing out.' && exit 0
-          echo "Done with scanning; generating output (${p} pages)..."
-          break 2;;
-        'S'|'s'|'')
-          break 1;;
+      'D' | 'd')
+        [ ${p} -eq 0 ] && echo 'Empty document (no page); bailing out.' && exit 0
+        echo "Done with scanning; generating output (${p} pages)..."
+        break 2
+        ;;
+      'S' | 's' | '')
+        break 1
+        ;;
       esac
     done
     echo "Scanning page N°${p1}..."
     while true; do
-      scanimage ${MY_INPUT:+--device-name ${MY_INPUT}} --progress --mode Color -x ${MY_WIDTH} -y ${MY_HEIGHT} --resolution ${MY_RESOLUTION} --format tiff ${MY_OPTIONS_SCAN} \
-      | convert - -contrast-stretch "${MY_BLACK}%x${MY_WHITE}%" ${MY_CONVERT} -compress zip ${MY_OPTIONS_IMAGE} "${MY_FILETMP}.${P}.tif"
-      [ $? -eq 0 ] && break
+      if scanimage \
+        "${ARG_INPUT:+--device-name}" "${ARG_INPUT}" \
+        --mode Color \
+        -x "${ARG_WIDTH}" -y "${ARG_HEIGHT}" \
+        --resolution "${ARG_RESOLUTION}" \
+        --format tiff \
+        --progress \
+        "${ARG_OPTIONS_SCAN[@]}" |
+        convert - \
+          -contrast-stretch "${ARG_BLACK}%x${ARG_WHITE}%" \
+          "${OPTIONS_CONVERT[@]}" \
+          -compress zip \
+          "${ARG_OPTIONS_IMAGE[@]}" \
+          "${TMP_FILE}.${P}.tif" \
+        ; then
+        break
+      fi
       echo 'ERROR: Failed to scan page' >&2
-      echo -n 'Press <ENTER> to retry (or <CTRL-C) to abort)' && read answer
+      echo -n 'Press <ENTER> to retry (or <CTRL-C) to abort)' && read -r answer
     done
     p=${p1}
   done
 
-elif [ "${MY_SOURCE}" == 'dir' ]; then
+elif [ "${ARG_SOURCE}" == 'dir' ]; then
 
-  while read input_file; do
-    let p1=p+1
-    P="000${p}"; P=${P:${#P}-3}
+  while read -r input_file; do
+    p1=$((p + 1))
+    P="000${p}"
+    P=${P:${#P}-3}
     echo "Importing file '${input_file}' as page N°${p1}..."
-    convert "${input_file}" -contrast-stretch "${MY_BLACK}%x${MY_WHITE}%" ${MY_CONVERT} -resize "$(( ${MY_WIDTH}*${MY_RESOLUTION}*10/254 ))x$(( ${MY_HEIGHT}*${MY_RESOLUTION}*10/254 ))" -density ${MY_RESOLUTION} -units PixelsPerInch -compress zip ${MY_OPTIONS_IMAGE} "${MY_FILETMP}.${P}.tif"
-    [ $? -ne 0 ] && echo 'ERROR: Failed to import file' >&2 && exit 1
+    if ! convert \
+      "${input_file}" \
+      -contrast-stretch "${ARG_BLACK}%x${ARG_WHITE}%" \
+      "${OPTIONS_CONVERT[@]}" \
+      -resize "$((ARG_WIDTH * ARG_RESOLUTION * 10 / 254))x$((ARG_HEIGHT * ARG_RESOLUTION * 10 / 254))" \
+      -density "${ARG_RESOLUTION}" -units PixelsPerInch \
+      -compress zip "${ARG_OPTIONS_IMAGE[@]}" \
+      "${TMP_FILE}.${P}.tif" \
+      ; then
+      echo 'ERROR: Failed to import file' >&2
+      exit 1
+    fi
     p=${p1}
-  done < <(find -L "${MY_INPUT}" -maxdepth 1 -type f -not -name '.*' | sort)
+  done < <(find -L "${ARG_INPUT}" -maxdepth 1 -type f -not -name '.*' | sort)
 
-elif [ "${MY_SOURCE}" == 'file' ]; then
+elif [ "${ARG_SOURCE}" == 'file' ]; then
 
-  case "${MY_INPUT##*.}" in
-    'pdf'|'PDF')
-      [ -z "$(which pdftoppm)" ] && echo "ERROR: 'pdftoppm' was not found" >&2 && exit 1
-      echo "Extracting pages from PDF file '${MY_INPUT}'..."
-      pdftoppm -r ${MY_RESOLUTION} -cropbox -thinlinemode shape -tiff -tiffcompression deflate "${MY_INPUT}" "${MY_DIRTMP}/input."
-      [ $? -ne 0 ] && echo 'ERROR: Failed to extract pages' >&2 && exit 1
-      ;;
-    'tif'|'TIF'|'tiff'|'TIFF')
-      [ -z "$(which tiffsplit)" ] && echo "ERROR: 'tiffsplit' was not found" >&2 && exit 1
-      echo "Extracting pages from TIF file '${MY_INPUT}'..."
-      tiffsplit "${MY_INPUT}" "${MY_DIRTMP}/input."
-      [ $? -ne 0 ] && echo 'ERROR: Failed to extract pages' >&2 && exit 1
-      ;;
-    *)
-      echo "ERROR: Unsupported input type (${MY_INPUT})" >&2 && exit 1
-      ;;
+  case "${ARG_INPUT##*.}" in
+  'pdf' | 'PDF')
+    [ -z "$(which pdftoppm)" ] && echo "ERROR: 'pdftoppm' was not found" >&2 && exit 1
+    echo "Extracting pages from PDF file '${ARG_INPUT}'..."
+    if ! pdftoppm \
+      -r "${ARG_RESOLUTION}" \
+      -cropbox -thinlinemode shape \
+      -tiff -tiffcompression deflate \
+      "${ARG_INPUT}" \
+      "${TMP_DIR}/input." \
+      ; then
+      echo 'ERROR: Failed to extract pages' >&2
+      exit 1
+    fi
+    ;;
+  'tif' | 'TIF' | 'tiff' | 'TIFF')
+    [ -z "$(which tiffsplit)" ] && echo "ERROR: 'tiffsplit' was not found" >&2 && exit 1
+    echo "Extracting pages from TIF file '${ARG_INPUT}'..."
+    if ! tiffsplit "${ARG_INPUT}" "${TMP_DIR}/input."; then
+      echo 'ERROR: Failed to extract pages' >&2
+      exit 1
+    fi
+    ;;
+  *)
+    echo "ERROR: Unsupported input type (${ARG_INPUT})" >&2 && exit 1
+    ;;
   esac
-  while read input_file; do
-    let p1=p+1
-    P="000${p}"; P=${P:${#P}-3}
+  while read -r input_file; do
+    p1=$((p + 1))
+    P="000${p}"
+    P=${P:${#P}-3}
     echo "Importing page N°${p1}..."
-    convert "${input_file}" -contrast-stretch "${MY_BLACK}%x${MY_WHITE}%" ${MY_CONVERT} -resize "$(( ${MY_WIDTH}*${MY_RESOLUTION}*10/254 ))x$(( ${MY_HEIGHT}*${MY_RESOLUTION}*10/254 ))" -density ${MY_RESOLUTION} -units PixelsPerInch -compress zip ${MY_OPTIONS_IMAGE} "${MY_FILETMP}.${P}.tif"
-    [ $? -ne 0 ] && echo 'ERROR: Failed to import file' >&2 && exit 1
+    if ! convert \
+      "${input_file}" \
+      -contrast-stretch "${ARG_BLACK}%x${ARG_WHITE}%" \
+      "${OPTIONS_CONVERT[@]}" \
+      -resize "$((ARG_WIDTH * ARG_RESOLUTION * 10 / 254))x$((ARG_HEIGHT * ARG_RESOLUTION * 10 / 254))" \
+      -density "${ARG_RESOLUTION}" -units PixelsPerInch \
+      -compress zip "${ARG_OPTIONS_IMAGE[@]}" \
+      "${TMP_FILE}.${P}.tif" \
+      ; then
+      echo 'ERROR: Failed to import file' >&2
+      exit 1
+    fi
     p=${p1}
-  done < <(find "${MY_DIRTMP}" -maxdepth 1 -type f -name 'input.*' | sort)
+  done < <(find "${TMP_DIR}" -maxdepth 1 -type f -name 'input.*' | sort)
 
 else
 
-  echo "ERROR: Invalid source type (${MY_SOURCE})" >&2 && exit 1
+  echo "ERROR: Invalid source type (${ARG_SOURCE})" >&2 && exit 1
 
 fi
 unset p
 
 # Create TIF file
 # NOTE: make sure tiffcp uses single-strip compression, such as to avoid transcoding on tiff2pdf/tiff2ps
-tiffcp -s -c ${MY_COMPRESSION} "${MY_FILETMP}".*.tif "${MY_OUTPUT_TIF}"
-[ $? -ne 0 ] && echo 'ERROR: Failed to create document' >&2 && exit 1
+# WARNING: tiffcp will choke on some filename  characters (eg. commas)
+if ! tiffcp -s -c "${OPTIONS_TIFFCP[@]}" "${TMP_FILE}".*.tif "${TMP_FILE}.tif"; then
+  echo 'ERROR: Failed to create document' >&2
+  exit 1
+fi
+[ "${OUTPUT_TIF}" != "${TMP_FILE}.tif" ] && mv "${TMP_FILE}.tif" "${OUTPUT_TIF}"
 
 # Create other format files
-case "${MY_FORMAT}" in
+case "${OUTPUT_FORMAT}" in
 
-  'pdf')
-     # NOTE: 'tiff2pdf' is plain buggy, so we MUST use 'convert'
-    case "${MY_COLOR}" in
-      'color'|'Color') MY_COMPRESSION="-compress jpeg -quality ${MY_QUALITY}" ;;
-      'gray'|'Gray') MY_COMPRESSION="-compress jpeg -quality ${MY_QUALITY}" ;;
-      'bw'|'BW') MY_COMPRESSION='-compress group4' ;;
-    esac
-    # NOTE: Do NOT (re)set the PDF -page/-density; the source Tiff DOES have the proper resolution set
-    # BUG: PDF title non-ASCII characters encoding fixed as per ImageMagick 6.9.2-9
-    #      http://git.imagemagick.org/repos/ImageMagick/commit/ce4a355a916bf3c470be4503b70e8a029dd6f6ad
-    if [ "$(( echo 'Version: ImageMagick 6.9.2-9'; convert -version | fgrep 'Version:') | sort -V | head -n 1)" == 'Version: ImageMagick 6.9.2-9' ]; then
-        convert "${MY_OUTPUT_TIF}" ${MY_COMPRESSION} "${MY_OUTPUT_PDF}"
-    else
-        # NOTE: Default encoding for '/Title' is PDFDocEncoding, a superset of Windows code page 1252
-        #       https://www.adobe.com/content/dam/Adobe/en/devnet/pdf/pdfs/PDF32000_2008.pdf
-        my_output_pdf_cp1252="$(echo "${MY_OUTPUT_PDF}" | iconv -f utf8 -t cp1252)"
-        convert "${MY_OUTPUT_TIF}" ${MY_COMPRESSION} "${my_output_pdf_cp1252}"
-        mv "${my_output_pdf_cp1252}" "${MY_OUTPUT_PDF}"
-        unset my_output_pdf_cp1252
-    fi
-    ;;
+'pdf')
+  # NOTE: 'tiff2pdf' is plain buggy, so we MUST use 'convert'
+  case "${ARG_COLOR}" in
+  'color' | 'Color' | 'gray' | 'Gray') OPTIONS_CONVERT=('-compress' 'jpeg' '-quality' "${ARG_QUALITY}") ;;
+  'bw' | 'BW') OPTIONS_CONVERT=('-compress' 'group4') ;;
+  esac
+  # NOTE: Do NOT (re)set the PDF -page/-density; the source Tiff DOES have the proper resolution set
+  # BUG: PDF title non-ASCII characters encoding fixed as per ImageMagick 6.9.2-9
+  #      http://git.imagemagick.org/repos/ImageMagick/commit/ce4a355a916bf3c470be4503b70e8a029dd6f6ad
+  if [ "$({
+    echo '6.9.2-9'
+    convert -version | sed -nE '/^Version:/{s/\S+:\s*ImageMagick\s+//;s/\s+.*$//;p}'
+  } | sort -V | head -n 1)" == '6.9.2-9' ]; then
+    convert "${OUTPUT_TIF}" "${OPTIONS_CONVERT[@]}" "${OUTPUT_PDF}"
+  else
+    # NOTE: Default encoding for '/Title' is PDFDocEncoding, a superset of Windows code page 1252
+    #       https://www.adobe.com/content/dam/Adobe/en/devnet/pdf/pdfs/PDF32000_2008.pdf
+    OUTPUT_PDF_cp1252="$(echo "${OUTPUT_PDF}" | iconv -f utf8 -t cp1252)"
+    convert "${OUTPUT_TIF}" "${OPTIONS_CONVERT[@]}" "${OUTPUT_PDF_cp1252}"
+    mv "${OUTPUT_PDF_cp1252}" "${OUTPUT_PDF}"
+    unset OUTPUT_PDF_cp1252
+  fi
+  ;;
 
-  'ps')
-    [ -z "$(which tiff2ps)" ] && echo "ERROR: 'tiff2ps' was not found" >&2 && exit 1
-    tiff2ps -3 -t "${MY_NAME}" "${MY_OUTPUT_TIF}" -O "${MY_OUTPUT_PS}"
-    ;;
+'ps')
+  [ -z "$(which tiff2ps)" ] && echo "ERROR: 'tiff2ps' was not found" >&2 && exit 1
+  tiff2ps -3 -t "${ARG_NAME}" "${OUTPUT_TIF}" -O "${OUTPUT_PS}"
+  ;;
 
 esac
 
 # (Pre)view
-if [ -n "${MY_PREVIEW}" ]; then
+if [ -n "${ARG_PREVIEW}" ]; then
   echo '(Pre-)view output...'
-  file "${MY_PREVIEW}"
-  ls -lh "${MY_PREVIEW}"
-  ${VIEWER:-evince} "${MY_PREVIEW}" >/dev/null 2>&1 &
-  if [ "${MY_DESTINATION}" != 'file' ]; then
-    echo -n 'Please press <ENTER> to continue (or <CTRL-C> to abort)' && read
+  file "${ARG_PREVIEW}"
+  ls -lh "${ARG_PREVIEW}"
+  ${VIEWER:-evince} "${ARG_PREVIEW}" >/dev/null 2>&1 &
+  if [ "${ARG_DESTINATION}" != 'file' ]; then
+    echo -n 'Please press <ENTER> to continue (or <CTRL-C> to abort)' && read -r
   fi
 fi
 
 # Handle destination
-case "${MY_DESTINATION}" in
+case "${ARG_DESTINATION}" in
 
-  'print')
-    [ -z "$(which tiff2ps)" ] && echo "ERROR: 'tiff2ps' was not found" >&2 && exit 1
-    [ -z "$(which lp)" ] && echo "ERROR: 'lp' was not found" >&2 && exit 1
-    tiff2ps -3 "${MY_OUTPUT_TIF}" | lp -i "${MY_NAME}" -n ${MY_COPIES} -o media=${MY_MEDIA,,} ${MY_OPTIONS_PRINT} -d ${MY_OUTPUT}
-    ;;
+'print')
+  [ -z "$(which tiff2ps)" ] && echo "ERROR: 'tiff2ps' was not found" >&2 && exit 1
+  [ -z "$(which lp)" ] && echo "ERROR: 'lp' was not found" >&2 && exit 1
+  tiff2ps -3 "${OUTPUT_TIF}" | lp -i "${ARG_NAME}" -n ${ARG_COPIES} -o "media=${ARG_MEDIA,,}" "${ARG_OPTIONS_PRINT[@]}" -d "${ARG_OUTPUT}"
+  ;;
 
-  'email')
-    [ -z "$(which mutt)" ] && echo "ERROR: 'mutt' was not found" >&2 && exit 1
-    echo "Please find attached the following PDF file: ${MY_NAME}.${MY_FORMAT}" | mutt -a "${MY_OUTPUT_PDF}" -s "${MY_NAME}" -- "${MY_OUTPUT}"
-    ;;
+'email')
+  [ -z "$(which mutt)" ] && echo "ERROR: 'mutt' was not found" >&2 && exit 1
+  echo "Please find attached the following PDF file: ${ARG_NAME}.${OUTPUT_FORMAT}" | mutt -a "${OUTPUT_PDF}" -s "${ARG_NAME}" -- "${ARG_OUTPUT}"
+  ;;
 
 esac
 
 # Done
-echo "Document(s)/page(s) successfully scanned to: ${MY_OUTPUT}"
+echo "Document(s)/page(s) successfully scanned to: ${ARG_OUTPUT}"
 exit 0
-
