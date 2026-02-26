@@ -9,7 +9,7 @@ Package: custom-pack-libreoffice
 Architecture: all
 Conflicts: custom-pack-libreoffice7
 Replaces: custom-pack-libreoffice7
-Depends: custom-pack-libreoffice-en-us, libreoffice25.2-calc, libreoffice25.2-draw, libreoffice25.2-impress, libreoffice25.2-math, libreoffice25.2-writer, libreoffice25.2-debian-menus, libobasis25.2-gnome-integration, libobasis25.2-graphicfilter, libobasis25.2-ogltrans, libobasis25.2-ooofonts, libobasis25.2-ooolinguistic
+Depends: custom-pack-libreoffice-en-us, libreoffice25.8-calc, libreoffice25.8-draw, libreoffice25.8-impress, libreoffice25.8-math, libreoffice25.8-writer, libreoffice25.8-debian-menus, libobasis25.8-gnome-integration, libobasis25.8-graphicfilter, libobasis25.8-ogltrans, libobasis25.8-ooofonts, libobasis25.8-ooolinguistic
 Suggests: custom-pack-libreoffice-en-gb, custom-pack-libreoffice-de, custom-pack-libreoffice-fr, custom-pack-libreoffice-it
-Description: Custom Configuration Framework - LibreOffice 25.2 (original upstream packages)
+Description: Custom Configuration Framework - LibreOffice 25.8 (original upstream packages)
 

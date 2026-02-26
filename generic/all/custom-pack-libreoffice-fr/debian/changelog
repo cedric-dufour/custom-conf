@@ -1,3 +1,9 @@
+custom-pack-libreoffice-fr (2026.02.08a) UNRELEASED; urgency=low
+
+  * Hail LibreOffice 25.8!
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Sun, 08 Feb 2026 16:16:30 +0100
+
 custom-pack-libreoffice-fr (2025.04.12a) UNRELEASED; urgency=low
 
   * Hail LibreOffice 25.2!
