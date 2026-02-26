@@ -3,11 +3,11 @@ Section: admin
 Priority: optional
 Maintainer: Cédric Dufour <cedric.dufour@ced-network.net>
 Homepage: https://github.com/cedric-dufour/custom-conf
-Standards-Version: 4.5.1
+Standards-Version: 4.7.2
 
 Package: custom-pack-base
 Architecture: all
-Depends: bzip2, less, man-db, openssh-client, rsync, screen, unzip, vim-tiny, xz-utils
+Depends: bzip2, less, man-db, moreutils, openssh-client, rsync, screen, unzip, vim-tiny, xz-utils
 Recommends: bsd-mailx
 Suggests: gustat
 Description: Custom Configuration Framework - Base packages
