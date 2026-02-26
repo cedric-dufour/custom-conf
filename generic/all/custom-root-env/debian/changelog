@@ -1,3 +1,9 @@
+custom-root-env (2026.02.26a) UNRELEASED; urgency=low
+
+  * Add '_ts' alias
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Thu, 26 Feb 2026 07:23:21 +0100
+
 custom-root-env (2025.10.23a) UNRELEASED; urgency=low
 
   * Add Git-friendly prompt

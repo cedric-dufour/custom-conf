@@ -89,6 +89,7 @@ alias _go='gcfg original'
 alias _gd='gcfg delta'
 # (misc)
 alias _doc="awk 'BEGIN {print \": [output]\"}; {print \": \"\$0}'"
+alias _ts="ts '%Y-%m-%dT%H:%M:%S'"
 
 # Coloring
 if [ -n "$(which dircolors)" ]; then
