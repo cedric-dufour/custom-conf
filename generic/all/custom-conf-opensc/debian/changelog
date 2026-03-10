@@ -1,3 +1,9 @@
+custom-conf-opensc (2026.03.10a) UNRELEASED; urgency=low
+
+  * Added OpenSSL PKCS#11 engine/provider
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Tue, 10 Mar 2026 21:09:17 +0100
+
 custom-conf-opensc (2019.06.04a) UNRELEASED; urgency=low
 
   * Added (maybe unnecessary) quirk for YubiKey 5 (PIV) token
