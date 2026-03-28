@@ -53,8 +53,9 @@ shopt -s extglob
 # History settings
 shopt -s cmdhist
 shopt -s histappend
-HISTCONTROL=ignoreboth
 HISTSIZE=10000
+HISTTIMEFORMAT='%FT%T '
+HISTCONTROL=ignoreboth
 
 # Aliases
 # (cd)

@@ -1,3 +1,9 @@
+custom-root-env (2026.03.28b) UNRELEASED; urgency=low
+
+  * Add HISTTIMEFORMAT to .bashrc
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Sat, 28 Mar 2026 14:15:54 +0100
+
 custom-root-env (2026.02.26a) UNRELEASED; urgency=low
 
   * Add '_ts' alias
