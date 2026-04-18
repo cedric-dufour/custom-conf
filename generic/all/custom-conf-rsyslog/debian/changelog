@@ -1,3 +1,13 @@
+custom-conf-rsyslog (2026.04.18a) UNRELEASED; urgency=low
+
+  * Removed (no longer covered by logrotate):
+    - daemon.log, messages and debug targets (redundant with systemd journal)
+    - lpr.log and news.log targets (things of the past)
+  * Keep other targets (still covered by logrotate):
+    - syslog, auth.log, cron.log, kern.log, mail.log and user.log
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Sat, 18 Apr 2026 21:11:52 +0200
+
 custom-conf-rsyslog (2018.05.14a) UNRELEASED; urgency=low
 
   * Use 'gcfg.sed' instead of 'gsed' in scripts
