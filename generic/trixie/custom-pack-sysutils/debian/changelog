@@ -1,3 +1,9 @@
+custom-pack-sysutils (2026.05.08a) UNRELEASED; urgency=low
+
+  * Replace 'gnupg' (full suite) by 'gpg' (minimalistic install)
+
+ -- Cédric Dufour <cedric.dufour@ced-network.net>  Fri, 08 May 2026 20:43:24 +0200
+
 custom-pack-sysutils (2025.10.25a) UNRELEASED; urgency=low
 
   * Debian/Trixie forward-port
